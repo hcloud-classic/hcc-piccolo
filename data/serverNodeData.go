@@ -24,3 +24,10 @@ type AllServerNodeData struct {
 		AllServerNode []model.ServerNode `json:"all_server_node"`
 	} `json:"data"`
 }
+
+// NumNodesServerData : Data structure of num_nodes_server
+type NumNodesServerData struct {
+	Data struct {
+		NumNodesServer model.ServerNodeNum `json:"num_nodes_server"`
+	} `json:"data"`
+}

@@ -130,3 +130,15 @@ func AllServerNode() (interface{}, error) {
 
 	return http.DoHTTPRequest("violin", true, "AllServerNodeData", allServerNodeData, query)
 }
+
+func NumNodesServer(args map[string]interface{}) (interface{}, error) {
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	if !serverUUIDOk {
+		return nil, errors.New("need a server_uuid argument")
+	}
+
+	var numNodesServer data.NumNodesServerData
+	query := "query { num_nodes_server(server_uuid: \"" + serverUUID + "\") { number } }"
+
+	return http.DoHTTPRequest("violin", true, "NumNodesServerData", numNodesServer, query)
+}
