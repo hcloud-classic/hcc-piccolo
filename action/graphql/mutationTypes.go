@@ -131,6 +131,35 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return mutationParser.DeleteServerNode(params.Args)
 			},
 		},
+		// vnc
+		"create_vnc": &graphql.Field{
+			Type:        graphqlType.VncNodeType,
+			Description: "Create vnc",
+			Args: graphql.FieldConfigArgument{
+				"server_uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"target_ip": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"target_port": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"target_pass": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"websocket_port": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"action": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				logger.Logger.Println("Resolving: violin-novnc: create_vnc")
+				return mutationParser.CreateVnc(params.Args)
+			},
+		},
 		// harp
 		"create_subnet": &graphql.Field{
 			Type:        graphqlType.SubnetType,

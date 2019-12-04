@@ -48,10 +48,10 @@ build:
   stage: build
   script:
     - gmake
-    - sudo ezjail-admin stop piccolo
-    - sudo cp $PWD/piccolo /usr/jails/basejail/bin/
-    - sudo chmod 755 /usr/jails/basejail/bin/piccolo
-    - sudo ezjail-admin start piccolo &
+    - sudo /usr/sbin/service piccolo stop
+    - sudo cp $PWD/piccolo /bin/piccolo
+    - sudo chmod 755 /bin/piccolo
+    - sudo /usr/sbin/service piccolo start
     - echo "Finished"
 #  only:
 #  - master

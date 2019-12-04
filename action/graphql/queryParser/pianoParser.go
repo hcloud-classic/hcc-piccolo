@@ -30,7 +30,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 	}
 	var telegrafData data.TelegrafData
 	query := "query { telegraf(metric:\"" + metric + "\", subMetric:\"" + subMetric + "\", period:\"" + period + "\", " +
-		"aggregateType:\"" + aggregateType + "\", duration:\"" + duration + "\", uuid:\"" + uuid + "\"){ id, data { " +
+		"aggregateType:\"" + aggregateType + "\", duration:\"" + duration + "\", uuid:\"" + uuid + "\"){ metric subMetric id data { " +
 		"x y } } }"
 
 	return http.DoHTTPRequest("piano", true, "TelegrafData", telegrafData, query)
