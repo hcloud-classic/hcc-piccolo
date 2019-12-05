@@ -96,6 +96,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"status": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: violin / delete_server")

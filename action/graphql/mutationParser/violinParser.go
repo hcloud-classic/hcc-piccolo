@@ -117,12 +117,13 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 
 func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
-	if !requestedUUIDOk {
-		return nil, errors.New("need a uuid argument")
+	status, statusOk := args["status"].(string)
+	if !requestedUUIDOk || !statusOk {
+		return nil, errors.New("need a uuid ans status argument")
 	}
 
 	var deleteServerData data.DeleteServerData
-	query := "mutation _ { delete_server(uuid:\"" + requestedUUID + "\") { uuid } }"
+	query := "mutation _ { delete_server(uuid:\"" + requestedUUID + "\", status: \"" + status + "\") { uuid } }"
 
 	return http.DoHTTPRequest("violin", true, "DeleteServerData", deleteServerData, query)
 }
