@@ -129,3 +129,88 @@ func parseViola() {
 		logger.Logger.Panicln(err)
 	}
 }
+
+func parseViolin() {
+	config.ViolinConfig = conf.Get("violin")
+	if config.ViolinConfig == nil {
+		logger.Logger.Panicln("no violin section")
+	}
+
+	Violin = violin{}
+	Violin.ServerAddress, err = config.ViolinConfig.String("violin_server_address")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	Violin.ServerPort, err = config.ViolinConfig.Int("violin_server_port")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	Violin.RequestTimeoutMs, err = config.ViolinConfig.Int("violin_request_timeout_ms")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+}
+
+func parseViolinNoVnc() {
+	config.ViolinNoVncConfig = conf.Get("violinnovnc")
+	if config.ViolinNoVncConfig == nil {
+		logger.Logger.Panicln("no violinnovnc section")
+	}
+
+	ViolinNoVnc = violinNoVnc{}
+	ViolinNoVnc.ServerAddress, err = config.ViolinNoVncConfig.String("violinnovnc_server_address")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	ViolinNoVnc.ServerPort, err = config.ViolinNoVncConfig.Int("violinnovnc_server_port")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	ViolinNoVnc.RequestTimeoutMs, err = config.ViolinNoVncConfig.Int("violinnovnc_request_timeout_ms")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+}
+
+func parsePiano() {
+	config.PianoConfig = conf.Get("piano")
+	if config.PianoConfig == nil {
+		logger.Logger.Panicln("no piano section")
+	}
+
+	Piano = piano{}
+	Piano.ServerAddress, err = config.PianoConfig.String("piano_server_address")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	Piano.ServerPort, err = config.PianoConfig.Int("piano_server_port")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	Piano.RequestTimeoutMs, err = config.PianoConfig.Int("piano_request_timeout_ms")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+}
+
+// Parser : Parse config file
+func Parser() {
+	if err = conf.Parse(configLocation); err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	parseHTTP()
+	parseFlute()
+	parseCello()
+	parseHarp()
+	parseViola()
+	parseViolin()
+	parseViolinNoVnc()
+	parsePiano()
+}
