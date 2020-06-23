@@ -44,13 +44,13 @@ func checkNodeDetailArgsAll(args map[string]interface{}) bool {
 }
 
 func OnNode(args map[string]interface{}) (interface{}, error) {
-	mac, macOk := args["mac"].(string)
-	if !macOk {
-		return nil, errors.New("need a mac argument")
+	UUID, UUIDOk := args["uuid"].(string)
+	if !UUIDOk {
+		return nil, errors.New("need a UUID argument")
 	}
 
 	var onNodeData data.OnNodeData
-	query := "mutation _ { on_node(mac:\"" + mac + "\") }"
+	query := "mutation _ { on_node(uuid:\"" + UUID + "\") }"
 
 	return http.DoHTTPRequest("flute", true, "OnNodeData", onNodeData, query)
 }

@@ -378,7 +378,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphql.String,
 			Description: "On node",
 			Args: graphql.FieldConfigArgument{
-				"mac": &graphql.ArgumentConfig{
+				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 			},
