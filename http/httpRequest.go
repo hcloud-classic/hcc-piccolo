@@ -76,6 +76,14 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 				}
 
 				switch dataType {
+				case "PowerStateNodeData":
+					powerStateNodeData := data.(hccGatewayData.PowerStateNodeData)
+					err = json.Unmarshal([]byte(result), &powerStateNodeData)
+					if err != nil {
+						return nil, err
+					}
+
+					return powerStateNodeData.Data.PowerStateNode, nil
 				case "NodeData":
 					nodeData := data.(hccGatewayData.NodeData)
 					err = json.Unmarshal([]byte(result), &nodeData)

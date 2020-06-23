@@ -7,6 +7,19 @@ import (
 	"strconv"
 )
 
+func PowerStateNode(args map[string]interface{}) (interface{}, error) {
+	uuid, uuidOk := args["uuid"].(string)
+
+	if !uuidOk {
+		return nil, errors.New("need a uuid argument")
+	}
+
+	var powerStateNodeData data.PowerStateNodeData
+	query := "query { power_state_node(uuid: \"" + uuid + "\") }"
+
+	return http.DoHTTPRequest("flute", true, "PowerStateNodeData", powerStateNodeData, query)
+}
+
 func Node(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 

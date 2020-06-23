@@ -4,6 +4,13 @@ import "hcc/piccolo/model"
 
 // Query
 
+// PowerStateNodeData : Data structure of power_state_node
+type PowerStateNodeData struct {
+	Data struct {
+		PowerStateNode string `json:"power_state_node"`
+	} `json:"data"`
+}
+
 // NodeData : Data structure of node
 type NodeData struct {
 	Data struct {
