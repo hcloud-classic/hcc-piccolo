@@ -403,6 +403,19 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return mutationParser.OffNode(params.Args)
 			},
 		},
+		"force_restart_node": &graphql.Field{
+			Type:        graphql.String,
+			Description: "Force restart node",
+			Args: graphql.FieldConfigArgument{
+				"uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				logger.Logger.Println("Resolving: flute / force_restart_node")
+				return mutationParser.ForceRestartNode(params.Args)
+			},
+		},
 		"create_node": &graphql.Field{
 			Type:        graphqlType.NodeType,
 			Description: "Create new node",
