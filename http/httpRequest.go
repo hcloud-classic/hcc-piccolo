@@ -108,14 +108,6 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					}
 
 					return nodeDetailData.Data.NodeDetail, nil
-				case "OnNodeData":
-					onNodeData := data.(hccGatewayData.OnNodeData)
-					err = json.Unmarshal([]byte(result), &onNodeData)
-					if err != nil {
-						return nil, err
-					}
-
-					return onNodeData.Data.Result, nil
 				case "CreateNodeData":
 					createNodeData := data.(hccGatewayData.CreateNodeData)
 					err = json.Unmarshal([]byte(result), &createNodeData)

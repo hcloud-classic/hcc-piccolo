@@ -41,13 +41,6 @@ type NodeDetailData struct {
 
 // Mutation
 
-// OnNodeData : Data structure of on_node
-type OnNodeData struct {
-	Data struct {
-		Result string `json:"on_node"`
-	} `json:"data"`
-}
-
 // CreateNodeData : Data structure of create_node
 type CreateNodeData struct {
 	Data struct {

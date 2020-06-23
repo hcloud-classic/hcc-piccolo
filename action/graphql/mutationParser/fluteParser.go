@@ -49,10 +49,9 @@ func OnNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a UUID argument")
 	}
 
-	var onNodeData data.OnNodeData
 	query := "mutation _ { on_node(uuid:\"" + UUID + "\") }"
 
-	return http.DoHTTPRequest("flute", true, "OnNodeData", onNodeData, query)
+	return http.DoHTTPRequest("flute", false, "", nil, query)
 }
 
 func OffNode(args map[string]interface{}) (interface{}, error) {
