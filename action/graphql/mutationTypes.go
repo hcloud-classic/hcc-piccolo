@@ -387,6 +387,22 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return mutationParser.OnNode(params.Args)
 			},
 		},
+		"off_node": &graphql.Field{
+			Type:        graphql.String,
+			Description: "Off node",
+			Args: graphql.FieldConfigArgument{
+				"uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"force_off": &graphql.ArgumentConfig{
+					Type: graphql.Boolean,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				logger.Logger.Println("Resolving: flute / off_node")
+				return mutationParser.OffNode(params.Args)
+			},
+		},
 		"create_node": &graphql.Field{
 			Type:        graphqlType.NodeType,
 			Description: "Create new node",

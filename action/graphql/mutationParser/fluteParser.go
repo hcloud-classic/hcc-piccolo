@@ -55,6 +55,23 @@ func OnNode(args map[string]interface{}) (interface{}, error) {
 	return http.DoHTTPRequest("flute", true, "OnNodeData", onNodeData, query)
 }
 
+func OffNode(args map[string]interface{}) (interface{}, error) {
+	UUID, UUIDOk := args["uuid"].(string)
+	if !UUIDOk {
+		return nil, errors.New("need a UUID argument")
+	}
+
+	var forceOffStr = "false"
+	forceOff, _ := args["force_off"].(bool)
+	if forceOff {
+		forceOffStr = "true"
+	}
+
+	query := "mutation _ { off_node(uuid:\"" + UUID + "\", force_off: " + forceOffStr + ") }"
+
+	return http.DoHTTPRequest("flute", false, "", nil, query)
+}
+
 func CreateNode(args map[string]interface{}) (interface{}, error) {
 	if !checkNodeArgsAll(args) {
 		return nil, errors.New("check needed arguments (bmc_mac_addr, bmc_ip, pxe_mac_addr, status, cpu_cores, memory, description, active)")
