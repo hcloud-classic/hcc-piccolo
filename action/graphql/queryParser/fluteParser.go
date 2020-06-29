@@ -34,6 +34,8 @@ func Node(args map[string]interface{}) (interface{}, error) {
 }
 
 func ListNode(args map[string]interface{}) (interface{}, error) {
+	var noLimit bool
+
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
@@ -43,16 +45,25 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	memory, memoryOk := args["memory"].(int)
 	description, descriptionOk := args["description"].(string)
 	active, activeOk := args["active"].(string)
-	row, _ := args["row"].(int)
-	page, _ := args["page"].(int)
-
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
-	if !rowOk || !pageOk {
-		return nil, errors.New("need row and page arguments")
+
+	if !rowOk && !pageOk {
+		noLimit = true
+	} else if rowOk && pageOk {
+		noLimit = false
+	} else {
+		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
 	}
 
-	arguments := "row:" + strconv.Itoa(row) + ",page:" + strconv.Itoa(page) + ","
+	var arguments string
+
+	if noLimit {
+		arguments = ""
+	} else {
+		arguments = "row:" + strconv.Itoa(row) + ",page:" + strconv.Itoa(page) + ","
+	}
+
 	if serverUUIDOk {
 		arguments += "server_uuid:\"" + serverUUID + "\","
 	}
