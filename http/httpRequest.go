@@ -92,6 +92,14 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					}
 
 					return nodeData.Data.Node, nil
+				case "ListNodeData":
+					listNodeData := data.(hccGatewayData.ListNodeData)
+					err = json.Unmarshal([]byte(result), &listNodeData)
+					if err != nil {
+						return nil, err
+					}
+
+					return listNodeData.Data.ListNode, nil
 				case "AllNodeData":
 					allNodeData := data.(hccGatewayData.AllNodeData)
 					err = json.Unmarshal([]byte(result), &allNodeData)
