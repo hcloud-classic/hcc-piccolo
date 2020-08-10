@@ -3,6 +3,7 @@ package mutationParser
 import (
 	"errors"
 	"hcc/piccolo/data"
+	"hcc/piccolo/driver/grpccli"
 	"hcc/piccolo/http"
 )
 
@@ -33,4 +34,12 @@ func CreateVnc(args map[string]interface{}) (interface{}, error) {
 		"server_uuid target_ip target_port target_pass websocket_port action } }"
 
 	return http.DoHTTPRequest("violin-novnc", true, "CreateVncData", createVncData, query)
+}
+
+func ControlVnc(args map[string]interface{}) (interface{}, error) {
+	if !checkVncArgsAll(args) {
+		return nil, errors.New("check needed arguments (server_uuid, target_ip, target_port, target_pass, action)")
+	}
+
+	return grpccli.RC.ControlVNC(args)
 }
