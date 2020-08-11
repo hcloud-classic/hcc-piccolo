@@ -35,12 +35,12 @@ func cleanNovnc() {
 
 func (rc *RpcClient) ControlVNC(reqData map[string]interface{}) (interface{}, error) {
 	//req data mapping
-	var req rpcnovnc.ReqNoVNC
-	req.Vncs = append(req.Vncs, &rpcnovnc.VNC{
+	var req rpcnovnc.ReqControlVNC
+	req.Vnc = &rpcnovnc.VNC{
 		Token:      reqData["token"].(string),
 		ServerUUID: reqData["server_uuid"].(string),
 		Action:     reqData["action"].(string),
-	})
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.ViolinNoVnc.RequestTimeoutMs)*time.Millisecond)
