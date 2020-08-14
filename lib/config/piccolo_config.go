@@ -9,7 +9,6 @@ type piccoloConfig struct {
 	FluteConfig       *goconf.Section
 	CelloConfig       *goconf.Section
 	HarpConfig        *goconf.Section
-	ViolaConfig       *goconf.Section
 	ViolinConfig      *goconf.Section
 	ViolinNoVncConfig *goconf.Section
 	PianoConfig       *goconf.Section

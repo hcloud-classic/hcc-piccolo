@@ -96,29 +96,6 @@ func parseHarp() {
 	}
 }
 
-func parseViola() {
-	config.ViolaConfig = conf.Get("viola")
-	if config.ViolaConfig == nil {
-		logger.Logger.Panicln("no viola section")
-	}
-
-	Viola = viola{}
-	Viola.ServerAddress, err = config.ViolaConfig.String("viola_server_address")
-	if err != nil {
-		logger.Logger.Panicln(err)
-	}
-
-	Viola.ServerPort, err = config.ViolaConfig.Int("viola_server_port")
-	if err != nil {
-		logger.Logger.Panicln(err)
-	}
-
-	Viola.RequestTimeoutMs, err = config.ViolaConfig.Int("viola_request_timeout_ms")
-	if err != nil {
-		logger.Logger.Panicln(err)
-	}
-}
-
 func parseViolin() {
 	config.ViolinConfig = conf.Get("violin")
 	if config.ViolinConfig == nil {
@@ -198,7 +175,6 @@ func Parser() {
 	parseFlute()
 	parseCello()
 	parseHarp()
-	parseViola()
 	parseViolin()
 	parseViolinNoVnc()
 	parsePiano()
