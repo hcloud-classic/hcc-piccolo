@@ -2,44 +2,52 @@ package mutationParser
 
 import (
 	"errors"
-	"hcc/piccolo/data"
-	"hcc/piccolo/http"
-	"strconv"
+	"github.com/golang/protobuf/ptypes"
+	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/pb/rpcviolin"
+	"hcc/piccolo/model"
 )
 
-func checkServerArgsEach(args map[string]interface{}) bool {
-	_, subnetUUIDOk := args["subnet_uuid"].(string)
-	_, osOk := args["os"].(string)
-	_, serverNameOk := args["server_name"].(string)
-	_, serverDescOk := args["server_desc"].(string)
-	_, cpuOk := args["cpu"].(int)
-	_, memoryOk := args["memory"].(int)
-	_, diskSizeOk := args["disk_size"].(int)
-	_, statusOk := args["status"].(string)
-	_, userUUIDOk := args["user_uuid"].(string)
+func pbServerToModelServer(server *rpcviolin.Server) (*model.Server, error) {
+	createdAt, err := ptypes.Timestamp(server.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
 
-	return subnetUUIDOk || osOk || serverNameOk || serverDescOk || cpuOk || memoryOk || diskSizeOk || statusOk || userUUIDOk
+	modelServer := &model.Server{
+		UUID:       server.UUID,
+		SubnetUUID: server.SubnetUUID,
+		OS:         server.OS,
+		ServerName: server.ServerName,
+		ServerDesc: server.ServerDesc,
+		CPU:        int(server.CPU),
+		Memory:     int(server.Memory),
+		DiskSize:   int(server.DiskSize),
+		Status:     server.Status,
+		UserUUID:   server.UserUUID,
+		CreatedAt:  createdAt,
+	}
+
+	return modelServer, nil
 }
 
-func checkServerArgsAll(args map[string]interface{}) bool {
-	_, subnetUUIDOk := args["subnet_uuid"].(string)
-	_, osOk := args["os"].(string)
-	_, serverNameOk := args["server_name"].(string)
-	_, serverDescOk := args["server_desc"].(string)
-	_, cpuOk := args["cpu"].(int)
-	_, memoryOk := args["memory"].(int)
-	_, diskSizeOk := args["disk_size"].(int)
-	_, userUUIDOk := args["user_uuid"].(string)
-	_, nrNodeOk := args["nr_node"].(int)
+func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.ServerNode, error) {
+	createdAt, err := ptypes.Timestamp(serverNode.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
 
-	return subnetUUIDOk && osOk && serverNameOk && serverDescOk && cpuOk && memoryOk && diskSizeOk && userUUIDOk && nrNodeOk
+	modelServerNode := &model.ServerNode{
+		UUID:       serverNode.UUID,
+		ServerUUID: serverNode.ServerUUID,
+		NodeUUID:   serverNode.NodeUUID,
+		CreatedAt:  createdAt,
+	}
+
+	return modelServerNode, nil
 }
 
 func CreateServer(args map[string]interface{}) (interface{}, error) {
-	if !checkServerArgsAll(args) {
-		return nil, errors.New("check needed arguments (subnet_uuid, os, server_name, server_desc, cpu, memory, disk_size, user_uuid, nr_node)")
-	}
-
 	subnetUUID, _ := args["subnet_uuid"].(string)
 	os, _ := args["os"].(string)
 	serverName, _ := args["server_name"].(string)
@@ -50,13 +58,28 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 	userUUID, _ := args["user_uuid"].(string)
 	nrNode, _ := args["nr_node"].(int)
 
-	var createServerData data.CreateServerData
-	query := "mutation _ { create_server(subnet_uuid: \"" + subnetUUID + "\", os: \"" + os + "\", server_name: \"" +
-		serverName + "\", server_desc: \"" + serverDesc + "\", cpu: " + strconv.Itoa(cpu) + ", memory: " +
-		strconv.Itoa(memory) + ", disk_size: " + strconv.Itoa(diskSize) + ", user_uuid: \"" +
-		userUUID + "\", nr_node: " + strconv.Itoa(nrNode) + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size user_uuid } }"
+	var reqCreateServer rpcviolin.ReqCreateServer
 
-	return http.DoHTTPRequest("violin", true, "CreateServerData", createServerData, query)
+	reqCreateServer.Server = &rpcviolin.Server{
+		SubnetUUID: subnetUUID,
+		OS:         os,
+		ServerName: serverName,
+		ServerDesc: serverDesc,
+		CPU:        int32(cpu),
+		Memory:     int32(memory),
+		DiskSize:   int32(diskSize),
+		UserUUID:   userUUID,
+	}
+	reqCreateServer.NrNode = int32(nrNode)
+
+	resCreateServer, err := client.RC.CreateServer(&reqCreateServer)
+	if err != nil {
+		return nil, err
+	}
+
+	modelServer, err := pbServerToModelServer(resCreateServer.Server)
+
+	return modelServer, nil
 }
 
 func UpdateServer(args map[string]interface{}) (interface{}, error) {
@@ -65,82 +88,76 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	if checkServerArgsEach(args) {
-		return nil, errors.New("need some arguments")
+	subnetUUID, _ := args["subnet_uuid"].(string)
+	os, _ := args["os"].(string)
+	serverName, _ := args["server_name"].(string)
+	serverDesc, _ := args["server_desc"].(string)
+	cpu, _ := args["cpu"].(int)
+	memory, _ := args["memory"].(int)
+	diskSize, _ := args["disk_size"].(int)
+	status, _ := args["status"].(string)
+	userUUID, _ := args["user_uuid"].(string)
+
+	var server rpcviolin.Server
+	server.UUID = requestedUUID
+	server.SubnetUUID = subnetUUID
+	server.OS = os
+	server.ServerName = serverName
+	server.ServerDesc = serverDesc
+	server.CPU = int32(cpu)
+	server.Memory = int32(memory)
+	server.DiskSize = int32(diskSize)
+	server.Status = status
+	server.UUID = userUUID
+
+	resUpdateServer, err := client.RC.UpdateServer(&rpcviolin.ReqUpdateServer{
+		Server: &server,
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
-	os, osOk := args["os"].(string)
-	serverName, serverNameOk := args["server_name"].(string)
-	serverDesc, serverDescOk := args["server_desc"].(string)
-	cpu, cpuOk := args["cpu"].(int)
-	memory, memoryOk := args["memory"].(int)
-	diskSize, diskSizeOk := args["disk_size"].(int)
-	status, statusOk := args["status"].(string)
-	userUUID, userUUIDOk := args["user_uuid"].(string)
+	modelServer, err := pbServerToModelServer(resUpdateServer.Server)
 
-	arguments := "uuid:\"" + requestedUUID + "\""
-	if subnetUUIDOk {
-		arguments += "subnet_uuid:\"" + subnetUUID + "\","
-	}
-	if osOk {
-		arguments += "os:\"" + os + "\","
-	}
-	if serverNameOk {
-		arguments += "server_name:\"" + serverName + "\","
-	}
-	if serverDescOk {
-		arguments += "server_desc:\"" + serverDesc + "\","
-	}
-	if cpuOk {
-		arguments += "cpu:" + strconv.Itoa(cpu) + ","
-	}
-	if memoryOk {
-		arguments += "memory:" + strconv.Itoa(memory) + "\","
-	}
-	if diskSizeOk {
-		arguments += "disk_size:" + strconv.Itoa(diskSize) + "\","
-	}
-	if statusOk {
-		arguments += "status:\"" + status + "\","
-	}
-	if userUUIDOk {
-		arguments += "user_uuid:\"" + userUUID + "\","
-	}
-	arguments = arguments[0 : len(arguments)-1]
-
-	var updateServerData data.UpdateServerData
-	query := "mutation _ { update_server(" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
-
-	return http.DoHTTPRequest("violin", true, "UpdateServerData", updateServerData, query)
+	return modelServer, nil
 }
 
 func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
-	status, statusOk := args["status"].(string)
-	if !requestedUUIDOk || !statusOk {
-		return nil, errors.New("need a uuid ans status argument")
+	if !requestedUUIDOk {
+		return nil, errors.New("need a uuid argument")
 	}
 
-	var deleteServerData data.DeleteServerData
-	query := "mutation _ { delete_server(uuid:\"" + requestedUUID + "\", status: \"" + status + "\") { uuid } }"
+	var server model.Server
+	uuid, err := client.RC.DeleteServer(requestedUUID)
+	if err != nil {
+		return nil, err
+	}
+	server.UUID = uuid
 
-	return http.DoHTTPRequest("violin", true, "DeleteServerData", deleteServerData, query)
+	return server, nil
 }
 
 func CreateServerNode(args map[string]interface{}) (interface{}, error) {
-	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
+	serverUUID, _ := args["server_uuid"].(string)
+	nodeUUID, _ := args["node_uuid"].(string)
 
-	if !serverUUIDOk || !nodeUUIDOk {
-		return nil, errors.New("need server_uuid and node_uuid arguments")
+	var reqCreateServerNode rpcviolin.ReqCreateServerNode
+
+	reqCreateServerNode.ServerNode = &rpcviolin.ServerNode{
+		ServerUUID: serverUUID,
+		NodeUUID:   nodeUUID,
 	}
 
-	var createServerNodeData data.CreateServerNodeData
-	query := "mutation _ { create_server_node(server_uuid: \"" + serverUUID + "\", node_uuid: \"" + nodeUUID +
-		"\") { uuid server_uuid node_uuid created_at } }"
+	resCreateServerNode, err := client.RC.CreateServerNode(&reqCreateServerNode)
+	if err != nil {
+		return nil, err
+	}
 
-	return http.DoHTTPRequest("violin", true, "CreateServerNodeData", createServerNodeData, query)
+	modelServerNode, err := pbServerNodeToModelServerNode(resCreateServerNode.ServerNode)
+
+
+	return modelServerNode, nil
 }
 
 func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
@@ -149,8 +166,12 @@ func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var deleteServerNodeData data.DeleteServerNodeData
-	query := "mutation _ { delete_server_node(uuid:\"" + requestedUUID + "\") { uuid } }"
+	var serverNode model.ServerNode
+	uuid, err := client.RC.DeleteServerNode(requestedUUID)
+	if err != nil {
+		return nil, err
+	}
+	serverNode.UUID = uuid
 
-	return http.DoHTTPRequest("violin", true, "DeleteServerNodeData", deleteServerNodeData, query)
+	return serverNode, nil
 }

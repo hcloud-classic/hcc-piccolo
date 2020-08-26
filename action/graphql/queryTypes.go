@@ -121,10 +121,14 @@ var queryTypes = graphql.NewObject(
 			"all_server_node": &graphql.Field{
 				Type:        graphql.NewList(graphqlType.ServerNodeType),
 				Description: "Get all server_node list",
-				Args:        graphql.FieldConfigArgument{},
+				Args:        graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / all_server_node")
-					return queryParser.AllServerNode()
+					return queryParser.AllServerNode(params.Args)
 				},
 			},
 			"num_nodes_server": &graphql.Field{
@@ -137,7 +141,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / num_nodes_server")
-					return queryParser.NumNodesServer(params.Args)
+					return queryParser.NumServerNode(params.Args)
 				},
 			},
 			// vnc
@@ -256,75 +260,18 @@ var queryTypes = graphql.NewObject(
 					return queryParser.NumSubnet()
 				},
 			},
-			"adaptiveip": &graphql.Field{
-				Type:        graphqlType.AdaptiveIPType,
-				Description: "Get adaptiveip by uuid",
-				Args: graphql.FieldConfigArgument{
-					"uuid": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-				},
+			"adaptiveip_setting": &graphql.Field{
+				Type:        graphqlType.AdaptiveIPSettingType,
+				Description: "Get settings of adaptiveip",
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					logger.Logger.Println("Resolving: harp / adaptiveip")
-					return queryParser.AdaptiveIP(params.Args)
-				},
-			},
-			"list_adaptiveip": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.AdaptiveIPType),
-				Description: "Get adaptiveip list",
-				Args: graphql.FieldConfigArgument{
-					"network_address": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"netmask": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"gateway": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"start_ip_address": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"end_ip_address": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-				},
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					logger.Logger.Println("Resolving: harp / list_adaptiveip")
-					return queryParser.ListAdaptiveIP(params.Args)
-				},
-			},
-			"all_adaptiveip": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.AdaptiveIPType),
-				Description: "Get all adaptiveip list",
-				Args: graphql.FieldConfigArgument{
-					"row": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
-					"page": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
-				},
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					logger.Logger.Println("Resolving: harp / all_adaptiveip")
-					return queryParser.AllAdaptiveIP(params.Args)
-				},
-			},
-			"num_adaptiveip": &graphql.Field{
-				Type:        graphqlType.AdaptiveIPNumType,
-				Description: "Get the number of adaptiveip",
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					logger.Logger.Println("Resolving: harp / num_adaptiveip")
-					return queryParser.NumAdaptiveIP()
+					logger.Logger.Println("Resolving: harp / adaptiveip_setting")
+					return queryParser.GetAdaptiveIPSetting()
 				},
 			},
 			"adaptiveip_server": &graphql.Field{
 				Type:        graphqlType.AdaptiveIPServerType,
 				Description: "Get adaptiveip by uuid",
 				Args: graphql.FieldConfigArgument{
-					"adaptiveip_uuid": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},

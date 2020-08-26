@@ -2,10 +2,50 @@ package queryParser
 
 import (
 	"errors"
-	"hcc/piccolo/data"
-	"hcc/piccolo/http"
-	"strconv"
+	"github.com/golang/protobuf/ptypes"
+	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/pb/rpcviolin"
+	"hcc/piccolo/model"
 )
+
+func pbServerToModelServer(server *rpcviolin.Server) (*model.Server, error) {
+	createdAt, err := ptypes.Timestamp(server.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	modelServer := &model.Server{
+		UUID:       server.UUID,
+		SubnetUUID: server.SubnetUUID,
+		OS:         server.OS,
+		ServerName: server.ServerName,
+		ServerDesc: server.ServerDesc,
+		CPU:        int(server.CPU),
+		Memory:     int(server.Memory),
+		DiskSize:   int(server.DiskSize),
+		Status:     server.Status,
+		UserUUID:   server.UserUUID,
+		CreatedAt:  createdAt,
+	}
+
+	return modelServer, nil
+}
+
+func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.ServerNode, error) {
+	createdAt, err := ptypes.Timestamp(serverNode.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	modelServerNode := &model.ServerNode{
+		UUID:       serverNode.UUID,
+		ServerUUID: serverNode.ServerUUID,
+		NodeUUID:   serverNode.NodeUUID,
+		CreatedAt:  createdAt,
+	}
+
+	return modelServerNode, nil
+}
 
 func Server(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
@@ -14,89 +54,76 @@ func Server(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var serverData data.ServerData
-	query := "query { server(uuid: \"" + uuid + "\") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
+	server, err := client.RC.GetServer(uuid)
+	if err != nil {
+		return nil, err
+	}
 
-	return http.DoHTTPRequest("violin", true, "ServerData", serverData, query)
+	modelServer, err := pbServerToModelServer(server)
+	if err != nil {
+		return nil, err
+	}
+
+	return *modelServer, nil
 }
 
 func ListServer(args map[string]interface{}) (interface{}, error) {
-	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
-	os, osOk := args["os"].(string)
-	serverName, serverNameOk := args["server_name"].(string)
-	serverDesc, serverDescOk := args["server_desc"].(string)
-	cpu, cpuOk := args["cpu"].(int)
-	memory, memoryOk := args["memory"].(int)
-	diskSize, diskSizeOk := args["disk_size"].(int)
-	status, statusOk := args["status"].(string)
-	userUUID, userUUIDOk := args["user_uuid"].(string)
+	subnetUUID, _ := args["subnet_uuid"].(string)
+	os, _ := args["os"].(string)
+	serverName, _ := args["server_name"].(string)
+	serverDesc, _ := args["server_desc"].(string)
+	cpu, _ := args["cpu"].(int)
+	memory, _ := args["memory"].(int)
+	diskSize, _ := args["disk_size"].(int)
+	status, _ := args["status"].(string)
+	userUUID, _ := args["user_uuid"].(string)
+	row, _ := args["row"].(int)
+	page, _ := args["page"].(int)
 
-	row, rowOk := args["row"].(int)
-	page, pageOk := args["page"].(int)
-	if !rowOk || !pageOk {
-		return nil, errors.New("need row and page arguments")
+	var reqListServer rpcviolin.ReqGetServerList
+	reqListServer.Server.SubnetUUID = subnetUUID
+	reqListServer.Server.OS = os
+	reqListServer.Server.ServerName = serverName
+	reqListServer.Server.ServerDesc = serverDesc
+	reqListServer.Server.CPU = int32(cpu)
+	reqListServer.Server.Memory = int32(memory)
+	reqListServer.Server.DiskSize = int32(diskSize)
+	reqListServer.Server.Status = status
+	reqListServer.Server.UserUUID = userUUID
+	reqListServer.Row = int64(row)
+	reqListServer.Page = int64(page)
+
+	resListServer, err := client.RC.GetServerList(&reqListServer)
+	if err != nil {
+		return nil, err
 	}
 
-	arguments := "row:" + strconv.Itoa(row) + ",page:" + strconv.Itoa(page) + ","
-	if subnetUUIDOk {
-		arguments += "subnet_uuid:\"" + subnetUUID + "\","
+	var serverList []model.Server
+	for _, pServer := range resListServer.Server {
+		modelServer, err := pbServerToModelServer(pServer)
+		if err != nil {
+			return nil, err
+		}
+		serverList = append(serverList, *modelServer)
 	}
-	if osOk {
-		arguments += "os:\"" + os + "\","
-	}
-	if serverNameOk {
-		arguments += "server_name:\"" + serverName + "\","
-	}
-	if serverDescOk {
-		arguments += "server_desc:\"" + serverDesc + "\","
-	}
-	if cpuOk {
-		arguments += "cpu:" + strconv.Itoa(cpu) + ","
-	}
-	if memoryOk {
-		arguments += "memory:" + strconv.Itoa(memory) + "\","
-	}
-	if diskSizeOk {
-		arguments += "disk_size:" + strconv.Itoa(diskSize) + "\","
-	}
-	if statusOk {
-		arguments += "status:\"" + status + "\","
-	}
-	if userUUIDOk {
-		arguments += "user_uuid:\"" + userUUID + "\","
-	}
-	arguments = arguments[0 : len(arguments)-1]
 
-	var listServerData data.ListServerData
-	query := "query { list_server(" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
-
-	return http.DoHTTPRequest("violin", true, "ListServerData", listServerData, query)
+	return serverList, nil
 }
 
 func AllServer(args map[string]interface{}) (interface{}, error) {
-	row, rowOk := args["row"].(int)
-	page, pageOk := args["page"].(int)
-	var query string
-
-	if !rowOk && !pageOk {
-		query = "query { all_server { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
-	} else if rowOk && pageOk {
-		query = "query { all_server(row:" + strconv.Itoa(row) + ", page:" + strconv.Itoa(page) +
-			") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
-	} else {
-		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
-	}
-
-	var allServerData data.AllServerData
-
-	return http.DoHTTPRequest("violin", true, "AllServerData", allServerData, query)
+	return ListServer(args)
 }
 
 func NumServer() (interface{}, error) {
-	var numServerData data.NumServerData
-	query := "query { num_server { number } }"
+	num, err := client.RC.GetServerNum()
+	if err != nil {
+		return nil, err
+	}
 
-	return http.DoHTTPRequest("violin", true, "NumServerData", numServerData, query)
+	var modelServerNum model.ServerNum
+	modelServerNum.Number = num
+
+	return modelServerNum, nil
 }
 
 func ServerNode(args map[string]interface{}) (interface{}, error) {
@@ -106,10 +133,17 @@ func ServerNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var serverNodeData data.ServerNodeData
-	query := "query { server_node(uuid: \"" + uuid + "\") { uuid server_uuid node_uuid created_at } }"
+	serverNode, err := client.RC.GetServerNode(uuid)
+	if err != nil {
+		return nil, err
+	}
 
-	return http.DoHTTPRequest("violin", true, "ServerNodeData", serverNodeData, query)
+	modelServerNode, err := pbServerNodeToModelServerNode(serverNode)
+	if err != nil {
+		return nil, err
+	}
+
+	return *modelServerNode, nil
 }
 
 func ListServerNode(args map[string]interface{}) (interface{}, error) {
@@ -118,27 +152,43 @@ func ListServerNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a server_uuid argument")
 	}
 
-	var listServerNodeData data.ListServerNodeData
-	query := "query { list_server_node(server_uuid: \"" + serverUUID + "\") { uuid server_uuid node_uuid created_at } }"
+	var reqListServerNode rpcviolin.ReqGetServerNodeList
+	reqListServerNode.ServerUUID = serverUUID
 
-	return http.DoHTTPRequest("violin", true, "ListServerNodeData", listServerNodeData, query)
+	resListServerNode, err := client.RC.GetServerNodeList(&reqListServerNode)
+	if err != nil {
+		return nil, err
+	}
+
+	var serverNodeList []model.ServerNode
+	for _, pServerNode := range resListServerNode.ServerNode {
+		modelServerNode, err := pbServerNodeToModelServerNode(pServerNode)
+		if err != nil {
+			return nil, err
+		}
+		serverNodeList = append(serverNodeList, *modelServerNode)
+	}
+
+	return serverNodeList, nil
 }
 
-func AllServerNode() (interface{}, error) {
-	var allServerNodeData data.AllServerNodeData
-	query := "query { all_server_node { uuid server_uuid node_uuid created_at } }"
-
-	return http.DoHTTPRequest("violin", true, "AllServerNodeData", allServerNodeData, query)
+func AllServerNode(args map[string]interface{}) (interface{}, error) {
+	return ListServerNode(args)
 }
 
-func NumNodesServer(args map[string]interface{}) (interface{}, error) {
+func NumServerNode(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
 		return nil, errors.New("need a server_uuid argument")
 	}
 
-	var numNodesServer data.NumNodesServerData
-	query := "query { num_nodes_server(server_uuid: \"" + serverUUID + "\") { number } }"
+	num, err := client.RC.GetServerNodeNum(serverUUID)
+	if err != nil {
+		return nil, err
+	}
 
-	return http.DoHTTPRequest("violin", true, "NumNodesServerData", numNodesServer, query)
+	var modelServerNodeNum model.ServerNodeNum
+	modelServerNodeNum.Number = num
+
+	return modelServerNodeNum, nil
 }

@@ -2,8 +2,8 @@ package mutationParser
 
 import (
 	"errors"
+	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/data"
-	"hcc/piccolo/driver/grpccli"
 	"hcc/piccolo/http"
 )
 
@@ -41,5 +41,5 @@ func ControlVnc(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("check needed arguments (server_uuid, target_ip, target_port, target_pass, action)")
 	}
 
-	return grpccli.RC.ControlVNC(args)
+	return client.RC.ControlVNC(args)
 }

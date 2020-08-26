@@ -2,10 +2,35 @@ package queryParser
 
 import (
 	"errors"
-	"hcc/piccolo/data"
-	"hcc/piccolo/http"
-	"strconv"
+	"github.com/golang/protobuf/ptypes"
+	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/pb/rpcflute"
+	"hcc/piccolo/model"
 )
+
+func pbNodeToModelNode(node *rpcflute.Node) (*model.Node, error) {
+	createdAt, err := ptypes.Timestamp(node.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	modelNode := &model.Node{
+		UUID:        node.UUID,
+		ServerUUID:  node.ServerUUID,
+		BmcMacAddr:  node.BmcMacAddr,
+		BmcIP:       node.BmcIP,
+		PXEMacAddr:  node.PXEMacAddr,
+		Status:      node.Status,
+		CPUCores:    int(node.CPUCores),
+		Memory:      int(node.Memory),
+		Description: node.Description,
+		CreatedAt:   createdAt,
+		Active:      int(node.Active),
+		ForceOff:    node.ForceOff,
+	}
+
+	return modelNode, nil
+}
 
 func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
@@ -14,10 +39,8 @@ func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var powerStateNodeData data.PowerStateNodeData
-	query := "query { power_state_node(uuid: \"" + uuid + "\") }"
 
-	return http.DoHTTPRequest("flute", true, "PowerStateNodeData", powerStateNodeData, query)
+	return client.RC.GetNodePowerState(uuid)
 }
 
 func Node(args map[string]interface{}) (interface{}, error) {
@@ -27,121 +50,74 @@ func Node(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var nodeData data.NodeData
-	query := "query { node(uuid: \"" + uuid + "\") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
-
-	return http.DoHTTPRequest("flute", true, "NodeData", nodeData, query)
+	return client.RC.GetSubnet(uuid)
 }
 
 func ListNode(args map[string]interface{}) (interface{}, error) {
-	var noLimit bool
+	serverUUID, _ := args["server_uuid"].(string)
+	bmcMacAddr, _ := args["bmc_mac_addr"].(string)
+	bmcIP, _ := args["bmc_ip"].(string)
+	pxeMacAdr, _ := args["pxe_mac_addr"].(string)
+	status, _ := args["status"].(string)
+	cpuCores, _ := args["cpu_cores"].(int)
+	memory, _ := args["memory"].(int)
+	description, _ := args["description"].(string)
+	active, _ := args["active"].(int)
+	row, _ := args["row"].(int)
+	page, _ := args["page"].(int)
 
-	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
-	bmcIP, bmcIPOk := args["bmc_ip"].(string)
-	pxeMacAdr, pxeMacAdrOk := args["pxe_mac_addr"].(string)
-	status, statusOk := args["status"].(string)
-	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
-	memory, memoryOk := args["memory"].(int)
-	description, descriptionOk := args["description"].(string)
-	active, activeOk := args["active"].(string)
-	row, rowOk := args["row"].(int)
-	page, pageOk := args["page"].(int)
+	var reqListNode rpcflute.ReqGetNodeList
+	reqListNode.Node.ServerUUID = serverUUID
+	reqListNode.Node.BmcMacAddr = bmcMacAddr
+	reqListNode.Node.BmcIP = bmcIP
+	reqListNode.Node.PXEMacAddr = pxeMacAdr
+	reqListNode.Node.Status = status
+	reqListNode.Node.CPUCores = int32(cpuCores)
+	reqListNode.Node.Memory = int32(memory)
+	reqListNode.Node.Description = description
+	reqListNode.Node.Active = int32(active)
+	reqListNode.Row = int64(row)
+	reqListNode.Page = int64(page)
 
-	if !rowOk && !pageOk {
-		noLimit = true
-	} else if rowOk && pageOk {
-		noLimit = false
-	} else {
-		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
+	resListNode, err := client.RC.GetNodeList(&reqListNode)
+	if err != nil {
+		return nil, err
 	}
 
-	var arguments string
-
-	if noLimit {
-		arguments = ""
-	} else {
-		arguments = "row:" + strconv.Itoa(row) + ",page:" + strconv.Itoa(page) + ","
+	var nodeList []model.Node
+	for _, pNode := range resListNode.Node {
+		modelNode, err := pbNodeToModelNode(pNode)
+		if err != nil {
+			return nil, err
+		}
+		nodeList = append(nodeList, *modelNode)
 	}
 
-	if serverUUIDOk {
-		arguments += "server_uuid:\"" + serverUUID + "\","
-	}
-	if bmcMacAddrOk {
-		arguments += "bmc_mac_addr:\"" + bmcMacAddr + "\","
-	}
-	if bmcIPOk {
-		arguments += "bmc_ip:\"" + bmcIP + "\","
-	}
-	if pxeMacAdrOk {
-		arguments += "pxe_mac_addr:\"" + pxeMacAdr + "\","
-	}
-	if statusOk {
-		arguments += "status:\"" + status + "\","
-	}
-	if cpuCoresOk {
-		arguments += "cpu_cores:" + strconv.Itoa(cpuCores) + "\","
-	}
-	if memoryOk {
-		arguments += "memory:" + strconv.Itoa(memory) + "\","
-	}
-	if descriptionOk {
-		arguments += "description:\"" + description + "\","
-	}
-	if activeOk {
-		arguments += "active:\"" + active + "\","
-	}
-	arguments = arguments[0 : len(arguments)-1]
-
-	var listNodeData data.ListNodeData
-	query := "query { list_node(" + arguments + ") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
-
-	return http.DoHTTPRequest("flute", true, "ListNodeData", listNodeData, query)
+	return nodeList, nil
 }
 
 func AllNode(args map[string]interface{}) (interface{}, error) {
-	row, rowOk := args["row"].(int)
-	page, pageOk := args["page"].(int)
-	active, activeOk := args["active"].(int)
-	var query string
-
-	if !rowOk && !pageOk {
-		query = "query { all_node { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
-		if activeOk {
-			query = "query { all_node(active:" + strconv.Itoa(active) + ") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
-		}
-	} else if rowOk && pageOk {
-		query = "query { all_node(row:" + strconv.Itoa(row) + ", page:" + strconv.Itoa(page) +
-			") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
-		if activeOk {
-			query = "query { all_node(row:" + strconv.Itoa(row) + ", page:" + strconv.Itoa(page) +
-				", active:" + strconv.Itoa(active) + ") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
-		}
-	} else {
-		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
-	}
-
-	var allNodeData data.AllNodeData
-
-	return http.DoHTTPRequest("flute", true, "AllNodeData", allNodeData, query)
+	return ListNode(args)
 }
 
 func NumNode() (interface{}, error) {
-	var numNodeData data.NumNodeData
-	query := "query { num_node { number } }"
+	num, err := client.RC.GetNodeNum()
+	if err != nil {
+		return nil, err
+	}
 
-	return http.DoHTTPRequest("flute", true, "NumNodeData", numNodeData, query)
+	var modelNodeNum model.NodeNum
+	modelNodeNum.Number = num
+
+	return modelNodeNum, nil
 }
 
 func NodeDetail(args map[string]interface{}) (interface{}, error) {
-	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
+	uuid, uuidOk := args["uuid"].(string)
 
-	if !nodeUUIDOk {
-		return nil, errors.New("need a node_uuid argument")
+	if !uuidOk {
+		return nil, errors.New("need a uuid argument")
 	}
 
-	var nodeDetailData data.NodeDetailData
-	query := "query { detail_node(node_uuid: \"" + nodeUUID + "\") { node_uuid cpu_model cpu_processors cpu_threads } }"
-
-	return http.DoHTTPRequest("flute", true, "NodeDetailData", nodeDetailData, query)
+	return client.RC.GetNodeDetail(uuid)
 }

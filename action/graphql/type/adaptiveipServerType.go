@@ -7,9 +7,6 @@ var AdaptiveIPServerType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "AdaptiveIPServer",
 		Fields: graphql.Fields{
-			"adaptiveip_uuid": &graphql.Field{
-				Type: graphql.String,
-			},
 			"server_uuid": &graphql.Field{
 				Type: graphql.String,
 			},

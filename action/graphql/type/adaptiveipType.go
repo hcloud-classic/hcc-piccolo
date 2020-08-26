@@ -31,3 +31,27 @@ var AdaptiveIPType = graphql.NewObject(
 		},
 	},
 )
+
+// AdaptiveIPType : Graphql object type of AdaptiveIPSetting
+var AdaptiveIPSettingType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "AdaptiveIPSetting",
+		Fields: graphql.Fields{
+			"ext_ifaceip_address": &graphql.Field{
+				Type: graphql.String,
+			},
+			"netmask": &graphql.Field{
+				Type: graphql.String,
+			},
+			"gateway_address": &graphql.Field{
+				Type: graphql.String,
+			},
+			"start_ip_address": &graphql.Field{
+				Type: graphql.String,
+			},
+			"end_ip_address": &graphql.Field{
+				Type: graphql.String,
+			},
+		},
+	},
+)
