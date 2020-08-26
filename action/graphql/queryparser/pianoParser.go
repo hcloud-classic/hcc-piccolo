@@ -1,4 +1,4 @@
-package queryParser
+package queryparser
 
 import (
 	"errors"
@@ -17,6 +17,7 @@ func checkTelegrafArgsAll(args map[string]interface{}) bool {
 	return metricOk && subMetricOk && periodOk && aggregateTypeOk && durationOk && uuidOk
 }
 
+// Telegraf : Set telegraf with provided options
 func Telegraf(args map[string]interface{}) (interface{}, error) {
 	metric, _ := args["metric"].(string)
 	subMetric, _ := args["subMetric"].(string)

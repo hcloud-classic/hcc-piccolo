@@ -31,7 +31,7 @@ func closeViolin() {
 	_ = violinConn.Close()
 }
 
-// CreateServer: Create a server
+// CreateServer : Create a server
 func (rc *RPCClient) CreateServer(in *rpcviolin.ReqCreateServer) (*rpcviolin.ResCreateServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
@@ -109,7 +109,7 @@ func (rc *RPCClient) DeleteServer(uuid string) (string, error) {
 	return resDeleteServer.UUID, nil
 }
 
-// CreateServer: Create a server
+// CreateServerNode : Create a server node
 func (rc *RPCClient) CreateServerNode(in *rpcviolin.ReqCreateServerNode) (*rpcviolin.ResCreateServerNode, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
@@ -161,7 +161,7 @@ func (rc *RPCClient) GetServerNodeNum(serverUUID string) (int, error) {
 	return int(num.Num), nil
 }
 
-// DeleteServerNode : Delete of the server
+// DeleteServerNode : Delete of the serverNode
 func (rc *RPCClient) DeleteServerNode(uuid string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)

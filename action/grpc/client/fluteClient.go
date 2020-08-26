@@ -124,7 +124,7 @@ func (rc *RPCClient) GetNodePowerState(uuid string) (string, error) {
 	return resNodePowerState.Result, nil
 }
 
-// CreateNodeDetail: Create a nodeDetail
+// CreateNodeDetail : Create a nodeDetail
 func (rc *RPCClient) CreateNodeDetail(in *rpcflute.ReqCreateNodeDetail) (*rpcflute.ResCreateNodeDetail, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
@@ -163,7 +163,7 @@ func (rc *RPCClient) DeleteNodeDetail(uuid string) (string, error) {
 	return resDeleteNodeDetail.NodeUUID, nil
 }
 
-// CreateNode: Create a node
+// CreateNode : Create a node
 func (rc *RPCClient) CreateNode(in *rpcflute.ReqCreateNode) (*rpcflute.ResCreateNode, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)

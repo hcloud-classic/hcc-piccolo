@@ -1,4 +1,4 @@
-package graphqlType
+package graphqltype
 
 import "github.com/graphql-go/graphql"
 
@@ -32,7 +32,7 @@ var AdaptiveIPType = graphql.NewObject(
 	},
 )
 
-// AdaptiveIPType : Graphql object type of AdaptiveIPSetting
+// AdaptiveIPSettingType : Graphql object type of AdaptiveIPSetting
 var AdaptiveIPSettingType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "AdaptiveIPSetting",

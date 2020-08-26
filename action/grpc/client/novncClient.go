@@ -33,6 +33,7 @@ func closeNovnc() {
 	_ = novncConn.Close()
 }
 
+// ControlVNC : Set VNC with provided options
 func (rc *RPCClient) ControlVNC(reqData map[string]interface{}) (interface{}, error) {
 	//req data mapping
 	var req rpcnovnc.ReqControlVNC

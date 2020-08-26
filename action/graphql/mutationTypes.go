@@ -1,7 +1,7 @@
 package graphql
 
 import (
-	"hcc/piccolo/action/graphql/mutationParser"
+	"hcc/piccolo/action/graphql/mutationparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/lib/logger"
 
@@ -46,7 +46,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: violin / create_server")
-				return mutationParser.CreateServer(params.Args)
+				return mutationparser.CreateServer(params.Args)
 			},
 		},
 		"update_server": &graphql.Field{
@@ -86,7 +86,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: violin / update_server")
-				return mutationParser.UpdateServer(params.Args)
+				return mutationparser.UpdateServer(params.Args)
 			},
 		},
 		"delete_server": &graphql.Field{
@@ -99,7 +99,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: violin / delete_server")
-				return mutationParser.DeleteServer(params.Args)
+				return mutationparser.DeleteServer(params.Args)
 			},
 		},
 		"create_server_node": &graphql.Field{
@@ -115,7 +115,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: violin / create_server_node")
-				return mutationParser.CreateServerNode(params.Args)
+				return mutationparser.CreateServerNode(params.Args)
 			},
 		},
 		"delete_server_node": &graphql.Field{
@@ -128,7 +128,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: violin / delete server_node")
-				return mutationParser.DeleteServerNode(params.Args)
+				return mutationparser.DeleteServerNode(params.Args)
 			},
 		},
 		// vnc
@@ -157,7 +157,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: violin-novnc: create_vnc")
-				return mutationParser.CreateVnc(params.Args)
+				return mutationparser.CreateVnc(params.Args)
 			},
 		},
 		// harp
@@ -197,7 +197,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				return mutationParser.CreateSubnet(params.Args)
+				return mutationparser.CreateSubnet(params.Args)
 			},
 		},
 		"update_subnet": &graphql.Field{
@@ -240,7 +240,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: harp / update_subnet")
-				return mutationParser.UpdateSubnet(params.Args)
+				return mutationparser.UpdateSubnet(params.Args)
 			},
 		},
 		"delete_subnet": &graphql.Field{
@@ -253,7 +253,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: harp / delete_subnet")
-				return mutationParser.DeleteSubnet(params.Args)
+				return mutationparser.DeleteSubnet(params.Args)
 			},
 		},
 		"create_dhcpd_conf": &graphql.Field{
@@ -269,7 +269,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: harp / create_dhcpd_conf")
-				return mutationParser.CreateDHCPDConf(params.Args)
+				return mutationparser.CreateDHCPDConf(params.Args)
 			},
 		},
 		"create_adaptiveip_setting": &graphql.Field{
@@ -294,7 +294,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: harp / create_adaptiveip_setting")
-				return mutationParser.CreateAdaptiveIPSetting(params.Args)
+				return mutationparser.CreateAdaptiveIPSetting(params.Args)
 			},
 		},
 		"create_adaptiveip_server": &graphql.Field{
@@ -310,7 +310,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: harp / create_adaptiveip_server")
-				return mutationParser.CreateAdaptiveIPServer(params.Args)
+				return mutationparser.CreateAdaptiveIPServer(params.Args)
 			},
 		},
 		"delete_adaptiveip_server": &graphql.Field{
@@ -323,7 +323,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: harp / delete_adaptiveip_server")
-				return mutationParser.DeleteAdaptiveIPServer(params.Args)
+				return mutationparser.DeleteAdaptiveIPServer(params.Args)
 			},
 		},
 		// flute
@@ -337,7 +337,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: flute / on_node")
-				return mutationParser.OnNode(params.Args)
+				return mutationparser.OnNode(params.Args)
 			},
 		},
 		"off_node": &graphql.Field{
@@ -353,7 +353,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: flute / off_node")
-				return mutationParser.OffNode(params.Args)
+				return mutationparser.OffNode(params.Args)
 			},
 		},
 		"force_restart_node": &graphql.Field{
@@ -366,7 +366,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: flute / force_restart_node")
-				return mutationParser.ForceRestartNode(params.Args)
+				return mutationparser.ForceRestartNode(params.Args)
 			},
 		},
 		"create_node": &graphql.Field{
@@ -400,7 +400,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: flute / create_node")
-				return mutationParser.CreateNode(params.Args)
+				return mutationparser.CreateNode(params.Args)
 			},
 		},
 		"update_node": &graphql.Field{
@@ -440,7 +440,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: flute / update_node")
-				return mutationParser.UpdateNode(params.Args)
+				return mutationparser.UpdateNode(params.Args)
 			},
 		},
 		"delete_node": &graphql.Field{
@@ -453,7 +453,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: flute / delete_node")
-				return mutationParser.DeleteNode(params.Args)
+				return mutationparser.DeleteNode(params.Args)
 			},
 		},
 		// node_detail DB
@@ -476,7 +476,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: flute / create_node_detail")
-				return mutationParser.CreateNodeDetail(params.Args)
+				return mutationparser.CreateNodeDetail(params.Args)
 			},
 		},
 		"delete_node_detail": &graphql.Field{
@@ -489,7 +489,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: flute / delete_node_detail")
-				return mutationParser.DeleteNodeDetail(params.Args)
+				return mutationparser.DeleteNodeDetail(params.Args)
 			},
 		},
 	},

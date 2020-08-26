@@ -1,4 +1,4 @@
-package queryParser
+package queryparser
 
 import (
 	"errors"
@@ -47,6 +47,7 @@ func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.Ser
 	return modelServerNode, nil
 }
 
+// Server : Get infos of the server
 func Server(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
@@ -67,6 +68,7 @@ func Server(args map[string]interface{}) (interface{}, error) {
 	return *modelServer, nil
 }
 
+// ListServer : Get server list with provided options
 func ListServer(args map[string]interface{}) (interface{}, error) {
 	subnetUUID, _ := args["subnet_uuid"].(string)
 	os, _ := args["os"].(string)
@@ -110,10 +112,12 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 	return serverList, nil
 }
 
+// AllServer : Get server list with provided options (Just call ListServer())
 func AllServer(args map[string]interface{}) (interface{}, error) {
 	return ListServer(args)
 }
 
+// NumServer : Get number of servers
 func NumServer() (interface{}, error) {
 	num, err := client.RC.GetServerNum()
 	if err != nil {
@@ -126,6 +130,7 @@ func NumServer() (interface{}, error) {
 	return modelServerNum, nil
 }
 
+// ServerNode : Get infos of the serverNode
 func ServerNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
@@ -146,6 +151,7 @@ func ServerNode(args map[string]interface{}) (interface{}, error) {
 	return *modelServerNode, nil
 }
 
+// ListServerNode : Get serverNode list with provided options
 func ListServerNode(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
@@ -172,10 +178,12 @@ func ListServerNode(args map[string]interface{}) (interface{}, error) {
 	return serverNodeList, nil
 }
 
+// AllServerNode : Get serverNode list with provided options (Just call ListServerNode())
 func AllServerNode(args map[string]interface{}) (interface{}, error) {
 	return ListServerNode(args)
 }
 
+// NumServerNode : Get number of serverNodes
 func NumServerNode(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {

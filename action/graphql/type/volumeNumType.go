@@ -1,7 +1,8 @@
-package graphqlType
+package graphqltype
 
 import "github.com/graphql-go/graphql"
 
+// VolumeNum : GraphQL type of VolumeNum
 var VolumeNum = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "VolumeNum",

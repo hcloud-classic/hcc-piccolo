@@ -1,4 +1,4 @@
-package mutationParser
+package mutationparser
 
 import (
 	"errors"
@@ -17,6 +17,7 @@ func checkVncArgsAll(args map[string]interface{}) bool {
 	return serverUUIDOk && targetIPOk && targetPortOk && targetPassOk && actionOk
 }
 
+// CreateVnc : Create infos of the VNC
 func CreateVnc(args map[string]interface{}) (interface{}, error) {
 	if !checkVncArgsAll(args) {
 		return nil, errors.New("check needed arguments (server_uuid, target_ip, target_port, target_pass, action)")
@@ -36,6 +37,7 @@ func CreateVnc(args map[string]interface{}) (interface{}, error) {
 	return http.DoHTTPRequest("violin-novnc", true, "CreateVncData", createVncData, query)
 }
 
+// ControlVnc : Set VNC with provided options
 func ControlVnc(args map[string]interface{}) (interface{}, error) {
 	if !checkVncArgsAll(args) {
 		return nil, errors.New("check needed arguments (server_uuid, target_ip, target_port, target_pass, action)")

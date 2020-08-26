@@ -1,4 +1,4 @@
-package queryParser
+package queryparser
 
 import (
 	"errors"
@@ -32,6 +32,7 @@ func pbSubnetToModelSubnet(subnet *rpcharp.Subnet) (*model.Subnet, error) {
 	return modelSubnet, err
 }
 
+// Subnet : Get infos of the subnet
 func Subnet(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
@@ -52,6 +53,7 @@ func Subnet(args map[string]interface{}) (interface{}, error) {
 	return *modelSubnet, nil
 }
 
+// ListSubnet : Get subnet list with provided options
 func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	networkIP, _ := args["network_ip"].(string)
 	netmask, _ := args["netmask"].(string)
@@ -97,10 +99,12 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	return subnetList, nil
 }
 
+// AllSubnet : Get subnet list with provided options (Just call ListSubnet())
 func AllSubnet(args map[string]interface{}) (interface{}, error) {
 	return ListSubnet(args)
 }
 
+// NumSubnet : Get number of subnets
 func NumSubnet() (interface{}, error) {
 	num, err := client.RC.GetSubnetNum()
 	if err != nil {
@@ -113,6 +117,7 @@ func NumSubnet() (interface{}, error) {
 	return modelSubnetNum, nil
 }
 
+// GetAdaptiveIPSetting : Get infos of the adaptiveIP settings
 func GetAdaptiveIPSetting() (interface{}, error) {
 	resGetAdaptiveIPSetting, err := client.RC.GetAdaptiveIPSetting()
 	if err != nil {
@@ -129,6 +134,7 @@ func GetAdaptiveIPSetting() (interface{}, error) {
 	}, nil
 }
 
+// AdaptiveIPServer : Get infos of the adaptiveIP server
 func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	serverUUID, _ := args["server_uuid"].(string)
 
@@ -145,6 +151,7 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	}, nil
 }
 
+// ListAdaptiveIPServer : Get adaptiveIP server list with provided options
 func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	serverUUID, _ := args["server_uuid"].(string)
 	publicIP, _ := args["public_ip"].(string)
@@ -180,10 +187,12 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	return adaptiveIPServerList, nil
 }
 
+// AllAdaptiveIPServer : Get adaptiveIP server list with provided options (Just call ListAdaptiveIPServer())
 func AllAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	return ListAdaptiveIPServer(args)
 }
 
+// NumAdaptiveIPServer : Get number of adaptiveIP servers
 func NumAdaptiveIPServer() (interface{}, error) {
 	num, err := client.RC.GetAdaptiveIPServerNum()
 	if err != nil {

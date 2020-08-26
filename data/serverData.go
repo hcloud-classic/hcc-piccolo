@@ -60,7 +60,7 @@ type CreateServerNodeData struct {
 	} `json:"data"`
 }
 
-// DeleteServerData : Data structure of delete_server_node
+// DeleteServerNodeData : Data structure of delete_server_node
 type DeleteServerNodeData struct {
 	Data struct {
 		Server model.ServerNode `json:"delete_server_node"`

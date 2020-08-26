@@ -31,7 +31,7 @@ func closeHarp() {
 	_ = harpConn.Close()
 }
 
-// CreateSubnet: Create a subnet
+// CreateSubnet : Create a subnet
 func (rc *RPCClient) CreateSubnet(in *rpcharp.ReqCreateSubnet) (*rpcharp.ResCreateSubnet, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
@@ -109,7 +109,7 @@ func (rc *RPCClient) DeleteSubnet(uuid string) (string, error) {
 	return resDeleteSubnet.UUID, nil
 }
 
-// CreateAdaptiveIPSetting: Create settings of AdaptiveIP
+// CreateAdaptiveIPSetting : Create settings of AdaptiveIP
 func (rc *RPCClient) CreateAdaptiveIPSetting(in *rpcharp.ReqCreateAdaptiveIPSetting) (*rpcharp.ResCreateAdaptiveIPSetting, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
@@ -122,7 +122,7 @@ func (rc *RPCClient) CreateAdaptiveIPSetting(in *rpcharp.ReqCreateAdaptiveIPSett
 	return resCreateAdaptiveIPSetting, nil
 }
 
-// GetAdaptiveIPSetting: Get settings of AdaptiveIP
+// GetAdaptiveIPSetting : Get settings of AdaptiveIP
 func (rc *RPCClient) GetAdaptiveIPSetting() (*rpcharp.ResGetAdaptiveIPSetting, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
@@ -135,7 +135,7 @@ func (rc *RPCClient) GetAdaptiveIPSetting() (*rpcharp.ResGetAdaptiveIPSetting, e
 	return resAdaptiveIPSetting, nil
 }
 
-// CreateAdaptiveIPServer: Create AdaptiveIP server
+// CreateAdaptiveIPServer : Create AdaptiveIP server
 func (rc *RPCClient) CreateAdaptiveIPServer(in *rpcharp.ReqCreateAdaptiveIPServer) (*rpcharp.ResCreateAdaptiveIPServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)

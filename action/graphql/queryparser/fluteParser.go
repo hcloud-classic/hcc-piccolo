@@ -1,4 +1,4 @@
-package queryParser
+package queryparser
 
 import (
 	"errors"
@@ -32,6 +32,7 @@ func pbNodeToModelNode(node *rpcflute.Node) (*model.Node, error) {
 	return modelNode, nil
 }
 
+// PowerStateNode : Get power state of the node
 func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
@@ -42,6 +43,7 @@ func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 	return client.RC.GetNodePowerState(uuid)
 }
 
+// Node : Get infos of the node
 func Node(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
@@ -52,6 +54,7 @@ func Node(args map[string]interface{}) (interface{}, error) {
 	return client.RC.GetSubnet(uuid)
 }
 
+// ListNode : Get node list with provided options
 func ListNode(args map[string]interface{}) (interface{}, error) {
 	serverUUID, _ := args["server_uuid"].(string)
 	bmcMacAddr, _ := args["bmc_mac_addr"].(string)
@@ -95,10 +98,12 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	return nodeList, nil
 }
 
+// AllNode : Get node list with provided options (Just call ListNode())
 func AllNode(args map[string]interface{}) (interface{}, error) {
 	return ListNode(args)
 }
 
+// NumNode : Get number of nodes
 func NumNode() (interface{}, error) {
 	num, err := client.RC.GetNodeNum()
 	if err != nil {
@@ -111,6 +116,7 @@ func NumNode() (interface{}, error) {
 	return modelNodeNum, nil
 }
 
+// NodeDetail : Get infos of the detail of the node
 func NodeDetail(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 

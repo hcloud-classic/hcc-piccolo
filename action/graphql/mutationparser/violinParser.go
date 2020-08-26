@@ -1,4 +1,4 @@
-package mutationParser
+package mutationparser
 
 import (
 	"errors"
@@ -47,6 +47,7 @@ func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.Ser
 	return modelServerNode, nil
 }
 
+// CreateServer : Create a server
 func CreateServer(args map[string]interface{}) (interface{}, error) {
 	subnetUUID, _ := args["subnet_uuid"].(string)
 	os, _ := args["os"].(string)
@@ -82,6 +83,7 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 	return modelServer, nil
 }
 
+// UpdateServer : Update the infos of the server
 func UpdateServer(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
@@ -122,6 +124,7 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 	return modelServer, nil
 }
 
+// DeleteServer : Delete the server
 func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
@@ -138,6 +141,7 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	return server, nil
 }
 
+// CreateServerNode : Create a info of server's node
 func CreateServerNode(args map[string]interface{}) (interface{}, error) {
 	serverUUID, _ := args["server_uuid"].(string)
 	nodeUUID, _ := args["node_uuid"].(string)
@@ -159,6 +163,7 @@ func CreateServerNode(args map[string]interface{}) (interface{}, error) {
 	return modelServerNode, nil
 }
 
+// DeleteServerNode : Delete a info of server's node
 func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {

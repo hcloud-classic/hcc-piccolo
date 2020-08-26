@@ -1,4 +1,4 @@
-package mutationParser
+package mutationparser
 
 import (
 	"errors"
@@ -32,6 +32,7 @@ func pbSubnetToModelSubnet(subnet *rpcharp.Subnet) (*model.Subnet, error) {
 	return modelSubnet, err
 }
 
+// CreateSubnet : Create a subnet
 func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 	networkIP, _ := args["network_ip"].(string)
 	netmask, _ := args["netmask"].(string)
@@ -68,6 +69,7 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 	return modelSubnet, nil
 }
 
+// UpdateSubnet : Update infos of the subnet
 func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
@@ -110,6 +112,7 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 	return modelSubnet, nil
 }
 
+// DeleteSubnet : Delete the subnet
 func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
@@ -126,14 +129,15 @@ func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 	return subnet, nil
 }
 
+// CreateDHCPDConf : Create the configuration of the DHCP server
 func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
-	node_uuids, node_uuidsOk := args["node_uuids"].(string)
-	if !subnetUUIDOk || !node_uuidsOk {
-		return nil, errors.New("need subnet_uuid and node_uuids arguments")
+	nodeUUIDs, nodeUUIDsOk := args["nodeUUIDs"].(string)
+	if !subnetUUIDOk || !nodeUUIDsOk {
+		return nil, errors.New("need subnet_uuid and nodeUUIDs arguments")
 	}
 
-	result, err := client.RC.CreateDHCPDConfig(subnetUUID, node_uuids)
+	result, err := client.RC.CreateDHCPDConfig(subnetUUID, nodeUUIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +145,7 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 	return result, nil
 }
 
+// CreateAdaptiveIPServer : Create a adaptiveIP server
 func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	serverUUID, _ := args["server_uuid"].(string)
 	publicIP, _ := args["public_ip"].(string)
@@ -164,6 +169,7 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	return adaptiveIPServer, nil
 }
 
+// DeleteAdaptiveIPServer : Delete the adaptiveIP server
 func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["server_uuid"].(string)
 	if !requestedUUIDOk {
@@ -178,6 +184,7 @@ func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	return model.AdaptiveIPServer{ServerUUID: serverUUID}, nil
 }
 
+// CreateAdaptiveIPSetting : Create settings of the adaptiveIP
 func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 	extIfaceIPAddress, _ := args["ext_ifaceip_address"].(string)
 	netmask, _ := args["netmask"].(string)

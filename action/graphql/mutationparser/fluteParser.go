@@ -1,4 +1,4 @@
-package mutationParser
+package mutationparser
 
 import (
 	"errors"
@@ -43,6 +43,7 @@ func pbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail) *model.NodeD
 	return modelNodeDetail
 }
 
+// OnNode : Turn on the node
 func OnNode(args map[string]interface{}) (interface{}, error) {
 	UUID, UUIDOk := args["uuid"].(string)
 	if !UUIDOk {
@@ -52,6 +53,7 @@ func OnNode(args map[string]interface{}) (interface{}, error) {
 	return client.RC.OnNode(UUID)
 }
 
+// OffNode : Turn off the node
 func OffNode(args map[string]interface{}) (interface{}, error) {
 	UUID, UUIDOk := args["uuid"].(string)
 	if !UUIDOk {
@@ -63,6 +65,7 @@ func OffNode(args map[string]interface{}) (interface{}, error) {
 	return client.RC.OffNode(UUID, forceOff)
 }
 
+// ForceRestartNode : Force restart the node
 func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 	UUID, UUIDOk := args["uuid"].(string)
 	if !UUIDOk {
@@ -72,6 +75,7 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 	return client.RC.ForceRestartNode(UUID)
 }
 
+// CreateNode : Create a node
 func CreateNode(args map[string]interface{}) (interface{}, error) {
 	bmcMacAddr, _ := args["bmc_mac_addr"].(string)
 	bmcIP, _ := args["bmc_ip"].(string)
@@ -104,6 +108,7 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 	return modelNode, nil
 }
 
+// UpdateNode : Update the infos of the node
 func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
@@ -142,6 +147,7 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	return modelNode, nil
 }
 
+// DeleteNode : Delete the node
 func DeleteNode(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
@@ -158,6 +164,7 @@ func DeleteNode(args map[string]interface{}) (interface{}, error) {
 	return node, nil
 }
 
+// CreateNodeDetail : Create detail infos of the node
 func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 	nodeUUID, _ := args["node_uuid"].(string)
 	cpuModel, _ := args["cpu_model"].(string)
@@ -182,6 +189,7 @@ func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 	return modelNodeDetail, nil
 }
 
+// DeleteNodeDetail : Delete the node detail of the node
 func DeleteNodeDetail(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["node_uuid"].(string)
 	if !requestedUUIDOk {
