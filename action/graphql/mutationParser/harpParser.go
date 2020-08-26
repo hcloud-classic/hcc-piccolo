@@ -64,7 +64,7 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelSubnet, err := pbSubnetToModelSubnet(resCreateSubnet.Subnet)
-	
+
 	return modelSubnet, nil
 }
 
@@ -185,7 +185,7 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 	startIPaddressOk, _ := args["start_ip_address"].(string)
 	endIPaddressOk, _ := args["end_ip_address"].(string)
 
-	reqCreateAdaptiveIPSetting := &rpcharp.ReqCreateAdaptiveIPSetting {
+	reqCreateAdaptiveIPSetting := &rpcharp.ReqCreateAdaptiveIPSetting{
 		AdaptiveipSetting: &rpcharp.AdaptiveIPSetting{
 			ExtIfaceIPAddress: extIfaceIPAddress,
 			Netmask:           netmask,

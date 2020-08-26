@@ -161,7 +161,6 @@ func (rc *RPCClient) GetServerNodeNum(serverUUID string) (int, error) {
 	return int(num.Num), nil
 }
 
-
 // DeleteServerNode : Delete of the server
 func (rc *RPCClient) DeleteServerNode(uuid string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
@@ -174,7 +173,6 @@ func (rc *RPCClient) DeleteServerNode(uuid string) (string, error) {
 
 	return resDeleteServerNode.UUID, nil
 }
-
 
 // DeleteServerNodeByServerUUID : Delete of the server
 func (rc *RPCClient) DeleteServerNodeByServerUUID(serverUUID string) (string, error) {

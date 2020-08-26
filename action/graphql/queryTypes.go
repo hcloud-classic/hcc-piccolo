@@ -121,7 +121,7 @@ var queryTypes = graphql.NewObject(
 			"all_server_node": &graphql.Field{
 				Type:        graphql.NewList(graphqlType.ServerNodeType),
 				Description: "Get all server_node list",
-				Args:        graphql.FieldConfigArgument{
+				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},

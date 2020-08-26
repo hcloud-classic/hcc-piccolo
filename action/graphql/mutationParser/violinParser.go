@@ -156,7 +156,6 @@ func CreateServerNode(args map[string]interface{}) (interface{}, error) {
 
 	modelServerNode, err := pbServerNodeToModelServerNode(resCreateServerNode.ServerNode)
 
-
 	return modelServerNode, nil
 }
 

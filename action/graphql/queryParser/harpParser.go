@@ -160,8 +160,8 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 			PrivateIP:      privateIP,
 			PrivateGateway: privateGateway,
 		},
-		Row:              int64(row),
-		Page:             int64(page),
+		Row:  int64(row),
+		Page: int64(page),
 	})
 	if err != nil {
 		return nil, err

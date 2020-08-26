@@ -39,7 +39,6 @@ func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-
 	return client.RC.GetNodePowerState(uuid)
 }
 
