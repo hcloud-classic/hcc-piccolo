@@ -60,7 +60,11 @@ func OffNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a UUID argument")
 	}
 
-	forceOff, _ := args["force_off"].(bool)
+	var forceOff bool
+	forceOff, forceOffOk := args["force_off"].(bool)
+	if !forceOffOk {
+		forceOff = false
+	}
 
 	return client.RC.OffNode(UUID, forceOff)
 }
@@ -77,35 +81,55 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 
 // CreateNode : Create a node
 func CreateNode(args map[string]interface{}) (interface{}, error) {
-	bmcMacAddr, _ := args["bmc_mac_addr"].(string)
-	bmcIP, _ := args["bmc_ip"].(string)
-	pxeMacAddr, _ := args["pxe_mac_addr"].(string)
-	status, _ := args["status"].(string)
-	cpuCores, _ := args["cpu_cores"].(int)
-	memory, _ := args["memory"].(int)
-	description, _ := args["description"].(string)
-	active, _ := args["active"].(int)
+	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
+	bmcIP, bmcIPOk := args["bmc_ip"].(string)
+	pxeMacAddr, pxeMacAddrOk := args["pxe_mac_addr"].(string)
+	status, statusOk := args["status"].(string)
+	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
+	memory, memoryOk := args["memory"].(int)
+	description, descriptionOk := args["description"].(string)
+	active, activeOk := args["active"].(int)
 
-	var node rpcflute.Node
-	node.BmcMacAddr = bmcMacAddr
-	node.BmcIP = bmcIP
-	node.PXEMacAddr = pxeMacAddr
-	node.Status = status
-	node.CPUCores = int32(cpuCores)
-	node.Memory = int32(memory)
-	node.Description = description
-	node.Active = int32(active)
+	var reqCreateNode rpcflute.ReqCreateNode
+	var reqNode rpcflute.Node
+	reqCreateNode.Node = &reqNode
 
-	resCreateNode, err := client.RC.CreateNode(&rpcflute.ReqCreateNode{
-		Node: &node,
-	})
+	if bmcMacAddrOk {
+		reqCreateNode.Node.BmcMacAddr = bmcMacAddr
+	}
+	if bmcIPOk {
+		reqCreateNode.Node.BmcIP = bmcIP
+	}
+	if pxeMacAddrOk {
+		reqCreateNode.Node.PXEMacAddr = pxeMacAddr
+	}
+	if statusOk {
+		reqCreateNode.Node.Status = status
+	}
+	if cpuCoresOk {
+		reqCreateNode.Node.CPUCores = int32(cpuCores)
+	}
+	if memoryOk {
+		reqCreateNode.Node.Memory = int32(memory)
+	}
+	if descriptionOk {
+		reqCreateNode.Node.Description = description
+	}
+	if activeOk {
+		reqCreateNode.Node.Active = int32(active)
+	}
+
+	resCreateNode, err := client.RC.CreateNode(&reqCreateNode)
 	if err != nil {
 		return nil, err
 	}
 
 	modelNode, err := pbNodeToModelNode(resCreateNode.Node)
+	if err != nil {
+		return nil, err
+	}
 
-	return modelNode, nil
+	return *modelNode, nil
 }
 
 // UpdateNode : Update the infos of the node
@@ -115,36 +139,56 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	bmcMacAddr, _ := args["bmc_mac_addr"].(string)
-	bmcIP, _ := args["bmc_ip"].(string)
-	pxeMacAddr, _ := args["pxe_mac_addr"].(string)
-	status, _ := args["status"].(string)
-	cpuCores, _ := args["cpu_cores"].(int)
-	memory, _ := args["memory"].(int)
-	description, _ := args["description"].(string)
-	active, _ := args["active"].(int)
+	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
+	bmcIP, bmcIPOk := args["bmc_ip"].(string)
+	pxeMacAddr, pxeMacAddrOk := args["pxe_mac_addr"].(string)
+	status, statusOk := args["status"].(string)
+	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
+	memory, memoryOk := args["memory"].(int)
+	description, descriptionOk := args["description"].(string)
+	active, activeOk := args["active"].(int)
 
-	var node rpcflute.Node
-	node.UUID = requestedUUID
-	node.BmcMacAddr = bmcMacAddr
-	node.BmcIP = bmcIP
-	node.PXEMacAddr = pxeMacAddr
-	node.Status = status
-	node.CPUCores = int32(cpuCores)
-	node.Memory = int32(memory)
-	node.Description = description
-	node.Active = int32(active)
+	var reqUpdateNode rpcflute.ReqUpdateNode
+	var reqNode rpcflute.Node
+	reqUpdateNode.Node = &reqNode
 
-	resUpdateNode, err := client.RC.UpdateNode(&rpcflute.ReqUpdateNode{
-		Node: &node,
-	})
+	reqUpdateNode.Node.UUID = requestedUUID
+	if bmcMacAddrOk {
+		reqUpdateNode.Node.BmcMacAddr = bmcMacAddr
+	}
+	if bmcIPOk {
+		reqUpdateNode.Node.BmcIP = bmcIP
+	}
+	if pxeMacAddrOk {
+		reqUpdateNode.Node.PXEMacAddr = pxeMacAddr
+	}
+	if statusOk {
+		reqUpdateNode.Node.Status = status
+	}
+	if cpuCoresOk {
+		reqUpdateNode.Node.CPUCores = int32(cpuCores)
+	}
+	if memoryOk {
+		reqUpdateNode.Node.Memory = int32(memory)
+	}
+	if descriptionOk {
+		reqUpdateNode.Node.Description = description
+	}
+	if activeOk {
+		reqUpdateNode.Node.Active = int32(active)
+	}
+
+	resUpdateNode, err := client.RC.UpdateNode(&reqUpdateNode)
 	if err != nil {
 		return nil, err
 	}
 
 	modelNode, err := pbNodeToModelNode(resUpdateNode.Node)
+	if err != nil {
+		return nil, err
+	}
 
-	return modelNode, nil
+	return *modelNode, nil
 }
 
 // DeleteNode : Delete the node
@@ -166,27 +210,33 @@ func DeleteNode(args map[string]interface{}) (interface{}, error) {
 
 // CreateNodeDetail : Create detail infos of the node
 func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
-	nodeUUID, _ := args["node_uuid"].(string)
-	cpuModel, _ := args["cpu_model"].(string)
-	cpuProcessors, _ := args["cpu_processors"].(int)
-	cpuThreads, _ := args["cpu_threads"].(int)
+	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
+	cpuModel, cpuModelOk := args["cpu_model"].(string)
+	cpuProcessors, cpuProcessorsOk := args["cpu_processors"].(int)
+	cpuThreads, cpuThreadsOk := args["cpu_threads"].(int)
 
-	var nodeDetail rpcflute.NodeDetail
-	nodeDetail.NodeUUID = nodeUUID
-	nodeDetail.CPUModel = cpuModel
-	nodeDetail.CPUProcessors = int32(cpuProcessors)
-	nodeDetail.CPUThreads = int32(cpuThreads)
+	var reqCreateNodeDetail rpcflute.ReqCreateNodeDetail
+	if nodeUUIDOk {
+		reqCreateNodeDetail.NodeDetail.NodeUUID = nodeUUID
+	}
+	if cpuModelOk {
+		reqCreateNodeDetail.NodeDetail.CPUModel = cpuModel
+	}
+	if cpuProcessorsOk {
+		reqCreateNodeDetail.NodeDetail.CPUProcessors = int32(cpuProcessors)
+	}
+	if cpuThreadsOk {
+		reqCreateNodeDetail.NodeDetail.CPUThreads = int32(cpuThreads)
+	}
 
-	resCreateNodeDetail, err := client.RC.CreateNodeDetail(&rpcflute.ReqCreateNodeDetail{
-		NodeDetail: &nodeDetail,
-	})
+	resCreateNodeDetail, err := client.RC.CreateNodeDetail(&reqCreateNodeDetail)
 	if err != nil {
 		return nil, err
 	}
 
 	modelNodeDetail := pbNodeDetailToModelNodeDetail(resCreateNodeDetail.NodeDetail)
 
-	return modelNodeDetail, nil
+	return *modelNodeDetail, nil
 }
 
 // DeleteNodeDetail : Delete the node detail of the node

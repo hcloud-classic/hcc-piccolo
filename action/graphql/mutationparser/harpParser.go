@@ -34,28 +34,48 @@ func pbSubnetToModelSubnet(subnet *rpcharp.Subnet) (*model.Subnet, error) {
 
 // CreateSubnet : Create a subnet
 func CreateSubnet(args map[string]interface{}) (interface{}, error) {
-	networkIP, _ := args["network_ip"].(string)
-	netmask, _ := args["netmask"].(string)
-	gateway, _ := args["gateway"].(string)
-	nextServer, _ := args["next_server"].(string)
-	nameServer, _ := args["name_server"].(string)
-	domainName, _ := args["domain_name"].(string)
-	serverUUID, _ := args["server_uuid"].(string)
-	leaderNodeUUID, _ := args["leader_node_uuid"].(string)
-	os, _ := args["os"].(string)
-	subnetName, _ := args["subnet_name"].(string)
+	networkIP, networkIPOk := args["network_ip"].(string)
+	netmask, netmaskOk := args["netmask"].(string)
+	gateway, gatewayOk := args["gateway"].(string)
+	nextServer, nextServerOk := args["next_server"].(string)
+	nameServer, nameServerOk := args["name_server"].(string)
+	domainName, domainNameOk := args["domain_name"].(string)
+	serverUUID, serverUUIDOk := args["sever_uuid"].(string)
+	leaderNodeUUID, leaderNodeUUIDOk := args["leader_node_uuid"].(string)
+	os, osOk := args["os"].(string)
+	subnetName, subnetNameOk := args["subnet_name"].(string)
 
 	var subnet rpcharp.Subnet
-	subnet.NetworkIP = networkIP
-	subnet.Netmask = netmask
-	subnet.Gateway = gateway
-	subnet.NextServer = nextServer
-	subnet.NameServer = nameServer
-	subnet.DomainName = domainName
-	subnet.ServerUUID = serverUUID
-	subnet.LeaderNodeUUID = leaderNodeUUID
-	subnet.OS = os
-	subnet.SubnetName = subnetName
+	if networkIPOk {
+		subnet.NetworkIP = networkIP
+	}
+	if netmaskOk {
+		subnet.Netmask = netmask
+	}
+	if gatewayOk {
+		subnet.Gateway = gateway
+	}
+	if nextServerOk {
+		subnet.NextServer = nextServer
+	}
+	if nameServerOk {
+		subnet.NameServer = nameServer
+	}
+	if domainNameOk {
+		subnet.DomainName = domainName
+	}
+	if serverUUIDOk {
+		subnet.ServerUUID = serverUUID
+	}
+	if leaderNodeUUIDOk {
+		subnet.LeaderNodeUUID = leaderNodeUUID
+	}
+	if osOk {
+		subnet.OS = os
+	}
+	if subnetNameOk {
+		subnet.SubnetName = subnetName
+	}
 
 	resCreateSubnet, err := client.RC.CreateSubnet(&rpcharp.ReqCreateSubnet{
 		Subnet: &subnet,
@@ -65,8 +85,11 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelSubnet, err := pbSubnetToModelSubnet(resCreateSubnet.Subnet)
+	if err != nil {
+		return nil, err
+	}
 
-	return modelSubnet, nil
+	return *modelSubnet, nil
 }
 
 // UpdateSubnet : Update infos of the subnet
@@ -76,29 +99,49 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	networkIP, _ := args["network_ip"].(string)
-	netmask, _ := args["netmask"].(string)
-	gateway, _ := args["gateway"].(string)
-	nextServer, _ := args["next_server"].(string)
-	nameServer, _ := args["name_server"].(string)
-	domainName, _ := args["domain_name"].(string)
-	serverUUID, _ := args["server_uuid"].(string)
-	leaderNodeUUID, _ := args["leader_node_uuid"].(string)
-	os, _ := args["os"].(string)
-	subnetName, _ := args["subnet_name"].(string)
+	networkIP, networkIPOk := args["network_ip"].(string)
+	netmask, netmaskOk := args["netmask"].(string)
+	gateway, gatewayOk := args["gateway"].(string)
+	nextServer, nextServerOk := args["next_server"].(string)
+	nameServer, nameServerOk := args["name_server"].(string)
+	domainName, domainNameOk := args["domain_name"].(string)
+	serverUUID, serverUUIDOk := args["sever_uuid"].(string)
+	leaderNodeUUID, leaderNodeUUIDOk := args["leader_node_uuid"].(string)
+	os, osOk := args["os"].(string)
+	subnetName, subnetNameOk := args["subnet_name"].(string)
 
 	var subnet rpcharp.Subnet
 	subnet.UUID = requestedUUID
-	subnet.NetworkIP = networkIP
-	subnet.Netmask = netmask
-	subnet.Gateway = gateway
-	subnet.NextServer = nextServer
-	subnet.NameServer = nameServer
-	subnet.DomainName = domainName
-	subnet.ServerUUID = serverUUID
-	subnet.LeaderNodeUUID = leaderNodeUUID
-	subnet.OS = os
-	subnet.SubnetName = subnetName
+	if networkIPOk {
+		subnet.NetworkIP = networkIP
+	}
+	if netmaskOk {
+		subnet.Netmask = netmask
+	}
+	if gatewayOk {
+		subnet.Gateway = gateway
+	}
+	if nextServerOk {
+		subnet.NextServer = nextServer
+	}
+	if nameServerOk {
+		subnet.NameServer = nameServer
+	}
+	if domainNameOk {
+		subnet.DomainName = domainName
+	}
+	if serverUUIDOk {
+		subnet.ServerUUID = serverUUID
+	}
+	if leaderNodeUUIDOk {
+		subnet.LeaderNodeUUID = leaderNodeUUID
+	}
+	if osOk {
+		subnet.OS = os
+	}
+	if subnetNameOk {
+		subnet.SubnetName = subnetName
+	}
 
 	resUpdateSubnet, err := client.RC.UpdateSubnet(&rpcharp.ReqUpdateSubnet{
 		Subnet: &subnet,
@@ -108,8 +151,11 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelSubnet, err := pbSubnetToModelSubnet(resUpdateSubnet.Subnet)
+	if err != nil {
+		return nil, err
+	}
 
-	return modelSubnet, nil
+	return *modelSubnet, nil
 }
 
 // DeleteSubnet : Delete the subnet
@@ -147,13 +193,18 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 
 // CreateAdaptiveIPServer : Create a adaptiveIP server
 func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
-	serverUUID, _ := args["server_uuid"].(string)
-	publicIP, _ := args["public_ip"].(string)
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	publicIP, publicIPOk := args["public_ip"].(string)
 
-	resCreateadAptiveIPServer, err := client.RC.CreateAdaptiveIPServer(&rpcharp.ReqCreateAdaptiveIPServer{
-		ServerUUID: serverUUID,
-		PublicIP:   publicIP,
-	})
+	var reqCreateAdaptiveIPServer rpcharp.ReqCreateAdaptiveIPServer
+	if serverUUIDOk {
+		reqCreateAdaptiveIPServer.ServerUUID = serverUUID
+	}
+	if publicIPOk {
+		reqCreateAdaptiveIPServer.PublicIP = publicIP
+	}
+
+	resCreateadAptiveIPServer, err := client.RC.CreateAdaptiveIPServer(&reqCreateAdaptiveIPServer)
 	if err != nil {
 		return nil, err
 	}
@@ -186,23 +237,30 @@ func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 // CreateAdaptiveIPSetting : Create settings of the adaptiveIP
 func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
-	extIfaceIPAddress, _ := args["ext_ifaceip_address"].(string)
-	netmask, _ := args["netmask"].(string)
-	gatewayAddress, _ := args["gateway_address"].(string)
-	startIPaddressOk, _ := args["start_ip_address"].(string)
-	endIPaddressOk, _ := args["end_ip_address"].(string)
+	extIfaceIPAddress, extIfaceIPAddressOk := args["ext_ifaceip_address"].(string)
+	netmask, netmaskOk := args["netmask"].(string)
+	gatewayAddress, gatewayAddressOk := args["gateway_address"].(string)
+	startIPaddress, startIPaddressOk := args["start_ip_address"].(string)
+	endIPaddress, endIPaddressOk := args["end_ip_address"].(string)
 
-	reqCreateAdaptiveIPSetting := &rpcharp.ReqCreateAdaptiveIPSetting{
-		AdaptiveipSetting: &rpcharp.AdaptiveIPSetting{
-			ExtIfaceIPAddress: extIfaceIPAddress,
-			Netmask:           netmask,
-			GatewayAddress:    gatewayAddress,
-			StartIPAddress:    startIPaddressOk,
-			EndIPAddress:      endIPaddressOk,
-		},
+	var reqCreateAdaptiveIPSetting rpcharp.ReqCreateAdaptiveIPSetting
+	if extIfaceIPAddressOk {
+		reqCreateAdaptiveIPSetting.AdaptiveipSetting.ExtIfaceIPAddress = extIfaceIPAddress
+	}
+	if netmaskOk {
+		reqCreateAdaptiveIPSetting.AdaptiveipSetting.Netmask = netmask
+	}
+	if gatewayAddressOk {
+		reqCreateAdaptiveIPSetting.AdaptiveipSetting.GatewayAddress = gatewayAddress
+	}
+	if startIPaddressOk {
+		reqCreateAdaptiveIPSetting.AdaptiveipSetting.StartIPAddress = startIPaddress
+	}
+	if endIPaddressOk {
+		reqCreateAdaptiveIPSetting.AdaptiveipSetting.EndIPAddress = endIPaddress
 	}
 
-	resCreateAdaptiveIPSetting, err := client.RC.CreateAdaptiveIPSetting(reqCreateAdaptiveIPSetting)
+	resCreateAdaptiveIPSetting, err := client.RC.CreateAdaptiveIPSetting(&reqCreateAdaptiveIPSetting)
 	if err != nil {
 		return nil, err
 	}

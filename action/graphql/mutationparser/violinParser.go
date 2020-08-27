@@ -49,29 +49,47 @@ func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.Ser
 
 // CreateServer : Create a server
 func CreateServer(args map[string]interface{}) (interface{}, error) {
-	subnetUUID, _ := args["subnet_uuid"].(string)
-	os, _ := args["os"].(string)
-	serverName, _ := args["server_name"].(string)
-	serverDesc, _ := args["server_desc"].(string)
-	cpu, _ := args["cpu"].(int)
-	memory, _ := args["memory"].(int)
-	diskSize, _ := args["disk_size"].(int)
-	userUUID, _ := args["user_uuid"].(string)
-	nrNode, _ := args["nr_node"].(int)
+	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
+	os, osOK := args["os"].(string)
+	serverName, serverNameOk := args["server_name"].(string)
+	serverDesc, serverDescOk := args["server_desc"].(string)
+	cpu, cpuOk := args["cpu"].(int)
+	memory, memoryOk := args["memory"].(int)
+	diskSize, diskSizeOk := args["disk_size"].(int)
+	userUUID, userUUIDOk := args["user_uuid"].(string)
+	nrNode, nrNodeOk := args["nr_node"].(int)
 
 	var reqCreateServer rpcviolin.ReqCreateServer
+	var reqServer rpcviolin.Server
+	reqCreateServer.Server = &reqServer
 
-	reqCreateServer.Server = &rpcviolin.Server{
-		SubnetUUID: subnetUUID,
-		OS:         os,
-		ServerName: serverName,
-		ServerDesc: serverDesc,
-		CPU:        int32(cpu),
-		Memory:     int32(memory),
-		DiskSize:   int32(diskSize),
-		UserUUID:   userUUID,
+	if subnetUUIDOk {
+		reqCreateServer.Server.SubnetUUID = subnetUUID
 	}
-	reqCreateServer.NrNode = int32(nrNode)
+	if osOK {
+		reqCreateServer.Server.OS = os
+	}
+	if serverNameOk {
+		reqCreateServer.Server.ServerName = serverName
+	}
+	if serverDescOk {
+		reqCreateServer.Server.ServerDesc = serverDesc
+	}
+	if cpuOk {
+		reqCreateServer.Server.CPU = int32(cpu)
+	}
+	if memoryOk {
+		reqCreateServer.Server.Memory = int32(memory)
+	}
+	if diskSizeOk {
+		reqCreateServer.Server.DiskSize = int32(diskSize)
+	}
+	if userUUIDOk {
+		reqCreateServer.Server.UserUUID = userUUID
+	}
+	if nrNodeOk {
+		reqCreateServer.NrNode = int32(nrNode)
+	}
 
 	resCreateServer, err := client.RC.CreateServer(&reqCreateServer)
 	if err != nil {
@@ -79,8 +97,11 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelServer, err := pbServerToModelServer(resCreateServer.Server)
+	if err != nil {
+		return nil, err
+	}
 
-	return modelServer, nil
+	return *modelServer, nil
 }
 
 // UpdateServer : Update the infos of the server
@@ -90,38 +111,60 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	subnetUUID, _ := args["subnet_uuid"].(string)
-	os, _ := args["os"].(string)
-	serverName, _ := args["server_name"].(string)
-	serverDesc, _ := args["server_desc"].(string)
-	cpu, _ := args["cpu"].(int)
-	memory, _ := args["memory"].(int)
-	diskSize, _ := args["disk_size"].(int)
-	status, _ := args["status"].(string)
-	userUUID, _ := args["user_uuid"].(string)
+	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
+	os, osOK := args["os"].(string)
+	serverName, serverNameOk := args["server_name"].(string)
+	serverDesc, serverDescOk := args["server_desc"].(string)
+	cpu, cpuOk := args["cpu"].(int)
+	memory, memoryOk := args["memory"].(int)
+	diskSize, diskSizeOk := args["disk_size"].(int)
+	status, statusOk := args["status"].(string)
+	userUUID, userUUIDOk := args["user_uuid"].(string)
 
-	var server rpcviolin.Server
-	server.UUID = requestedUUID
-	server.SubnetUUID = subnetUUID
-	server.OS = os
-	server.ServerName = serverName
-	server.ServerDesc = serverDesc
-	server.CPU = int32(cpu)
-	server.Memory = int32(memory)
-	server.DiskSize = int32(diskSize)
-	server.Status = status
-	server.UUID = userUUID
+	var reqUpdateServer rpcviolin.ReqUpdateServer
+	var reqServer rpcviolin.Server
+	reqUpdateServer.Server = &reqServer
 
-	resUpdateServer, err := client.RC.UpdateServer(&rpcviolin.ReqUpdateServer{
-		Server: &server,
-	})
+	reqUpdateServer.Server.UUID = requestedUUID
+	if subnetUUIDOk {
+		reqUpdateServer.Server.SubnetUUID = subnetUUID
+	}
+	if osOK {
+		reqUpdateServer.Server.OS = os
+	}
+	if serverNameOk {
+		reqUpdateServer.Server.ServerName = serverName
+	}
+	if serverDescOk {
+		reqUpdateServer.Server.ServerDesc = serverDesc
+	}
+	if cpuOk {
+		reqUpdateServer.Server.CPU = int32(cpu)
+	}
+	if memoryOk {
+		reqUpdateServer.Server.Memory = int32(memory)
+	}
+	if diskSizeOk {
+		reqUpdateServer.Server.DiskSize = int32(diskSize)
+	}
+	if statusOk {
+		reqUpdateServer.Server.Status = status
+	}
+	if userUUIDOk {
+		reqUpdateServer.Server.UserUUID = userUUID
+	}
+
+	resUpdateServer, err := client.RC.UpdateServer(&reqUpdateServer)
 	if err != nil {
 		return nil, err
 	}
 
 	modelServer, err := pbServerToModelServer(resUpdateServer.Server)
+	if err != nil {
+		return nil, err
+	}
 
-	return modelServer, nil
+	return *modelServer, nil
 }
 
 // DeleteServer : Delete the server
@@ -143,14 +186,15 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 
 // CreateServerNode : Create a info of server's node
 func CreateServerNode(args map[string]interface{}) (interface{}, error) {
-	serverUUID, _ := args["server_uuid"].(string)
-	nodeUUID, _ := args["node_uuid"].(string)
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
 
 	var reqCreateServerNode rpcviolin.ReqCreateServerNode
-
-	reqCreateServerNode.ServerNode = &rpcviolin.ServerNode{
-		ServerUUID: serverUUID,
-		NodeUUID:   nodeUUID,
+	if serverUUIDOk {
+		reqCreateServerNode.ServerNode.ServerUUID = serverUUID
+	}
+	if nodeUUIDOk {
+		reqCreateServerNode.ServerNode.NodeUUID = nodeUUID
 	}
 
 	resCreateServerNode, err := client.RC.CreateServerNode(&reqCreateServerNode)
@@ -159,8 +203,11 @@ func CreateServerNode(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelServerNode, err := pbServerNodeToModelServerNode(resCreateServerNode.ServerNode)
+	if err != nil {
+		return nil, err
+	}
 
-	return modelServerNode, nil
+	return *modelServerNode, nil
 }
 
 // DeleteServerNode : Delete a info of server's node

@@ -32,6 +32,17 @@ func pbNodeToModelNode(node *rpcflute.Node) (*model.Node, error) {
 	return modelNode, nil
 }
 
+func pbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail) *model.NodeDetail {
+	modelNodeDetail := &model.NodeDetail{
+		NodeUUID:      nodeDetail.NodeUUID,
+		CPUModel:      nodeDetail.CPUModel,
+		CPUProcessors: int(nodeDetail.CPUProcessors),
+		CPUThreads:    int(nodeDetail.CPUThreads),
+	}
+
+	return modelNodeDetail
+}
+
 // PowerStateNode : Get power state of the node
 func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
@@ -51,36 +62,69 @@ func Node(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	return client.RC.GetSubnet(uuid)
+	pbNode, err := client.RC.GetNode(uuid)
+	if err != nil {
+		return nil, err
+	}
+	modelNode, err := pbNodeToModelNode(pbNode)
+	if err != nil {
+		return nil, err
+	}
+
+	return *modelNode, nil
 }
 
 // ListNode : Get node list with provided options
 func ListNode(args map[string]interface{}) (interface{}, error) {
-	serverUUID, _ := args["server_uuid"].(string)
-	bmcMacAddr, _ := args["bmc_mac_addr"].(string)
-	bmcIP, _ := args["bmc_ip"].(string)
-	pxeMacAdr, _ := args["pxe_mac_addr"].(string)
-	status, _ := args["status"].(string)
-	cpuCores, _ := args["cpu_cores"].(int)
-	memory, _ := args["memory"].(int)
-	description, _ := args["description"].(string)
-	active, _ := args["active"].(int)
-	row, _ := args["row"].(int)
-	page, _ := args["page"].(int)
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
+	bmcIP, bmcIPOk := args["bmc_ip"].(string)
+	pxeMacAddr, pxeMacAddrOk := args["pxe_mac_addr"].(string)
+	status, statusOk := args["status"].(string)
+	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
+	memory, memoryOk := args["memory"].(int)
+	description, descriptionOk := args["description"].(string)
+	active, activeOk := args["active"].(int)
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
 
 	var reqListNode rpcflute.ReqGetNodeList
-	reqListNode.Node.ServerUUID = serverUUID
-	reqListNode.Node.BmcMacAddr = bmcMacAddr
-	reqListNode.Node.BmcIP = bmcIP
-	reqListNode.Node.PXEMacAddr = pxeMacAdr
-	reqListNode.Node.Status = status
-	reqListNode.Node.CPUCores = int32(cpuCores)
-	reqListNode.Node.Memory = int32(memory)
-	reqListNode.Node.Description = description
-	reqListNode.Node.Active = int32(active)
-	reqListNode.Row = int64(row)
-	reqListNode.Page = int64(page)
+	var reqNode rpcflute.Node
+	reqListNode.Node = &reqNode
 
+	if serverUUIDOk {
+		reqListNode.Node.ServerUUID = serverUUID
+	}
+	if bmcMacAddrOk {
+		reqListNode.Node.BmcMacAddr = bmcMacAddr
+	}
+	if bmcIPOk {
+		reqListNode.Node.BmcIP = bmcIP
+	}
+	if pxeMacAddrOk {
+		reqListNode.Node.PXEMacAddr = pxeMacAddr
+	}
+	if statusOk {
+		reqListNode.Node.Status = status
+	}
+	if cpuCoresOk {
+		reqListNode.Node.CPUCores = int32(cpuCores)
+	}
+	if memoryOk {
+		reqListNode.Node.Memory = int32(memory)
+	}
+	if descriptionOk {
+		reqListNode.Node.Description = description
+	}
+	if activeOk {
+		reqListNode.Node.Active = int32(active)
+	}
+	if rowOk {
+		reqListNode.Row = int64(row)
+	}
+	if pageOk {
+		reqListNode.Page = int64(page)
+	}
 	resListNode, err := client.RC.GetNodeList(&reqListNode)
 	if err != nil {
 		return nil, err
@@ -118,11 +162,17 @@ func NumNode() (interface{}, error) {
 
 // NodeDetail : Get infos of the detail of the node
 func NodeDetail(args map[string]interface{}) (interface{}, error) {
-	uuid, uuidOk := args["uuid"].(string)
+	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
 
-	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+	if !nodeUUIDOk {
+		return nil, errors.New("need a node_uuid argument")
 	}
 
-	return client.RC.GetNodeDetail(uuid)
+	pbNodeDetail, err := client.RC.GetNodeDetail(nodeUUID)
+	if err != nil {
+		return nil, err
+	}
+	modelNodeDetail := pbNodeDetailToModelNodeDetail(pbNodeDetail)
+
+	return *modelNodeDetail, nil
 }

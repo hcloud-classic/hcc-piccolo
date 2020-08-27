@@ -59,7 +59,6 @@ func Server(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	modelServer, err := pbServerToModelServer(server)
 	if err != nil {
 		return nil, err
@@ -70,30 +69,55 @@ func Server(args map[string]interface{}) (interface{}, error) {
 
 // ListServer : Get server list with provided options
 func ListServer(args map[string]interface{}) (interface{}, error) {
-	subnetUUID, _ := args["subnet_uuid"].(string)
-	os, _ := args["os"].(string)
-	serverName, _ := args["server_name"].(string)
-	serverDesc, _ := args["server_desc"].(string)
-	cpu, _ := args["cpu"].(int)
-	memory, _ := args["memory"].(int)
-	diskSize, _ := args["disk_size"].(int)
-	status, _ := args["status"].(string)
-	userUUID, _ := args["user_uuid"].(string)
-	row, _ := args["row"].(int)
-	page, _ := args["page"].(int)
+	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
+	os, osOk := args["os"].(string)
+	serverName, serverNameOk := args["server_name"].(string)
+	serverDesc, serverDescOk := args["server_desc"].(string)
+	cpu, cpuOk := args["cpu"].(int)
+	memory, memoryOk := args["memory"].(int)
+	diskSize, diskSizeOk := args["disk_size"].(int)
+	status, statusOk := args["status"].(string)
+	userUUID, userUUIDOk := args["user_uuid"].(string)
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
 
 	var reqListServer rpcviolin.ReqGetServerList
-	reqListServer.Server.SubnetUUID = subnetUUID
-	reqListServer.Server.OS = os
-	reqListServer.Server.ServerName = serverName
-	reqListServer.Server.ServerDesc = serverDesc
-	reqListServer.Server.CPU = int32(cpu)
-	reqListServer.Server.Memory = int32(memory)
-	reqListServer.Server.DiskSize = int32(diskSize)
-	reqListServer.Server.Status = status
-	reqListServer.Server.UserUUID = userUUID
-	reqListServer.Row = int64(row)
-	reqListServer.Page = int64(page)
+	var reqServer rpcviolin.Server
+	reqListServer.Server = &reqServer
+
+	if subnetUUIDOk {
+		reqListServer.Server.SubnetUUID = subnetUUID
+	}
+	if osOk {
+		reqListServer.Server.OS = os
+	}
+	if serverNameOk {
+		reqListServer.Server.ServerName = serverName
+	}
+	if serverDescOk {
+		reqListServer.Server.ServerDesc = serverDesc
+	}
+	if cpuOk {
+		reqListServer.Server.CPU = int32(cpu)
+	}
+	if memoryOk {
+		reqListServer.Server.Memory = int32(memory)
+	}
+	if diskSizeOk {
+		reqListServer.Server.DiskSize = int32(diskSize)
+	}
+	if statusOk {
+		reqListServer.Server.Status = status
+	}
+	if userUUIDOk {
+		reqListServer.Server.UserUUID = userUUID
+	}
+	if rowOk {
+		reqListServer.Row = int64(row)
+	}
+	if pageOk {
+		reqListServer.Page = int64(page)
+	}
 
 	resListServer, err := client.RC.GetServerList(&reqListServer)
 	if err != nil {
