@@ -6,6 +6,7 @@ import (
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/lib/syscheck"
 	"log"
 	"os"
@@ -25,6 +26,11 @@ func init() {
 	}
 
 	config.Init()
+
+	err = mysql.Init()
+	if err != nil {
+		logger.Logger.Fatalf("mysql.Init(): %v", err.Error())
+	}
 
 	err = client.Init()
 	if err != nil {

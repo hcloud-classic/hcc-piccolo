@@ -11,6 +11,23 @@ var queryTypes = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Query",
 		Fields: graphql.Fields{
+			// piccolo
+			"login": &graphql.Field{
+				Type:        graphqlType.Token,
+				Description: "Execute login process for piccolo",
+				Args: graphql.FieldConfigArgument{
+					"id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"password": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					logger.Logger.Println("Resolving: piccolo / login")
+					return queryparser.Login(params.Args)
+				},
+			},
 			// violin
 			"server": &graphql.Field{
 				Type:        graphqlType.ServerType,
@@ -62,6 +79,7 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token":
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / list_server")
