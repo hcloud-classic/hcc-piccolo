@@ -3,7 +3,10 @@ package userTool
 import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
 	"hcc/piccolo/lib/config"
+	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/mysql"
 	"time"
 )
 
@@ -14,6 +17,7 @@ type claims struct {
 }
 
 var jwtKey = []byte("hccJWTKey")
+var loginMismatchError = errors.New("can not login with provided token")
 
 func GenerateToken(id string, password string) (string, error) {
 	// Declare the expiration time of the token
@@ -45,7 +49,12 @@ func GenerateToken(id string, password string) (string, error) {
 }
 
 // ValidateToken : Validate given token string
-func ValidateToken(tokenString string) error{
+func ValidateToken(args map[string]interface{}) error{
+	tokenString, tokenStringOk := args["token"].(string)
+	if !tokenStringOk {
+		return errors.New("need a token argument")
+	}
+
 	// Parse takes the token string and a function for looking up the key. The latter is especially
 	// useful if you use multiple keys for your application.  The standard is to use 'kid' in the
 	// head of the token to identify which key to use, but the parsed token (head and claims) is provided
@@ -60,14 +69,38 @@ func ValidateToken(tokenString string) error{
 		return jwtKey, nil
 	})
 	if err != nil {
-		return err
+		return errors.New("invalid token")
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		claims
+		if claims["iss"].(string) != "piccolo" &&
+			claims["sub"].(string) != "Auth" {
+			return errors.New("invalid token")
+		}
+
+		if time.Now().Unix() >= int64(claims["exp"].(float64)) {
+			return errors.New("token is expired")
+		}
+
+		var dbPassword string
+
+		sql := "select password from user where id = ?"
+		err := mysql.Db.QueryRow(sql, claims["Id"].(string)).Scan(&dbPassword)
+		if err != nil {
+			logger.Logger.Println(err)
+			return loginMismatchError
+		}
+
+		// Given password is hashed password with bcrypt
+		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(dbPassword))
+		if err != nil {
+			return loginMismatchError
+		}
+
+		logger.Logger.Println("Token validated for user [" + claims["Id"].(string) + "]")
 
 		return nil
-	} else {
-		return err
 	}
+
+	return errors.New("invalid token")
 }

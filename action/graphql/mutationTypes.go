@@ -4,6 +4,7 @@ import (
 	"hcc/piccolo/action/graphql/mutationparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/userTool"
 
 	"github.com/graphql-go/graphql"
 )
@@ -66,8 +67,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"nr_node": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: violin / create_server")
 				return mutationparser.CreateServer(params.Args)
 			},
@@ -106,8 +114,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"user_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: violin / update_server")
 				return mutationparser.UpdateServer(params.Args)
 			},
@@ -119,8 +134,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: violin / delete_server")
 				return mutationparser.DeleteServer(params.Args)
 			},
@@ -135,8 +157,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"node_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: violin / create_server_node")
 				return mutationparser.CreateServerNode(params.Args)
 			},
@@ -148,8 +177,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: violin / delete server_node")
 				return mutationparser.DeleteServerNode(params.Args)
 			},
@@ -177,8 +213,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"action": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: violin-novnc: create_vnc")
 				return mutationparser.CreateVnc(params.Args)
 			},
@@ -218,8 +261,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"subnet_name": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				return mutationparser.CreateSubnet(params.Args)
 			},
 		},
@@ -260,8 +310,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"subnet_name": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: harp / update_subnet")
 				return mutationparser.UpdateSubnet(params.Args)
 			},
@@ -273,8 +330,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: harp / delete_subnet")
 				return mutationparser.DeleteSubnet(params.Args)
 			},
@@ -289,8 +353,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"node_uuids": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: harp / create_dhcpd_conf")
 				return mutationparser.CreateDHCPDConf(params.Args)
 			},
@@ -314,8 +385,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"end_ip_address": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: harp / create_adaptiveip_setting")
 				return mutationparser.CreateAdaptiveIPSetting(params.Args)
 			},
@@ -330,8 +408,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"public_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: harp / create_adaptiveip_server")
 				return mutationparser.CreateAdaptiveIPServer(params.Args)
 			},
@@ -343,8 +428,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"server_uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: harp / delete_adaptiveip_server")
 				return mutationparser.DeleteAdaptiveIPServer(params.Args)
 			},
@@ -357,8 +449,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: flute / on_node")
 				return mutationparser.OnNode(params.Args)
 			},
@@ -373,8 +472,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"force_off": &graphql.ArgumentConfig{
 					Type: graphql.Boolean,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: flute / off_node")
 				return mutationparser.OffNode(params.Args)
 			},
@@ -386,8 +492,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: flute / force_restart_node")
 				return mutationparser.ForceRestartNode(params.Args)
 			},
@@ -420,8 +533,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"active": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: flute / create_node")
 				return mutationparser.CreateNode(params.Args)
 			},
@@ -460,8 +580,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"active": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: flute / update_node")
 				return mutationparser.UpdateNode(params.Args)
 			},
@@ -473,8 +600,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: flute / delete_node")
 				return mutationparser.DeleteNode(params.Args)
 			},
@@ -496,8 +630,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"cpu_threads": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: flute / create_node_detail")
 				return mutationparser.CreateNodeDetail(params.Args)
 			},
@@ -509,8 +650,15 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"node_uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := userTool.ValidateToken(params.Args)
+				if err != nil {
+					return nil, err
+				}
 				logger.Logger.Println("Resolving: flute / delete_node_detail")
 				return mutationparser.DeleteNodeDetail(params.Args)
 			},

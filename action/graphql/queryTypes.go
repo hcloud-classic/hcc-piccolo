@@ -5,6 +5,7 @@ import (
 	"hcc/piccolo/action/graphql/queryparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/userTool"
 )
 
 var queryTypes = graphql.NewObject(
@@ -36,8 +37,15 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: violin / server")
 					return queryparser.Server(params.Args)
 				},
@@ -79,9 +87,15 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
-					"token":
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: violin / list_server")
 					return queryparser.ListServer(params.Args)
 				},
@@ -96,8 +110,15 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: violin / all_server")
 					return queryparser.AllServer(params.Args)
 				},
@@ -105,7 +126,16 @@ var queryTypes = graphql.NewObject(
 			"num_server": &graphql.Field{
 				Type:        graphqlType.ServerNumType,
 				Description: "Get the number of server",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: violin / num_server")
 					return queryparser.NumServer()
 				},
@@ -117,8 +147,15 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: violin / server_node")
 					return queryparser.ServerNode(params.Args)
 				},
@@ -130,8 +167,15 @@ var queryTypes = graphql.NewObject(
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: violin / list_server_node")
 					return queryparser.ListServerNode(params.Args)
 				},
@@ -143,8 +187,15 @@ var queryTypes = graphql.NewObject(
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: violin / all_server_node")
 					return queryparser.AllServerNode(params.Args)
 				},
@@ -156,8 +207,15 @@ var queryTypes = graphql.NewObject(
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: violin / num_nodes_server")
 					return queryparser.NumServerNode(params.Args)
 				},
@@ -185,8 +243,15 @@ var queryTypes = graphql.NewObject(
 					"action": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: violin-novnc: control_vnc")
 					return queryparser.ControlVnc(params.Args)
 				},
@@ -199,8 +264,15 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: harp / subnet")
 					return queryparser.Subnet(params.Args)
 				},
@@ -248,8 +320,15 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: harp / list_subnet")
 					return queryparser.ListSubnet(params.Args)
 				},
@@ -264,8 +343,15 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: harp / all_subnet")
 					return queryparser.AllSubnet(params.Args)
 				},
@@ -273,7 +359,16 @@ var queryTypes = graphql.NewObject(
 			"num_subnet": &graphql.Field{
 				Type:        graphqlType.SubnetNumType,
 				Description: "Get the number of subnet",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: harp / num_subnet")
 					return queryparser.NumSubnet()
 				},
@@ -281,7 +376,16 @@ var queryTypes = graphql.NewObject(
 			"adaptiveip_setting": &graphql.Field{
 				Type:        graphqlType.AdaptiveIPSettingType,
 				Description: "Get settings of adaptiveip",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: harp / adaptiveip_setting")
 					return queryparser.GetAdaptiveIPSetting()
 				},
@@ -293,8 +397,15 @@ var queryTypes = graphql.NewObject(
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: harp / adaptiveip_server")
 					return queryparser.AdaptiveIPServer(params.Args)
 				},
@@ -315,8 +426,15 @@ var queryTypes = graphql.NewObject(
 					"private_gateway": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: harp / list_adaptiveip_server")
 					return queryparser.ListAdaptiveIPServer(params.Args)
 				},
@@ -331,8 +449,15 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: harp / all_adaptiveip_server")
 					return queryparser.AllAdaptiveIPServer(params.Args)
 				},
@@ -340,7 +465,16 @@ var queryTypes = graphql.NewObject(
 			"num_adaptiveip_server": &graphql.Field{
 				Type:        graphqlType.AdaptiveIPServerNumType,
 				Description: "Get the number of adaptiveip_server",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: harp / num_adaptiveip_server")
 					return queryparser.NumAdaptiveIPServer()
 				},
@@ -353,8 +487,15 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: power_state_node")
 					return queryparser.PowerStateNode(params.Args)
 				},
@@ -366,8 +507,15 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: flute / node")
 					return queryparser.Node(params.Args)
 				},
@@ -409,8 +557,15 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: flute / list_node")
 					return queryparser.ListNode(params.Args)
 				},
@@ -428,8 +583,15 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: flute / all_node")
 					return queryparser.AllNode(params.Args)
 				},
@@ -437,7 +599,16 @@ var queryTypes = graphql.NewObject(
 			"num_node": &graphql.Field{
 				Type:        graphqlType.NodeNumType,
 				Description: "Get the number of node",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: flute / num_node")
 					return queryparser.NumNode()
 				},
@@ -449,8 +620,15 @@ var queryTypes = graphql.NewObject(
 					"node_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: flute / node_detail")
 					return queryparser.NodeDetail(params.Args)
 				},
@@ -478,8 +656,15 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
 					logger.Logger.Println("Resolving: piano / telegraf")
 					return queryparser.Telegraf(params.Args)
 				},
