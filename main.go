@@ -17,7 +17,7 @@ func init() {
 	err := logger.Init()
 	if err != nil {
 		errors.SetErrLogger(logger.Logger)
-		errors.NewHccError(errors.PiccoloInternalInitFail, "logger.Init(): " + err.Error()).Fatal()
+		errors.NewHccError(errors.PiccoloInternalInitFail, "logger.Init(): "+err.Error()).Fatal()
 	}
 	errors.SetErrLogger(logger.Logger)
 
@@ -25,12 +25,12 @@ func init() {
 
 	err = mysql.Init()
 	if err != nil {
-		errors.NewHccError(errors.PiccoloInternalInitFail, "mysql.Init(): " + err.Error()).Fatal()
+		errors.NewHccError(errors.PiccoloInternalInitFail, "mysql.Init(): "+err.Error()).Fatal()
 	}
 
 	err = client.Init()
 	if err != nil {
-		errors.NewHccError(errors.PiccoloInternalInitFail, "client.Init(): " + err.Error()).Fatal()
+		errors.NewHccError(errors.PiccoloInternalInitFail, "client.Init(): "+err.Error()).Fatal()
 	}
 }
 

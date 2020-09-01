@@ -11,7 +11,7 @@ import (
 )
 
 type claims struct {
-	Id string
+	Id       string
 	Password string
 	jwt.StandardClaims
 }
@@ -24,14 +24,14 @@ func GenerateToken(id string, password string) (string, error) {
 	expirationTime := time.Now().Add(time.Minute * time.Duration(config.User.TokenExpirationTimeMinutes))
 	// Create the JWT claims, which includes the user id and password with expiry time
 	claims := &claims{
-		Id: id,
+		Id:       id,
 		Password: password,
 		StandardClaims: jwt.StandardClaims{
-			Issuer: "piccolo",
+			Issuer:  "piccolo",
 			Subject: "Auth",
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
-			IssuedAt: time.Now().Unix(),
+			IssuedAt:  time.Now().Unix(),
 		},
 	}
 
@@ -49,7 +49,7 @@ func GenerateToken(id string, password string) (string, error) {
 }
 
 // ValidateToken : Validate given token string
-func ValidateToken(args map[string]interface{}) error{
+func ValidateToken(args map[string]interface{}) error {
 	tokenString, tokenStringOk := args["token"].(string)
 	if !tokenStringOk {
 		return errors.New("need a token argument")
