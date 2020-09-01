@@ -1,10 +1,10 @@
 package mutationparser
 
 import (
-	"errors"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/data"
 	"hcc/piccolo/http"
+	"hcc/piccolo/lib/errors"
 )
 
 func checkVncArgsAll(args map[string]interface{}) bool {
@@ -20,7 +20,7 @@ func checkVncArgsAll(args map[string]interface{}) bool {
 // CreateVnc : Create infos of the VNC
 func CreateVnc(args map[string]interface{}) (interface{}, error) {
 	if !checkVncArgsAll(args) {
-		return nil, errors.New("check needed arguments (server_uuid, target_ip, target_port, target_pass, action)")
+		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "check needed arguments (server_uuid, target_ip, target_port, target_pass, action)")
 	}
 
 	serverUUID, _ := args["server_uuid"].(string)
@@ -40,7 +40,7 @@ func CreateVnc(args map[string]interface{}) (interface{}, error) {
 // ControlVnc : Set VNC with provided options
 func ControlVnc(args map[string]interface{}) (interface{}, error) {
 	if !checkVncArgsAll(args) {
-		return nil, errors.New("check needed arguments (server_uuid, target_ip, target_port, target_pass, action)")
+		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "check needed arguments (server_uuid, target_ip, target_port, target_pass, action)")
 	}
 
 	return client.RC.ControlVNC(args)

@@ -1,17 +1,17 @@
 package queryparser
 
 import (
-	"errors"
 	"github.com/golang/protobuf/ptypes"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/pb/rpcflute"
+	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
 )
 
 func pbNodeToModelNode(node *rpcflute.Node) (*model.Node, error) {
 	createdAt, err := ptypes.Timestamp(node.CreatedAt)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error()).New()
 	}
 
 	modelNode := &model.Node{
@@ -48,10 +48,15 @@ func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
 	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need a uuid argument").New()
 	}
 
-	return client.RC.GetNodePowerState(uuid)
+	result, err := client.RC.GetNodePowerState(uuid)
+	if err != nil {
+		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
+	}
+
+	return result, nil
 }
 
 // Node : Get infos of the node
@@ -59,12 +64,12 @@ func Node(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
 	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need a uuid argument").New()
 	}
 
 	pbNode, err := client.RC.GetNode(uuid)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 	modelNode, err := pbNodeToModelNode(pbNode)
 	if err != nil {
@@ -127,7 +132,7 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	}
 	resListNode, err := client.RC.GetNodeList(&reqListNode)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 
 	var nodeList []model.Node
@@ -151,7 +156,7 @@ func AllNode(args map[string]interface{}) (interface{}, error) {
 func NumNode() (interface{}, error) {
 	num, err := client.RC.GetNodeNum()
 	if err != nil {
-		return nil, err
+		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 
 	var modelNodeNum model.NodeNum
@@ -165,12 +170,12 @@ func NodeDetail(args map[string]interface{}) (interface{}, error) {
 	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
 
 	if !nodeUUIDOk {
-		return nil, errors.New("need a node_uuid argument")
+		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need a node_uuid argument").New()
 	}
 
 	pbNodeDetail, err := client.RC.GetNodeDetail(nodeUUID)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 	modelNodeDetail := pbNodeDetailToModelNodeDetail(pbNodeDetail)
 

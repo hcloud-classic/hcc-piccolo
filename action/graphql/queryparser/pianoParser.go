@@ -1,9 +1,9 @@
 package queryparser
 
 import (
-	"errors"
 	"hcc/piccolo/data"
 	"hcc/piccolo/http"
+	"hcc/piccolo/lib/errors"
 )
 
 func checkTelegrafArgsAll(args map[string]interface{}) bool {
@@ -27,7 +27,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 	uuid, _ := args["uuid"].(string)
 
 	if !checkTelegrafArgsAll(args) {
-		return nil, errors.New("check needed arguments (metric, subMetric, period, aggregateType, duration, uuid)")
+		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "check needed arguments (metric, subMetric, period, aggregateType, duration, uuid)").New()
 	}
 	var telegrafData data.TelegrafData
 	query := "query { telegraf(metric:\"" + metric + "\", subMetric:\"" + subMetric + "\", period:\"" + period + "\", " +

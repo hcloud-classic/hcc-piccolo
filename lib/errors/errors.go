@@ -29,15 +29,17 @@ const (
 	driver                              // driver
 	graphql                             // action
 	grpc
-	sql
+	mysql
 	rabbitmq
 )
 
-var functionList = [...]string{"", "Internal", "Driver", "GraphQL", "Grpc", "SQL", "RabbitMQ"}
+var functionList = [...]string{"", "Internal", "Driver", "GraphQL", "gRPC", "mySQL", "RabbitMQ"}
 
 const (
 	initFail uint64 = 1 + iota
 	connectionFail
+	UUIDGenerationError
+	timestampConversionError
 	argumentError
 	jsonMarshalError
 	jsonUnmarshalError
@@ -46,6 +48,8 @@ const (
 	sendError     // send error to client
 	receiveError  // get error as result from server
 	parsingError
+	prepareError
+	executeError
 	tokenExpired
 	loginFailed
 )
@@ -54,6 +58,8 @@ var actionList = [...]string{
 	"",
 	"Initialize fail -> ",
 	"Connection fail -> ",
+	"UUID generation error -> ",
+	"timestamp conversion error -> ",
 	"Argumnet error -> ",
 	"JSON marshal fail -> ",
 	"JSON unmarshal fail -> ",
@@ -62,6 +68,8 @@ var actionList = [...]string{
 	"Send error -> ",
 	"Receive error -> ",
 	"Parsing error -> ",
+	"Prepare error -> ",
+	"Execute error -> ",
 	"Token Expired -> ",
 	"Login failed -> ",
 }
