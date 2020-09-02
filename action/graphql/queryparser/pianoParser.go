@@ -1,10 +1,33 @@
 package queryparser
 
 import (
-	"hcc/piccolo/data"
-	"hcc/piccolo/http"
+	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/pb/rpcpiano"
 	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/model"
 )
+
+func pbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData) *model.Telegraf {
+	var seriesArr []model.Series
+
+	for _, monitoringDataSeries := range monitoringData.Series {
+		var series model.Series
+
+		series.Time = int(monitoringDataSeries.Time)
+		series.Value = int(monitoringDataSeries.Value)
+
+		seriesArr = append(seriesArr, series)
+	}
+
+	modelTelegraf := &model.Telegraf{
+		Metric:    monitoringData.Metric,
+		SubMetric: monitoringData.SubMetric,
+		UUID:      monitoringData.UUID,
+		Series:    seriesArr,
+	}
+
+	return modelTelegraf
+}
 
 func checkTelegrafArgsAll(args map[string]interface{}) bool {
 	_, metricOk := args["metric"].(string)
@@ -29,10 +52,22 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 	if !checkTelegrafArgsAll(args) {
 		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "check needed arguments (metric, subMetric, period, aggregateType, duration, uuid)").New()
 	}
-	var telegrafData data.TelegrafData
-	query := "query { telegraf(metric:\"" + metric + "\", subMetric:\"" + subMetric + "\", period:\"" + period + "\", " +
-		"aggregateType:\"" + aggregateType + "\", duration:\"" + duration + "\", uuid:\"" + uuid + "\"){ metric subMetric id data { " +
-		"x y } } }"
 
-	return http.DoHTTPRequest("piano", true, "TelegrafData", telegrafData, query)
+	resMonitoringData, err := client.RC.Telegraph(&rpcpiano.ReqMetricInfo{
+		MetricInfo: &rpcpiano.MetricInfo{
+			Metric:        metric,
+			SubMetric:     subMetric,
+			Period:        period,
+			AggregateType: aggregateType,
+			Duration:      duration,
+			Uuid:          uuid,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	modelTelegraf := pbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData)
+
+	return *modelTelegraf, nil
 }
