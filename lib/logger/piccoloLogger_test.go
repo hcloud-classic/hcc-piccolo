@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"hcc/piccolo/lib/syscheck"
+	"hcc/piccolo/lib/errors"
 	"testing"
 )
 
@@ -13,16 +13,14 @@ func Test_CreateDirIfNotExist(t *testing.T) {
 }
 
 func Test_Logger_Prepare(t *testing.T) {
-	err := syscheck.CheckRoot()
+	err := Init()
 	if err != nil {
-		t.Fatal("Failed to get root permission!")
+		errors.SetErrLogger(Logger)
+		errors.NewHccError(errors.PiccoloInternalInitFail, "logger.Init(): "+err.Error()).Fatal()
 	}
+	errors.SetErrLogger(Logger)
 
-	err = Init()
-	if err != nil {
-		t.Fatal("Failed to prepare logger!")
-	}
 	defer func() {
-		_ = FpLog.Close()
+		End()
 	}()
 }

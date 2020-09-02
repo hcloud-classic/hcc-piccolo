@@ -1,6 +1,6 @@
 package model
 
-// Vnc : Model strucy of vnc
+// Vnc : Model struct of vnc
 type Vnc struct {
 	ServerUUID     string `json:"server_uuid"`
 	TargetIP       string `json:"target_ip"`

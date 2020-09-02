@@ -2,23 +2,21 @@ package mysql
 
 import (
 	"hcc/piccolo/lib/config"
+	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
-	"hcc/piccolo/lib/syscheck"
 	"testing"
 )
 
 func Test_DB_Prepare(t *testing.T) {
-	err := syscheck.CheckRoot()
+	err := logger.Init()
 	if err != nil {
-		t.Fatal("Failed to get root permission!")
+		errors.SetErrLogger(logger.Logger)
+		errors.NewHccError(errors.PiccoloInternalInitFail, "logger.Init(): "+err.Error()).Fatal()
 	}
+	errors.SetErrLogger(logger.Logger)
 
-	err = logger.Init()
-	if err != nil {
-		t.Fatal("Failed to prepare logger!")
-	}
 	defer func() {
-		_ = logger.FpLog.Close()
+		logger.End()
 	}()
 
 	config.Init()
@@ -28,6 +26,6 @@ func Test_DB_Prepare(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		_ = Db.Close()
+		End()
 	}()
 }
