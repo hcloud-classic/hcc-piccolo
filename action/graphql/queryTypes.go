@@ -222,22 +222,10 @@ var queryTypes = graphql.NewObject(
 			},
 			// vnc
 			"control_vnc": &graphql.Field{
-				Type:        graphqlType.VncNodeType,
-				Description: "Create vnc",
+				Type:        graphql.String,
+				Description: "Control VNC",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"target_ip": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"target_port": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"target_pass": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"websocket_port": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 					"action": &graphql.ArgumentConfig{
