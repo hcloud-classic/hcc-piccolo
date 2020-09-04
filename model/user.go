@@ -1,6 +1,7 @@
 package model
 
 import (
+	"hcc/piccolo/lib/errors"
 	"time"
 )
 
@@ -13,14 +14,17 @@ type User struct {
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	LoginAt   time.Time `json:"login_at"`
+	Errors string `json:"errors"`
 }
 
 // Token : Contain the user token
 type Token struct {
 	Token string `json:"token"`
+	Errors errors.HccErrorStack `json:"errors"`
 }
 
 // IsValid : Contain the validation of the token
 type IsValid struct {
 	IsValid bool `json:"isvalid"`
+	Errors errors.HccErrorStack `json:"errors"`
 }

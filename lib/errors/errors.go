@@ -50,6 +50,7 @@ const (
 	parsingError
 	prepareError
 	executeError
+	tokenGenerationError
 	tokenExpired
 	loginFailed
 )
@@ -70,6 +71,7 @@ var actionList = [...]string{
 	"Parsing error -> ",
 	"Prepare error -> ",
 	"Execute error -> ",
+	"Token Generation Error -> ",
 	"Token Expired -> ",
 	"Login failed -> ",
 }
