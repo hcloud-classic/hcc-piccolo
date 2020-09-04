@@ -19,3 +19,8 @@ type User struct {
 type Token struct {
 	Token string `json:"token"`
 }
+
+// IsValid : Contain the validation of the token
+type IsValid struct {
+	IsValid bool `json:"isvalid"`
+}

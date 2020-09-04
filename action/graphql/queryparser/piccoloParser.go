@@ -44,3 +44,21 @@ func Login(args map[string]interface{}) (interface{}, error) {
 
 	return model.Token{Token: token}, nil
 }
+
+// CheckToken : Do token validation check process
+func CheckToken(args map[string]interface{}) (interface{}, error) {
+	token, tokenOk := args["token"].(string)
+
+	if !tokenOk {
+		return nil, errors.New("need a token argument")
+	}
+
+	var tokenArg = make(map[string]interface{})
+	tokenArg["token"] = token
+	err := userTool.ValidateToken(tokenArg)
+	if err != nil {
+		return model.IsValid{IsValid: false}, nil
+	}
+
+	return model.IsValid{IsValid: true}, nil
+}

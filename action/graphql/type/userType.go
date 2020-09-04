@@ -43,3 +43,15 @@ var Token = graphql.NewObject(
 		},
 	},
 )
+
+// IsValid : Graphql object type of IsValid
+var IsValid = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "IsValid",
+		Fields: graphql.Fields{
+			"isvalid": &graphql.Field{
+				Type: graphql.Boolean,
+			},
+		},
+	},
+)

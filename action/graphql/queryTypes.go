@@ -29,6 +29,19 @@ var queryTypes = graphql.NewObject(
 					return queryparser.Login(params.Args)
 				},
 			},
+			"check_token": &graphql.Field{
+				Type:        graphqlType.IsValid,
+				Description: "Check validation of the token for piccolo",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					logger.Logger.Println("Resolving: piccolo / check_token")
+					return queryparser.CheckToken(params.Args)
+				},
+			},
 			// violin
 			"server": &graphql.Field{
 				Type:        graphqlType.ServerType,
