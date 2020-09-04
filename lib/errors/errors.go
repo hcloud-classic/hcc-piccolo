@@ -167,3 +167,10 @@ func (es *HccErrorStack) Dump() *HccError {
 	errlogger.Println("--------- [ End Here ] ---------")
 	return firstErr
 }
+
+func (es *HccErrorStack) ConvertReportForm() *HccErrorStack {
+	for _, err := range es.errStack {
+		err.ErrText = err.ToString()
+	}
+	return es
+}
