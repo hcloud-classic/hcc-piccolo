@@ -43,6 +43,7 @@ const _ = proto.ProtoPackageIsVersion4
 // Symbols defined in public import of msgType.proto.
 
 type Empty = rpcmsgType.Empty
+type HccError = rpcmsgType.HccError
 type Node = rpcmsgType.Node
 type NodeDetail = rpcmsgType.NodeDetail
 type Server = rpcmsgType.Server
