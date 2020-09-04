@@ -83,8 +83,8 @@ func SetErrLogger(l *log.Logger) {
 }
 
 type HccError struct {
-	ErrCode uint64 // decimal error code
-	ErrText string // error string
+	ErrCode uint64 `json:"errcode"` // decimal error code
+	ErrText string `json:"errtext"` // error string
 }
 
 func NewHccError(errorCode uint64, errorText string) *HccError {
@@ -123,7 +123,7 @@ func (e HccError) Fatal() {
 }
 
 type HccErrorStack struct {
-	errStack []HccError
+	errStack []HccError `json:"errors"`
 }
 
 func NewHccErrorStack(errList ...*HccError) *HccErrorStack {

@@ -10,7 +10,7 @@ const (
 	PiccoloGraphQLTimestampConversionError = piccolo + graphql + timestampConversionError
 	PiccoloGraphQLArgumentError            = piccolo + graphql + argumentError
 	PiccoloGraphQLLoginFailed              = piccolo + graphql + loginFailed
-	PiccoloGraphQLTokenGenerationError             = piccolo + graphql + tokenGenerationError
+	PiccoloGraphQLTokenGenerationError     = piccolo + graphql + tokenGenerationError
 	PiccoloGraphQLTokenExpired             = piccolo + graphql + tokenExpired
 
 	PiccoloMySQLPrepareError = piccolo + mysql + prepareError
