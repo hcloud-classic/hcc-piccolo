@@ -31,6 +31,9 @@ var VolumeType = graphql.NewObject(
 			"created_at": &graphql.Field{
 				Type: graphql.String,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

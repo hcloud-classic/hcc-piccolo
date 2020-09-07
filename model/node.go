@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"hcc/piccolo/lib/errors"
+	"time"
+)
 
 // Node : Contain infos of a node
 type Node struct {
@@ -16,14 +19,23 @@ type Node struct {
 	CreatedAt   time.Time `json:"created_at"`
 	Active      int       `json:"active"`
 	ForceOff    bool      `json:"force_off"`
+	Errors []errors.HccError `json:"errors"`
 }
 
-// Nodes : Contain a node list
-type Nodes struct {
-	Nodes []Node `json:"node"`
+// NodeList : Contain list of nodes
+type NodeList struct {
+	Nodes []Node `json:"node_list"`
+	Errors []errors.HccError `json:"errors"`
 }
 
 // NodeNum : Contain the number of nodes
 type NodeNum struct {
 	Number int `json:"number"`
+	Errors []errors.HccError `json:"errors"`
+}
+
+// PowerStateNode : Contain the power state of the node
+type PowerStateNode struct {
+	Result string `json:"result"`
+	Errors []errors.HccError `json:"errors"`
 }

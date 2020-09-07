@@ -22,6 +22,9 @@ var VolumeAttachmentType = graphql.NewObject(
 			"updated_at": &graphql.Field{
 				Type: graphql.String,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

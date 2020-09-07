@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"hcc/piccolo/lib/errors"
+	"time"
+)
 
 // Volume - cgs
 type Volume struct {
@@ -12,14 +15,11 @@ type Volume struct {
 	UserUUID   string    `json:"user_uuid"`
 	CreatedAt  time.Time `json:"created_at"`
 	NetworkIP  string    `json:"network_ip"`
-}
-
-// Volumes - cgs
-type Volumes struct {
-	Volumes []Volume `json:"volume"`
+	Errors []errors.HccError `json:"errors"`
 }
 
 // VolumeNum - cgs
 type VolumeNum struct {
 	Number int `json:"number"`
+	Errors []errors.HccError `json:"errors"`
 }

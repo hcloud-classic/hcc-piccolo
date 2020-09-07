@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"hcc/piccolo/lib/errors"
+	"time"
+)
 
 // AdaptiveIP : Structure of AdaptiveIP
 type AdaptiveIP struct {
@@ -11,16 +14,13 @@ type AdaptiveIP struct {
 	StartIPAddress string    `json:"start_ip_address"`
 	EndIPAddress   string    `json:"end_ip_address"`
 	CreatedAt      time.Time `json:"created_at"`
-}
-
-// AdaptiveIPs : Structure of AdaptiveIPs
-type AdaptiveIPs struct {
-	AdaptiveIP []Subnet `json:"adaptiveip"`
+	Errors []errors.HccError `json:"errors"`
 }
 
 // AdaptiveIPNum : Structure of AdaptiveIPNum
 type AdaptiveIPNum struct {
 	Number int `json:"number"`
+	Errors []errors.HccError `json:"errors"`
 }
 
 // AdaptiveIPSetting : Structure of AdaptiveIPSetting
@@ -30,4 +30,5 @@ type AdaptiveIPSetting struct {
 	GatewayAddress    string `json:"gateway_address"`
 	StartIPAddress    string `json:"start_ip_address"`
 	EndIPAddress      string `json:"end_ip_address"`
+	Errors []errors.HccError `json:"errors"`
 }

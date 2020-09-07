@@ -24,6 +24,7 @@ func pbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData) *m
 		SubMetric: monitoringData.SubMetric,
 		UUID:      monitoringData.UUID,
 		Series:    seriesArr,
+		Errors: errors.ReturnHccEmptyError(),
 	}
 
 	return modelTelegraf
@@ -50,7 +51,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 	uuid, _ := args["uuid"].(string)
 
 	if !checkTelegrafArgsAll(args) {
-		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "check needed arguments (metric, subMetric, period, aggregateType, duration, uuid)").New()
+		return model.Telegraf{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "check needed arguments (metric, subMetric, period, aggregateType, duration, uuid)")}, nil
 	}
 
 	resMonitoringData, err := client.RC.Telegraph(&rpcpiano.ReqMetricInfo{

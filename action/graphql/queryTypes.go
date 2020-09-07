@@ -64,7 +64,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"list_server": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.ServerType),
+				Type:        graphqlType.ServerListType,
 				Description: "Get server list",
 				Args: graphql.FieldConfigArgument{
 					"subnet_uuid": &graphql.ArgumentConfig{
@@ -114,7 +114,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"all_server": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.ServerType),
+				Type:        graphqlType.ServerListType,
 				Description: "Get all server list",
 				Args: graphql.FieldConfigArgument{
 					"row": &graphql.ArgumentConfig{
@@ -174,7 +174,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"list_server_node": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.ServerNodeType),
+				Type:        graphqlType.ServerNodeListType,
 				Description: "Get server_node list",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
@@ -194,7 +194,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"all_server_node": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.ServerNodeType),
+				Type:        graphqlType.ServerNodeListType,
 				Description: "Get all server_node list",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
@@ -235,7 +235,7 @@ var queryTypes = graphql.NewObject(
 			},
 			// vnc
 			"control_vnc": &graphql.Field{
-				Type:        graphql.String,
+				Type:        graphqlType.VncPortType,
 				Description: "Control VNC",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
@@ -279,7 +279,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"list_subnet": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.SubnetType),
+				Type:        graphqlType.SubnetListType,
 				Description: "Get subnet list",
 				Args: graphql.FieldConfigArgument{
 					"uuid": &graphql.ArgumentConfig{
@@ -335,7 +335,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"all_subnet": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.SubnetType),
+				Type:        graphqlType.SubnetListType,
 				Description: "Get all subnet list",
 				Args: graphql.FieldConfigArgument{
 					"row": &graphql.ArgumentConfig{
@@ -412,7 +412,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"list_adaptiveip_server": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.AdaptiveIPServerType),
+				Type:        graphqlType.AdaptiveIPServerListType,
 				Description: "Get adaptiveip_server list",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
@@ -441,7 +441,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"all_adaptiveip_server": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.AdaptiveIPServerType),
+				Type:        graphqlType.AdaptiveIPServerListType,
 				Description: "Get all adaptiveip_server list",
 				Args: graphql.FieldConfigArgument{
 					"row": &graphql.ArgumentConfig{
@@ -482,7 +482,7 @@ var queryTypes = graphql.NewObject(
 			},
 			// flute
 			"power_state_node": &graphql.Field{
-				Type:        graphql.String,
+				Type:        graphqlType.PowerStateNodeType,
 				Description: "Get the node's power state",
 				Args: graphql.FieldConfigArgument{
 					"uuid": &graphql.ArgumentConfig{
@@ -522,7 +522,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"list_node": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.NodeType),
+				Type:        graphqlType.NodeListType,
 				Description: "Get node list",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
@@ -572,7 +572,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"all_node": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.NodeType),
+				Type:        graphqlType.NodeListType,
 				Description: "Get all node list",
 				Args: graphql.FieldConfigArgument{
 					"active": &graphql.ArgumentConfig{

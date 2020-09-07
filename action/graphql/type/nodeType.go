@@ -40,6 +40,39 @@ var NodeType = graphql.NewObject(
 			"created_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// NodeListType : Graphql object type of NodeList
+var NodeListType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "NodeList",
+		Fields: graphql.Fields{
+			"node_list": &graphql.Field{
+				Type: graphql.NewList(NodeType),
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// PowerStateNodeType : Graphql object type of PowerStateNode
+var PowerStateNodeType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "PowerStateNode",
+		Fields: graphql.Fields{
+			"result": &graphql.Field{
+				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"hcc/piccolo/lib/errors"
+	"time"
+)
 
 // VolumeAttachment - cgs
 type VolumeAttachment struct {
@@ -9,9 +12,5 @@ type VolumeAttachment struct {
 	ServerUUID string    `json:"server_uuid"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
-}
-
-// VolumeAttachments - cgs
-type VolumeAttachments struct {
-	VolumeAttachments []VolumeAttachment `json:"volumeAttachment"`
+	Errors []errors.HccError `json:"errors"`
 }

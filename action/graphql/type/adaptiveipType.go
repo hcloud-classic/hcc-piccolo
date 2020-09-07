@@ -28,6 +28,9 @@ var AdaptiveIPType = graphql.NewObject(
 			"created_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )
@@ -51,6 +54,9 @@ var AdaptiveIPSettingType = graphql.NewObject(
 			},
 			"end_ip_address": &graphql.Field{
 				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
 			},
 		},
 	},

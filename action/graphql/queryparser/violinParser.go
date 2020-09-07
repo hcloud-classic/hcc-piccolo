@@ -1,17 +1,17 @@
 package queryparser
 
 import (
-	"errors"
 	"github.com/golang/protobuf/ptypes"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/pb/rpcviolin"
+	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
 )
 
-func pbServerToModelServer(server *rpcviolin.Server) (*model.Server, error) {
+func pbServerToModelServer(server *rpcviolin.Server) *model.Server {
 	createdAt, err := ptypes.Timestamp(server.CreatedAt)
 	if err != nil {
-		return nil, err
+		return &model.Server{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
 	}
 
 	modelServer := &model.Server{
@@ -26,15 +26,16 @@ func pbServerToModelServer(server *rpcviolin.Server) (*model.Server, error) {
 		Status:     server.Status,
 		UserUUID:   server.UserUUID,
 		CreatedAt:  createdAt,
+		Errors: *errors.NewHccErrorStack(),
 	}
 
-	return modelServer, nil
+	return modelServer
 }
 
-func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.ServerNode, error) {
+func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) *model.ServerNode {
 	createdAt, err := ptypes.Timestamp(serverNode.CreatedAt)
 	if err != nil {
-		return nil, err
+		return &model.ServerNode{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
 	}
 
 	modelServerNode := &model.ServerNode{
@@ -42,9 +43,10 @@ func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.Ser
 		ServerUUID: serverNode.ServerUUID,
 		NodeUUID:   serverNode.NodeUUID,
 		CreatedAt:  createdAt,
+		Errors: *errors.NewHccErrorStack(),
 	}
 
-	return modelServerNode, nil
+	return modelServerNode
 }
 
 // Server : Get infos of the server
@@ -52,19 +54,15 @@ func Server(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
 	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+		return model.Server{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
 	server, err := client.RC.GetServer(uuid)
 	if err != nil {
-		return nil, err
-	}
-	modelServer, err := pbServerToModelServer(server)
-	if err != nil {
-		return nil, err
+		return model.Server{Errors: errors.ReturnHccError(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return *modelServer, nil
+	return *pbServerToModelServer(server), nil
 }
 
 // ListServer : Get server list with provided options
@@ -121,19 +119,16 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 
 	resListServer, err := client.RC.GetServerList(&reqListServer)
 	if err != nil {
-		return nil, err
+		return model.ServerList{Errors: errors.ReturnHccError(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	var serverList []model.Server
 	for _, pServer := range resListServer.Server {
-		modelServer, err := pbServerToModelServer(pServer)
-		if err != nil {
-			return nil, err
-		}
+		modelServer := pbServerToModelServer(pServer)
 		serverList = append(serverList, *modelServer)
 	}
 
-	return serverList, nil
+	return model.ServerList{Servers: serverList}, nil
 }
 
 // AllServer : Get server list with provided options (Just call ListServer())
@@ -159,27 +154,22 @@ func ServerNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
 	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+		return model.Server{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
 	serverNode, err := client.RC.GetServerNode(uuid)
 	if err != nil {
-		return nil, err
+		return model.Server{Errors: errors.ReturnHccError(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServerNode, err := pbServerNodeToModelServerNode(serverNode)
-	if err != nil {
-		return nil, err
-	}
-
-	return *modelServerNode, nil
+	return *pbServerNodeToModelServerNode(serverNode), nil
 }
 
 // ListServerNode : Get serverNode list with provided options
 func ListServerNode(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
-		return nil, errors.New("need a server_uuid argument")
+		return model.ServerNodeList{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
 	var reqListServerNode rpcviolin.ReqGetServerNodeList
@@ -187,19 +177,16 @@ func ListServerNode(args map[string]interface{}) (interface{}, error) {
 
 	resListServerNode, err := client.RC.GetServerNodeList(&reqListServerNode)
 	if err != nil {
-		return nil, err
+		return model.ServerNodeList{Errors: errors.ReturnHccError(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	var serverNodeList []model.ServerNode
 	for _, pServerNode := range resListServerNode.ServerNode {
-		modelServerNode, err := pbServerNodeToModelServerNode(pServerNode)
-		if err != nil {
-			return nil, err
-		}
+		modelServerNode := pbServerNodeToModelServerNode(pServerNode)
 		serverNodeList = append(serverNodeList, *modelServerNode)
 	}
 
-	return serverNodeList, nil
+	return model.ServerNodeList{ServerNodes: serverNodeList}, nil
 }
 
 // AllServerNode : Get serverNode list with provided options (Just call ListServerNode())
@@ -211,12 +198,12 @@ func AllServerNode(args map[string]interface{}) (interface{}, error) {
 func NumServerNode(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
-		return nil, errors.New("need a server_uuid argument")
+		return model.ServerNodeNum{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
 	num, err := client.RC.GetServerNodeNum(serverUUID)
 	if err != nil {
-		return nil, err
+		return model.ServerNodeNum{Errors: errors.ReturnHccError(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	var modelServerNodeNum model.ServerNodeNum

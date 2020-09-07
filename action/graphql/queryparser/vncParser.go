@@ -1,9 +1,10 @@
 package queryparser
 
 import (
-	"errors"
 	"hcc/piccolo/action/grpc/client"
 	rpcnovnc "hcc/piccolo/action/grpc/pb/rpcviolin_novnc"
+	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/model"
 )
 
 func checkVncArgsAll(args map[string]interface{}) bool {
@@ -16,7 +17,7 @@ func checkVncArgsAll(args map[string]interface{}) bool {
 // ControlVnc : Set VNC with provided options
 func ControlVnc(args map[string]interface{}) (interface{}, error) {
 	if !checkVncArgsAll(args) {
-		return nil, errors.New("check needed arguments (server_uuid, action)")
+		return model.VncPort{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "check needed arguments (server_uuid, action)")}, nil
 	}
 
 	serverUUID, _ := args["server_uuid"].(string)
@@ -34,5 +35,5 @@ func ControlVnc(args map[string]interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	return resControlVNC.Port, nil
+	return model.VncPort{Port: resControlVNC.Port}, nil
 }

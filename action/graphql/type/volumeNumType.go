@@ -10,6 +10,9 @@ var VolumeNum = graphql.NewObject(
 			"number": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

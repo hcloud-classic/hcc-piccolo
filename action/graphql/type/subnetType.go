@@ -43,6 +43,24 @@ var SubnetType = graphql.NewObject(
 			"created_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// SubnetListType : Graphql object type of SubnetList
+var SubnetListType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "SubnetList",
+		Fields: graphql.Fields{
+			"subnet_list": &graphql.Field{
+				Type: graphql.NewList(SubnetType),
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

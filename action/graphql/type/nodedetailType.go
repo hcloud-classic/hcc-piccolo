@@ -19,6 +19,9 @@ var NodeDetailType = graphql.NewObject(
 			"cpu_threads": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

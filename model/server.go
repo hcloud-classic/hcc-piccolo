@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"hcc/piccolo/lib/errors"
+	"time"
+)
 
 // Server - cgs
 type Server struct {
@@ -15,14 +18,17 @@ type Server struct {
 	Status     string    `json:"status"`
 	UserUUID   string    `json:"user_uuid"`
 	CreatedAt  time.Time `json:"created_at"`
+	Errors []errors.HccError `json:"errors"`
 }
 
-// Servers - cgs
-type Servers struct {
-	Server []Server `json:"server"`
+// ServerList : Contain list of servers
+type ServerList struct {
+	Servers []Server `json:"server_list"`
+	Errors []errors.HccError `json:"errors"`
 }
 
 // ServerNum - cgs
 type ServerNum struct {
 	Number int `json:"number"`
+	Errors []errors.HccError `json:"errors"`
 }

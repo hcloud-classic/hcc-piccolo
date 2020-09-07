@@ -14,7 +14,7 @@ type User struct {
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	LoginAt   time.Time `json:"login_at"`
-	Errors    string    `json:"errors"`
+	Errors []errors.HccError `json:"errors"`
 }
 
 // Token : Contain the user token

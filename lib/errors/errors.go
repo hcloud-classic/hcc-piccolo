@@ -214,6 +214,11 @@ func (es *HccErrorStack) Dump() *HccError {
 	if es.Len() == 0 {
 		return nil
 	}
+
+	if (*es)[0].ErrCode == 0 {
+		errlogger.Fatal("Error Stack is already converted to report form. Cannot dump.\n")
+	}
+
 	errlogger.Printf("------ [Dump Error Stack] ------\n")
 	errlogger.Printf("Stack Size : %v\n", es.Len())
 	firstErr = es.Pop()
@@ -226,9 +231,13 @@ func (es *HccErrorStack) Dump() *HccError {
 }
 
 func (es *HccErrorStack) ConvertReportForm() *HccErrorStack {
-	for idx := 1; idx < es.len(); idx++ {
-		errlogger.Println(idx)
-		(*es)[idx].ErrText = (*es)[idx].ToString()
+	if es.Len() > 0 {
+		*es = (*es)[1:]
+		for idx := 0; idx < es.len(); idx++ {
+			(*es)[idx].ErrText = "#" + strconv.Itoa(idx) + " " + (*es)[idx].ToString()
+		}
+	} else {
+		*es = nil
 	}
 	return es
 }
