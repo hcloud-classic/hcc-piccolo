@@ -29,17 +29,17 @@ const (
 	driver                              // driver
 	graphql                             // action
 	grpc
-	mysql
+	sql
 	rabbitmq
 )
 
-var functionList = [...]string{"", "Internal", "Driver", "GraphQL", "gRPC", "mySQL", "RabbitMQ"}
+var functionList = [...]string{"", "Internal", "Driver", "GraphQL", "Grpc", "SQL", "RabbitMQ"}
 
 const (
+	// Use Generally
 	initFail uint64 = 1 + iota
 	connectionFail
-	UUIDGenerationError
-	timestampConversionError
+	undefinedError
 	argumentError
 	jsonMarshalError
 	jsonUnmarshalError
@@ -48,19 +48,41 @@ const (
 	sendError     // send error to client
 	receiveError  // get error as result from server
 	parsingError
+	tokenExpired
+	operationFail
+
+	// clarinet specific
+
+	// piccolo specific
+	UUIDGenerationError
+	timestampConversionError
 	prepareError
 	executeError
 	tokenGenerationError
-	tokenExpired
 	loginFailed
+	// cello specific
+
+	// violin-scheduler specific
+
+	// flute specific
+
+	// viola specific
+
+	// piano specific
+
+	// harp specific
+
+	// violin-novnc specific
+
+	// violin specific
+
 )
 
 var actionList = [...]string{
 	"",
 	"Initialize fail -> ",
 	"Connection fail -> ",
-	"UUID generation error -> ",
-	"timestamp conversion error -> ",
+	"Undefined error -> ",
 	"Argumnet error -> ",
 	"JSON marshal fail -> ",
 	"JSON unmarshal fail -> ",
@@ -69,11 +91,34 @@ var actionList = [...]string{
 	"Send error -> ",
 	"Receive error -> ",
 	"Parsing error -> ",
+	"Token Expired -> ",
+	"DB operationfail -> ",
+
+	// clarinet specific
+
+	// piccolo specific
+	"UUID generation error -> ",
+	"timestamp conversion error -> ",
 	"Prepare error -> ",
 	"Execute error -> ",
 	"Token Generation Error -> ",
-	"Token Expired -> ",
 	"Login failed -> ",
+
+	// cello specific
+
+	// violin-scheduler specific
+
+	// flute specific
+
+	// viola specific
+
+	// piano specific
+
+	// harp specific
+
+	// violin-novnc specific
+
+	// violin specific
 }
 
 var errlogger *log.Logger
@@ -81,6 +126,8 @@ var errlogger *log.Logger
 func SetErrLogger(l *log.Logger) {
 	errlogger = l
 }
+
+/*    HCCERROR    */
 
 type HccError struct {
 	ErrCode uint64 `json:"errcode"` // decimal error code
@@ -106,12 +153,16 @@ func (e HccError) Code() uint64 {
 	return e.ErrCode
 }
 
+func (e HccError) Text() string {
+	return e.ErrText
+}
+
 func (e HccError) ToString() string {
 	m := e.ErrCode / 10000
 	f := e.ErrCode % 10000 / 1000
 	a := e.ErrCode % 1000
 
-	return "[" + middleWareList[m] + "] " + functionList[f] + ": " + actionList[a] + strconv.FormatUint(e.ErrCode, 10) + " (" + e.ErrText + ")"
+	return "[" + middleWareList[m] + "] Code :" + strconv.FormatUint(e.ErrCode, 10) + " (" + functionList[f] + ") " + actionList[a] + " " + e.ErrText
 }
 
 func (e HccError) Println() {
@@ -122,12 +173,12 @@ func (e HccError) Fatal() {
 	errlogger.Fatal(e.ToString())
 }
 
-type HccErrorStack struct {
-	errStack []HccError `json:"errors"`
-}
+/*    HCCERRORSTACK    */
+
+type HccErrorStack []HccError
 
 func NewHccErrorStack(errList ...*HccError) *HccErrorStack {
-	es := HccErrorStack{errStack: []HccError{{ErrCode: 0, ErrText: ""}}}
+	es := HccErrorStack{HccError{ErrCode: 0, ErrText: ""}}
 
 	for _, err := range errList {
 		es.Push(err)
@@ -136,21 +187,25 @@ func NewHccErrorStack(errList ...*HccError) *HccErrorStack {
 }
 
 func (es *HccErrorStack) Len() int {
-	return len(es.errStack)
+	return es.len() - 1
+}
+
+func (es *HccErrorStack) len() int {
+	return len(*es)
 }
 
 func (es *HccErrorStack) Pop() *HccError {
-	l := es.Len()
+	l := es.len()
 	if l > 1 {
-		err := es.errStack[l-1]
-		es.errStack = es.errStack[:l-1]
+		err := (*es)[l-1]
+		*es = (*es)[:l-1]
 		return &err
 	}
 	return nil
 }
 
 func (es *HccErrorStack) Push(err *HccError) {
-	es.errStack = append(es.errStack, *err)
+	*es = append(*es, *err)
 }
 
 // Dump() will clean stack
@@ -171,8 +226,9 @@ func (es *HccErrorStack) Dump() *HccError {
 }
 
 func (es *HccErrorStack) ConvertReportForm() *HccErrorStack {
-	for _, err := range es.errStack {
-		err.ErrText = err.ToString()
+	for idx := 1; idx < es.len(); idx++ {
+		errlogger.Println(idx)
+		(*es)[idx].ErrText = (*es)[idx].ToString()
 	}
 	return es
 }

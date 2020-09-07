@@ -13,6 +13,6 @@ const (
 	PiccoloGraphQLTokenGenerationError     = piccolo + graphql + tokenGenerationError
 	PiccoloGraphQLTokenExpired             = piccolo + graphql + tokenExpired
 
-	PiccoloMySQLPrepareError = piccolo + mysql + prepareError
-	PiccoloMySQLExecuteError = piccolo + mysql + executeError
+	PiccoloMySQLPrepareError = piccolo + sql + prepareError
+	PiccoloMySQLExecuteError = piccolo + sql + executeError
 )

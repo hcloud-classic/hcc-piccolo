@@ -40,9 +40,6 @@ var Token = graphql.NewObject(
 			"token": &graphql.Field{
 				Type: graphql.String,
 			},
-			//"errorstack": &graphql.Field{
-			//	Type: ErrorStack,
-			//},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},

@@ -1,7 +1,6 @@
 package queryparser
 
 import (
-	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
@@ -16,8 +15,6 @@ var loginMismatchError = errors.NewHccError(errors.PiccoloGraphQLLoginFailed, "u
 func Login(args map[string]interface{}) (interface{}, error) {
 	id, idOk := args["id"].(string)
 	password, passwordOk := args["password"].(string)
-
-	fmt.Println(*errors.NewHccErrorStack(errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need id and password arguments")).ConvertReportForm())
 
 	if !idOk || !passwordOk {
 		return model.Token{Token: "", Errors: *errors.NewHccErrorStack(errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need id and password arguments")).ConvertReportForm()}, nil

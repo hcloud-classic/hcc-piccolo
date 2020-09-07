@@ -20,11 +20,11 @@ type User struct {
 // Token : Contain the user token
 type Token struct {
 	Token  string               `json:"token"`
-	Errors errors.HccErrorStack `json:"errors"`
+	Errors []errors.HccError `json:"errors"`
 }
 
 // IsValid : Contain the validation of the token
 type IsValid struct {
 	IsValid bool                 `json:"isvalid"`
-	Errors  errors.HccErrorStack `json:"errors"`
+	Errors []errors.HccError `json:"errors"`
 }
