@@ -24,7 +24,7 @@ func pbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData) *m
 		SubMetric: monitoringData.SubMetric,
 		UUID:      monitoringData.UUID,
 		Series:    seriesArr,
-		Errors: errors.ReturnHccEmptyError(),
+		Errors:    errors.ReturnHccEmptyError(),
 	}
 
 	return modelTelegraf

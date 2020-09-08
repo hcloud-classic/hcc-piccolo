@@ -27,7 +27,7 @@ func pbNodeToModelNode(node *rpcflute.Node) *model.Node {
 		CreatedAt:   createdAt,
 		Active:      int(node.Active),
 		ForceOff:    node.ForceOff,
-		Errors: errors.ReturnHccEmptyError(),
+		Errors:      errors.ReturnHccEmptyError(),
 	}
 
 	return modelNode
@@ -39,7 +39,7 @@ func pbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail) *model.NodeD
 		CPUModel:      nodeDetail.CPUModel,
 		CPUProcessors: int(nodeDetail.CPUProcessors),
 		CPUThreads:    int(nodeDetail.CPUThreads),
-		Errors: errors.ReturnHccEmptyError(),
+		Errors:        errors.ReturnHccEmptyError(),
 	}
 
 	return modelNodeDetail

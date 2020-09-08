@@ -26,7 +26,7 @@ func pbServerToModelServer(server *rpcviolin.Server) *model.Server {
 		Status:     server.Status,
 		UserUUID:   server.UserUUID,
 		CreatedAt:  createdAt,
-		Errors: *errors.NewHccErrorStack(),
+		Errors:     *errors.NewHccErrorStack(),
 	}
 
 	return modelServer
@@ -43,7 +43,7 @@ func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) *model.Serv
 		ServerUUID: serverNode.ServerUUID,
 		NodeUUID:   serverNode.NodeUUID,
 		CreatedAt:  createdAt,
-		Errors: *errors.NewHccErrorStack(),
+		Errors:     *errors.NewHccErrorStack(),
 	}
 
 	return modelServerNode
