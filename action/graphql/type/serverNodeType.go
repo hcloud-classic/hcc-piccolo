@@ -29,7 +29,7 @@ var ServerNodeType = graphql.NewObject(
 // ServerNodeListType : Graphql object type of ServerNodeList
 var ServerNodeListType = graphql.NewObject(
 	graphql.ObjectConfig{
-		Name: "ServerNode",
+		Name: "ServerNodeList",
 		Fields: graphql.Fields{
 			"server_node_list": &graphql.Field{
 				Type: graphql.NewList(ServerNodeType),
