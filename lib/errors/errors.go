@@ -50,16 +50,18 @@ const (
 	parsingError
 	tokenExpired
 	operationFail
+	noResult
+	timestampConversionError
+	UUIDGenerationError
 
 	// clarinet specific
 
 	// piccolo specific
-	UUIDGenerationError
-	timestampConversionError
 	prepareError
 	executeError
 	tokenGenerationError
 	loginFailed
+
 	// cello specific
 
 	// violin-scheduler specific
@@ -71,6 +73,15 @@ const (
 	// piano specific
 
 	// harp specific
+	interfaceAddrLookupError
+	pfError
+	dhcpdError
+	fileError
+	ifconfigError
+	IPAddressError
+	subnetInUseError
+	subnetNotAllocatedError
+	adaptiveIPAllocatedError
 
 	// violin-novnc specific
 
@@ -93,12 +104,13 @@ var actionList = [...]string{
 	"Parsing error -> ",
 	"Token Expired -> ",
 	"DB operationfail -> ",
+	"DB no result",
+	"timestamp conversion error -> ",
+	"UUID generation error -> ",
 
 	// clarinet specific
 
 	// piccolo specific
-	"UUID generation error -> ",
-	"timestamp conversion error -> ",
 	"Prepare error -> ",
 	"Execute error -> ",
 	"Token Generation Error -> ",
@@ -115,6 +127,15 @@ var actionList = [...]string{
 	// piano specific
 
 	// harp specific
+	"interface address lookup error",
+	"PF error",
+	"DHCPD error",
+	"file error",
+	"ifconfig error",
+	"IP address error",
+	"Subnet In Use error",
+	"Subnet not allocated error",
+	"AdaptiveIP allocated error",
 
 	// violin-novnc specific
 
