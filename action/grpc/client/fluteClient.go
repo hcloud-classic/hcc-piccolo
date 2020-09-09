@@ -33,7 +33,7 @@ func closeFlute() {
 }
 
 // OnNode : Turn on selected node
-func (rc *RPCClient) OnNode(nodeUUID string) (string, error) {
+func (rc *RPCClient) OnNode(nodeUUID string) (*rpcflute.ResNodePowerControl, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
@@ -49,14 +49,14 @@ func (rc *RPCClient) OnNode(nodeUUID string) (string, error) {
 		PowerState: rpcflute.PowerState_ON,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resNodePowerControl.Result[0], nil
+	return resNodePowerControl, nil
 }
 
 // OffNode : Turn off selected node
-func (rc *RPCClient) OffNode(nodeUUID string, forceOff bool) (string, error) {
+func (rc *RPCClient) OffNode(nodeUUID string, forceOff bool) (*rpcflute.ResNodePowerControl, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
@@ -79,14 +79,14 @@ func (rc *RPCClient) OffNode(nodeUUID string, forceOff bool) (string, error) {
 		PowerState: powerState,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resNodePowerControl.Result[0], nil
+	return resNodePowerControl, nil
 }
 
 // ForceRestartNode : Force restart selected node
-func (rc *RPCClient) ForceRestartNode(nodeUUID string) (string, error) {
+func (rc *RPCClient) ForceRestartNode(nodeUUID string) (*rpcflute.ResNodePowerControl, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
@@ -102,14 +102,14 @@ func (rc *RPCClient) ForceRestartNode(nodeUUID string) (string, error) {
 		PowerState: rpcflute.PowerState_FORCE_RESTART,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resNodePowerControl.Result[0], nil
+	return resNodePowerControl, nil
 }
 
 // GetNodePowerState : Get power state of selected node
-func (rc *RPCClient) GetNodePowerState(uuid string) (string, error) {
+func (rc *RPCClient) GetNodePowerState(uuid string) (*rpcflute.ResNodePowerState, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
@@ -118,10 +118,10 @@ func (rc *RPCClient) GetNodePowerState(uuid string) (string, error) {
 		UUID: uuid,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resNodePowerState.Result, nil
+	return resNodePowerState, nil
 }
 
 // CreateNodeDetail : Create a nodeDetail
@@ -138,29 +138,29 @@ func (rc *RPCClient) CreateNodeDetail(in *rpcflute.ReqCreateNodeDetail) (*rpcflu
 }
 
 // GetNodeDetail : Get infos of the nodeDetail
-func (rc *RPCClient) GetNodeDetail(uuid string) (*rpcflute.NodeDetail, error) {
+func (rc *RPCClient) GetNodeDetail(uuid string) (*rpcflute.ResGetNodeDetail, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	nodeDetail, err := rc.flute.GetNodeDetail(ctx, &rpcflute.ReqGetNodeDetail{NodeUUID: uuid})
+	resGetNodeDetail, err := rc.flute.GetNodeDetail(ctx, &rpcflute.ReqGetNodeDetail{NodeUUID: uuid})
 	if err != nil {
 		return nil, err
 	}
 
-	return nodeDetail.NodeDetail, nil
+	return resGetNodeDetail, nil
 }
 
 // DeleteNodeDetail : Delete of the nodeDetail
-func (rc *RPCClient) DeleteNodeDetail(uuid string) (string, error) {
+func (rc *RPCClient) DeleteNodeDetail(uuid string) (*rpcflute.ResDeleteNodeDetail, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	resDeleteNodeDetail, err := rc.flute.DeleteNodeDetail(ctx, &rpcflute.ReqDeleteNodeDetail{NodeUUID: uuid})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resDeleteNodeDetail.NodeUUID, nil
+	return resDeleteNodeDetail, nil
 }
 
 // CreateNode : Create a node
@@ -177,16 +177,16 @@ func (rc *RPCClient) CreateNode(in *rpcflute.ReqCreateNode) (*rpcflute.ResCreate
 }
 
 // GetNode : Get infos of the node
-func (rc *RPCClient) GetNode(uuid string) (*rpcflute.Node, error) {
+func (rc *RPCClient) GetNode(uuid string) (*rpcflute.ResGetNode, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	node, err := rc.flute.GetNode(ctx, &rpcflute.ReqGetNode{UUID: uuid})
+	resGetNode, err := rc.flute.GetNode(ctx, &rpcflute.ReqGetNode{UUID: uuid})
 	if err != nil {
 		return nil, err
 	}
 
-	return node.Node, nil
+	return resGetNode, nil
 }
 
 // GetNodeList : Get the list of nodes by server UUID.
@@ -194,25 +194,25 @@ func (rc *RPCClient) GetNodeList(in *rpcflute.ReqGetNodeList) (*rpcflute.ResGetN
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	nodeList, err := rc.flute.GetNodeList(ctx, in)
+	resGetNodeList, err := rc.flute.GetNodeList(ctx, in)
 	if err != nil {
 		return nil, err
 	}
 
-	return nodeList, nil
+	return resGetNodeList, nil
 }
 
 // GetNodeNum : Get the number of nodes
-func (rc *RPCClient) GetNodeNum() (int, error) {
+func (rc *RPCClient) GetNodeNum() (*rpcflute.ResGetNodeNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	num, err := rc.flute.GetNodeNum(ctx, &rpcflute.Empty{})
+	resGetNodeNum, err := rc.flute.GetNodeNum(ctx, &rpcflute.Empty{})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return int(num.Num), nil
+	return resGetNodeNum, nil
 }
 
 // UpdateNode : Update infos of the node
@@ -229,14 +229,14 @@ func (rc *RPCClient) UpdateNode(in *rpcflute.ReqUpdateNode) (*rpcflute.ResUpdate
 }
 
 // DeleteNode : Delete of the node
-func (rc *RPCClient) DeleteNode(uuid string) (string, error) {
+func (rc *RPCClient) DeleteNode(uuid string) (*rpcflute.ResDeleteNode, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	resDeleteNode, err := rc.flute.DeleteNode(ctx, &rpcflute.ReqDeleteNode{UUID: uuid})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resDeleteNode.UUID, nil
+	return resDeleteNode, nil
 }
