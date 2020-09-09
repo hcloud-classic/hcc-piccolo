@@ -2,16 +2,30 @@ package queryparser
 
 import (
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcharp"
+	rpcmsgType "hcc/piccolo/action/grpc/pb/rpcmsgType"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
+	"time"
 )
 
-func pbSubnetToModelSubnet(subnet *rpcharp.Subnet) *model.Subnet {
-	createdAt, err := ptypes.Timestamp(subnet.CreatedAt)
-	if err != nil {
-		return &model.Subnet{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+func pbSubnetToModelSubnet(subnet *rpcharp.Subnet, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Subnet {
+	var createdAt time.Time
+	if subnet.CreatedAt == nil {
+		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
+			Seconds: 0,
+			Nanos:   0,
+		})
+	} else {
+		var err error
+
+		createdAt, err = ptypes.Timestamp(subnet.CreatedAt)
+		if err != nil {
+			return &model.Subnet{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+		}
 	}
 
 	modelSubnet := &model.Subnet{
@@ -29,6 +43,11 @@ func pbSubnetToModelSubnet(subnet *rpcharp.Subnet) *model.Subnet {
 		CreatedAt:      createdAt,
 	}
 
+	if hccGrpcErrStack != nil {
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		modelSubnet.Errors = *hccErrStack
+	}
+
 	return modelSubnet
 }
 
@@ -40,12 +59,12 @@ func Subnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	subnet, err := client.RC.GetSubnet(uuid)
+	resGetSubnet, err := client.RC.GetSubnet(uuid)
 	if err != nil {
 		return model.Subnet{Errors: errors.ReturnHccError(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelSubnet := pbSubnetToModelSubnet(subnet)
+	modelSubnet := pbSubnetToModelSubnet(resGetSubnet.Subnet, &resGetSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
@@ -113,11 +132,13 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 
 	var subnetList []model.Subnet
 	for _, pSubnet := range resListSubnet.Subnet {
-		modelSubnet := pbSubnetToModelSubnet(pSubnet)
+		modelSubnet := pbSubnetToModelSubnet(pSubnet, nil)
 		subnetList = append(subnetList, *modelSubnet)
 	}
 
-	return model.SubnetList{Subnets: subnetList}, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resListSubnet.HccErrorStack)
+
+	return model.SubnetList{Subnets: subnetList, Errors: *hccErrStack}, nil
 }
 
 // AllSubnet : Get subnet list with provided options (Just call ListSubnet())
@@ -162,16 +183,16 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return model.AdaptiveIPSetting{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
-	adaptiveIPServer, err := client.RC.GetAdaptiveIPServer(serverUUID)
+	resGetAdaptiveIPServer, err := client.RC.GetAdaptiveIPServer(serverUUID)
 	if err != nil {
 		return model.AdaptiveIPSetting{Errors: errors.ReturnHccEmptyError()}, nil
 	}
 
 	return model.AdaptiveIPServer{
-		ServerUUID:     adaptiveIPServer.ServerUUID,
-		PublicIP:       adaptiveIPServer.PublicIP,
-		PrivateIP:      adaptiveIPServer.PrivateIP,
-		PrivateGateway: adaptiveIPServer.PrivateGateway,
+		ServerUUID:     resGetAdaptiveIPServer.AdaptiveipServer.ServerUUID,
+		PublicIP:       resGetAdaptiveIPServer.AdaptiveipServer.PublicIP,
+		PrivateIP:      resGetAdaptiveIPServer.AdaptiveipServer.PrivateIP,
+		PrivateGateway: resGetAdaptiveIPServer.AdaptiveipServer.PrivateGateway,
 	}, nil
 }
 
@@ -230,10 +251,10 @@ func AllAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 // NumAdaptiveIPServer : Get number of adaptiveIP servers
 func NumAdaptiveIPServer() (interface{}, error) {
-	num, err := client.RC.GetAdaptiveIPServerNum()
+	resGetAdaptiveIPServerNum, err := client.RC.GetAdaptiveIPServerNum()
 	if err != nil {
 		return model.AdaptiveIPServerNum{Errors: errors.ReturnHccError(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return model.AdaptiveIPServerNum{Number: num}, nil
+	return model.AdaptiveIPServerNum{Number: int(resGetAdaptiveIPServerNum.Num)}, nil
 }

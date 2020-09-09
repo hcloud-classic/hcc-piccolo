@@ -2,16 +2,30 @@ package mutationparser
 
 import (
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcharp"
+	"hcc/piccolo/action/grpc/pb/rpcmsgType"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
+	"time"
 )
 
-func pbSubnetToModelSubnet(subnet *rpcharp.Subnet) (*model.Subnet, error) {
-	createdAt, err := ptypes.Timestamp(subnet.CreatedAt)
-	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error()).New()
+func pbSubnetToModelSubnet(subnet *rpcharp.Subnet, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Subnet {
+	var createdAt time.Time
+	if subnet.CreatedAt == nil {
+		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
+			Seconds: 0,
+			Nanos:   0,
+		})
+	} else {
+		var err error
+
+		createdAt, err = ptypes.Timestamp(subnet.CreatedAt)
+		if err != nil {
+			return &model.Subnet{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+		}
 	}
 
 	modelSubnet := &model.Subnet{
@@ -29,7 +43,12 @@ func pbSubnetToModelSubnet(subnet *rpcharp.Subnet) (*model.Subnet, error) {
 		CreatedAt:      createdAt,
 	}
 
-	return modelSubnet, err
+	if hccGrpcErrStack != nil {
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		modelSubnet.Errors = *hccErrStack
+	}
+
+	return modelSubnet
 }
 
 // CreateSubnet : Create a subnet
@@ -84,10 +103,7 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 
-	modelSubnet, err := pbSubnetToModelSubnet(resCreateSubnet.Subnet)
-	if err != nil {
-		return nil, err
-	}
+	modelSubnet := pbSubnetToModelSubnet(resCreateSubnet.Subnet, &resCreateSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
@@ -150,10 +166,7 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 
-	modelSubnet, err := pbSubnetToModelSubnet(resUpdateSubnet.Subnet)
-	if err != nil {
-		return nil, err
-	}
+	modelSubnet := pbSubnetToModelSubnet(resUpdateSubnet.Subnet, &resUpdateSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
@@ -166,11 +179,11 @@ func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 
 	var subnet model.Subnet
-	uuid, err := client.RC.DeleteSubnet(requestedUUID)
+	resDeleteSubnet, err := client.RC.DeleteSubnet(requestedUUID)
 	if err != nil {
 		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
-	subnet.UUID = uuid
+	subnet.UUID = resDeleteSubnet.UUID
 
 	return subnet, nil
 }
@@ -227,12 +240,12 @@ func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument").New()
 	}
 
-	serverUUID, err := client.RC.DeleteAdaptiveIPServer(requestedUUID)
+	resDeleteAdaptiveIPServer, err := client.RC.DeleteAdaptiveIPServer(requestedUUID)
 	if err != nil {
 		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 
-	return model.AdaptiveIPServer{ServerUUID: serverUUID}, nil
+	return model.AdaptiveIPServer{ServerUUID: resDeleteAdaptiveIPServer.ServerUUID}, nil
 }
 
 // CreateAdaptiveIPSetting : Create settings of the adaptiveIP
