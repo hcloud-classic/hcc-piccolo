@@ -71,6 +71,7 @@ func Subnet(args map[string]interface{}) (interface{}, error) {
 
 // ListSubnet : Get subnet list with provided options
 func ListSubnet(args map[string]interface{}) (interface{}, error) {
+	uuid, uuidOk := args["uuid"].(string)
 	networkIP, networkIPOk := args["network_ip"].(string)
 	netmask, netmaskOk := args["netmask"].(string)
 	gateway, gatewayOk := args["gateway"].(string)
@@ -88,6 +89,9 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	var reqSubnet rpcharp.Subnet
 	reqListSubnet.Subnet = &reqSubnet
 
+	if uuidOk {
+		reqListSubnet.Subnet.UUID = uuid
+	}
 	if networkIPOk {
 		reqListSubnet.Subnet.NetworkIP = networkIP
 	}
