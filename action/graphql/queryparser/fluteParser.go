@@ -102,6 +102,7 @@ func Node(args map[string]interface{}) (interface{}, error) {
 
 // ListNode : Get node list with provided options
 func ListNode(args map[string]interface{}) (interface{}, error) {
+	uuid, uuidOk := args["uuid"].(string)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
@@ -118,6 +119,9 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	var reqNode rpcflute.Node
 	reqListNode.Node = &reqNode
 
+	if uuidOk {
+		reqListNode.Node.UUID = uuid
+	}
 	if serverUUIDOk {
 		reqListNode.Node.ServerUUID = serverUUID
 	}

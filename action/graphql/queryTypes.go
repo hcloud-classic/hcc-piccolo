@@ -525,6 +525,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.NodeListType,
 				Description: "Get node list",
 				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
