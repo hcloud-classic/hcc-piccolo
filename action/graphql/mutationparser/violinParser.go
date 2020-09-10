@@ -2,16 +2,30 @@ package mutationparser
 
 import (
 	"github.com/golang/protobuf/ptypes"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/action/grpc/pb/rpcmsgType"
 	"hcc/piccolo/action/grpc/pb/rpcviolin"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
+	"time"
 )
 
-func pbServerToModelServer(server *rpcviolin.Server) (*model.Server, error) {
-	createdAt, err := ptypes.Timestamp(server.CreatedAt)
-	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error()).New()
+func pbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Server {
+	var createdAt time.Time
+	if server.CreatedAt == nil {
+		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
+			Seconds: 0,
+			Nanos:   0,
+		})
+	} else {
+		var err error
+
+		createdAt, err = ptypes.Timestamp(server.CreatedAt)
+		if err != nil {
+			return &model.Server{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+		}
 	}
 
 	modelServer := &model.Server{
@@ -28,13 +42,28 @@ func pbServerToModelServer(server *rpcviolin.Server) (*model.Server, error) {
 		CreatedAt:  createdAt,
 	}
 
-	return modelServer, nil
+	if hccGrpcErrStack != nil {
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		modelServer.Errors = *hccErrStack
+	}
+
+	return modelServer
 }
 
-func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.ServerNode, error) {
-	createdAt, err := ptypes.Timestamp(serverNode.CreatedAt)
-	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error()).New()
+func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.ServerNode {
+	var createdAt time.Time
+	if serverNode.CreatedAt == nil {
+		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
+			Seconds: 0,
+			Nanos:   0,
+		})
+	} else {
+		var err error
+
+		createdAt, err = ptypes.Timestamp(serverNode.CreatedAt)
+		if err != nil {
+			return &model.ServerNode{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+		}
 	}
 
 	modelServerNode := &model.ServerNode{
@@ -42,9 +71,15 @@ func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.Ser
 		ServerUUID: serverNode.ServerUUID,
 		NodeUUID:   serverNode.NodeUUID,
 		CreatedAt:  createdAt,
+		Errors:     *errors.NewHccErrorStack(),
 	}
 
-	return modelServerNode, nil
+	if hccGrpcErrStack != nil {
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		modelServerNode.Errors = *hccErrStack
+	}
+
+	return modelServerNode
 }
 
 // CreateServer : Create a server
@@ -96,10 +131,7 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 
-	modelServer, err := pbServerToModelServer(resCreateServer.Server)
-	if err != nil {
-		return nil, err
-	}
+	modelServer := pbServerToModelServer(resCreateServer.Server, &resCreateServer.HccErrorStack)
 
 	return *modelServer, nil
 }
@@ -159,10 +191,7 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 
-	modelServer, err := pbServerToModelServer(resUpdateServer.Server)
-	if err != nil {
-		return nil, err
-	}
+	modelServer := pbServerToModelServer(resUpdateServer.Server, &resUpdateServer.HccErrorStack)
 
 	return *modelServer, nil
 }
@@ -175,11 +204,14 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	}
 
 	var server model.Server
-	uuid, err := client.RC.DeleteServer(requestedUUID)
+	resDeleteServer, err := client.RC.DeleteServer(requestedUUID)
 	if err != nil {
 		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
-	server.UUID = uuid
+	server.UUID = resDeleteServer.UUID
+
+	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServer.HccErrorStack)
+	server.Errors = *hccErrStack
 
 	return server, nil
 }
@@ -202,10 +234,7 @@ func CreateServerNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
 
-	modelServerNode, err := pbServerNodeToModelServerNode(resCreateServerNode.ServerNode)
-	if err != nil {
-		return nil, err
-	}
+	modelServerNode := pbServerNodeToModelServerNode(resCreateServerNode.ServerNode, &resCreateServerNode.HccErrorStack)
 
 	return *modelServerNode, nil
 }
@@ -218,11 +247,14 @@ func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
 	}
 
 	var serverNode model.ServerNode
-	uuid, err := client.RC.DeleteServerNode(requestedUUID)
+	resDeleteServerNode, err := client.RC.DeleteServerNode(requestedUUID)
 	if err != nil {
 		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
 	}
-	serverNode.UUID = uuid
+	serverNode.UUID = resDeleteServerNode.UUID
+
+	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServerNode.HccErrorStack)
+	serverNode.Errors = *hccErrStack
 
 	return serverNode, nil
 }
