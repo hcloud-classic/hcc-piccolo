@@ -67,6 +67,7 @@ func Server(args map[string]interface{}) (interface{}, error) {
 
 // ListServer : Get server list with provided options
 func ListServer(args map[string]interface{}) (interface{}, error) {
+	uuid, uuidOk := args["uuid"].(string)
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
 	os, osOk := args["os"].(string)
 	serverName, serverNameOk := args["server_name"].(string)
@@ -83,6 +84,9 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 	var reqServer rpcviolin.Server
 	reqListServer.Server = &reqServer
 
+	if uuidOk {
+		reqListServer.Server.UUID = uuid
+	}
 	if subnetUUIDOk {
 		reqListServer.Server.SubnetUUID = subnetUUID
 	}

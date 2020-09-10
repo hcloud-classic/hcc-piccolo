@@ -67,6 +67,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.ServerListType,
 				Description: "Get server list",
 				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"subnet_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
