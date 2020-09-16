@@ -213,12 +213,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"domain_name": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"server_uuid": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"leader_node_uuid": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
 				"os": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
