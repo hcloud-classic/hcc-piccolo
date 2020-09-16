@@ -2,6 +2,7 @@ package queryparser
 
 import (
 	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/errconv"
 	rpcnovnc "hcc/piccolo/action/grpc/pb/rpcviolin_novnc"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
@@ -35,5 +36,7 @@ func ControlVnc(args map[string]interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	return model.VncPort{Port: resControlVNC.Port}, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resControlVNC.HccErrorStack)
+
+	return model.VncPort{Port: resControlVNC.Port, Errors: *hccErrStack.ConvertReportForm()}, nil
 }
