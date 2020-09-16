@@ -16,6 +16,21 @@ var ServerNodeType = graphql.NewObject(
 			"node_uuid": &graphql.Field{
 				Type: graphql.String,
 			},
+			"cpu_model": &graphql.Field{
+				Type: graphql.String,
+			},
+			"cpu_processors": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"cpu_cores": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"cpu_threads": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"memory": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"created_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},
