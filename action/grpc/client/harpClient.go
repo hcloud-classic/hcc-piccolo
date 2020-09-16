@@ -122,6 +122,19 @@ func (rc *RPCClient) CreateAdaptiveIPSetting(in *rpcharp.ReqCreateAdaptiveIPSett
 	return resCreateAdaptiveIPSetting, nil
 }
 
+// GetAdaptiveIPAvailableIPList : Get available IP list of AdaptiveIP
+func (rc *RPCClient) GetAdaptiveIPAvailableIPList() (*rpcharp.ResGetAdaptiveIPAvailableIPList, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resGetAdaptiveIPAvailableIPList, err := rc.harp.GetAdaptiveIPAvailableIPList(ctx, &rpcharp.Empty{})
+	if err != nil {
+		return nil, err
+	}
+
+	return resGetAdaptiveIPAvailableIPList, nil
+}
+
 // GetAdaptiveIPSetting : Get settings of AdaptiveIP
 func (rc *RPCClient) GetAdaptiveIPSetting() (*rpcharp.ResGetAdaptiveIPSetting, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),

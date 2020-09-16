@@ -377,6 +377,23 @@ var queryTypes = graphql.NewObject(
 					return queryparser.NumSubnet()
 				},
 			},
+			"adaptiveip_available_ip_list": &graphql.Field{
+				Type:        graphqlType.AdaptiveIPAvailableIPListType,
+				Description: "Get available ip list for adaptive ip",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return nil, err
+					}
+					logger.Logger.Println("Resolving: harp / adaptiveip_available_ip_list")
+					return queryparser.GetAdaptiveIPAvailableIPList()
+				},
+			},
 			"adaptiveip_setting": &graphql.Field{
 				Type:        graphqlType.AdaptiveIPSettingType,
 				Description: "Get settings of adaptiveip",

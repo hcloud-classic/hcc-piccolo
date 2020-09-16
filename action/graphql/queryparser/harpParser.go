@@ -163,6 +163,24 @@ func NumSubnet() (interface{}, error) {
 	return modelSubnetNum, nil
 }
 
+// GetAdaptiveIPAvailableIPList : Get available IP list of AdaptiveIP
+func GetAdaptiveIPAvailableIPList() (interface{}, error) {
+	resGetAdaptiveIPAvailableIPList, err := client.RC.GetAdaptiveIPAvailableIPList()
+	if err != nil {
+		return model.AdaptiveIPAvailableIPList{Errors: errors.ReturnHccError(errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	var adaptiveIPAvailableIPList []string
+
+	for _, availableIP := range resGetAdaptiveIPAvailableIPList.AdaptiveipAvailableipList.AvailableIp {
+		adaptiveIPAvailableIPList = append(adaptiveIPAvailableIPList, availableIP)
+	}
+
+	return model.AdaptiveIPAvailableIPList{
+		AvailableIPList: adaptiveIPAvailableIPList,
+	}, nil
+}
+
 // GetAdaptiveIPSetting : Get infos of the adaptiveIP settings
 func GetAdaptiveIPSetting() (interface{}, error) {
 	resGetAdaptiveIPSetting, err := client.RC.GetAdaptiveIPSetting()

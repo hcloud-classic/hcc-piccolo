@@ -32,3 +32,9 @@ type AdaptiveIPSetting struct {
 	EndIPAddress      string            `json:"end_ip_address"`
 	Errors            []errors.HccError `json:"errors"`
 }
+
+// AdaptiveIPAvailableIPList : Struct of AdaptiveIPAvailableIPList
+type AdaptiveIPAvailableIPList struct {
+	AvailableIPList []string          `json:"available_ip_list"`
+	Errors          []errors.HccError `json:"errors"`
+}
