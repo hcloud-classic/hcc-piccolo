@@ -246,7 +246,6 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	if pageOk {
 		reqGetAdaptiveIPServerList.Page = int64(page)
 	}
-	reqGetAdaptiveIPServerList.AdaptiveipServer.ServerUUID = serverUUID
 
 	resAdaptiveIPServerList, err := client.RC.GetAdaptiveIPServerList(&reqGetAdaptiveIPServerList)
 	if err != nil {
