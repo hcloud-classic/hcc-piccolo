@@ -41,7 +41,7 @@ func Login(args map[string]interface{}) (interface{}, error) {
 		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTokenGenerationError, err.Error())}, nil
 	}
 
-	return model.Token{Token: token, Errors: errors.ReturnHccEmptyError()}, nil
+	return model.Token{Token: token, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // CheckToken : Do token validation check process

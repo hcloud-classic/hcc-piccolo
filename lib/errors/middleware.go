@@ -5,7 +5,7 @@ func ReturnHccErrorPiccolo(errCode uint64, errText string) HccErrorStack {
 	return *NewHccErrorStack(NewHccError(errCode, errText)).ConvertReportForm()
 }
 
-// ReturnHccEmptyError: Return dummy error as HccErrorStack
-func ReturnHccEmptyError() HccErrorStack {
+// ReturnHccEmptyErrorPiccolo: Return dummy error as HccErrorStack
+func ReturnHccEmptyErrorPiccolo() HccErrorStack {
 	return *NewHccErrorStack().ConvertReportForm()
 }
