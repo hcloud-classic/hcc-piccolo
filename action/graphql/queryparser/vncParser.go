@@ -18,7 +18,7 @@ func checkVncArgsAll(args map[string]interface{}) bool {
 // ControlVnc : Set VNC with provided options
 func ControlVnc(args map[string]interface{}) (interface{}, error) {
 	if !checkVncArgsAll(args) {
-		return model.VncPort{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "check needed arguments (server_uuid, action)")}, nil
+		return model.VncPort{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "check needed arguments (server_uuid, action)")}, nil
 	}
 
 	serverUUID, _ := args["server_uuid"].(string)

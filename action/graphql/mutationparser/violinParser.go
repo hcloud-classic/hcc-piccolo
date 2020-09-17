@@ -24,7 +24,7 @@ func pbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgT
 
 		createdAt, err = ptypes.Timestamp(server.CreatedAt)
 		if err != nil {
-			return &model.Server{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+			return &model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
 		}
 	}
 
@@ -62,7 +62,7 @@ func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, hccGrpcErrS
 
 		createdAt, err = ptypes.Timestamp(serverNode.CreatedAt)
 		if err != nil {
-			return &model.ServerNode{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+			return &model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
 		}
 	}
 

@@ -24,7 +24,7 @@ func pbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 
 		createdAt, err = ptypes.Timestamp(node.CreatedAt)
 		if err != nil {
-			return &model.Node{Errors: errors.ReturnHccError(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+			return &model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
 		}
 	}
 

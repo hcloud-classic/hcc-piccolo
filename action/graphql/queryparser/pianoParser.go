@@ -51,7 +51,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 	uuid, _ := args["uuid"].(string)
 
 	if !checkTelegrafArgsAll(args) {
-		return model.Telegraf{Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "check needed arguments (metric, subMetric, period, aggregateType, duration, uuid)")}, nil
+		return model.Telegraf{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "check needed arguments (metric, subMetric, period, aggregateType, duration, uuid)")}, nil
 	}
 
 	resMonitoringData, err := client.RC.Telegraph(&rpcpiano.ReqMetricInfo{

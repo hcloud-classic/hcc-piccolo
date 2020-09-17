@@ -1,7 +1,7 @@
 package errors
 
-// ReturnHccError: Get error code and error string and return as HccErrorStack
-func ReturnHccError(errCode uint64, errText string) HccErrorStack {
+// ReturnHccErrorPiccolo: Get error code and error string and return as HccErrorStack
+func ReturnHccErrorPiccolo(errCode uint64, errText string) HccErrorStack {
 	return *NewHccErrorStack(NewHccError(errCode, errText)).ConvertReportForm()
 }
 

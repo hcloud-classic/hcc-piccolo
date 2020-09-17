@@ -15,7 +15,7 @@ func Login(args map[string]interface{}) (interface{}, error) {
 	password, passwordOk := args["password"].(string)
 
 	if !idOk || !passwordOk {
-		return model.Token{Token: "", Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "need id and password arguments")}, nil
+		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need id and password arguments")}, nil
 	}
 
 	var dbPassword string
@@ -25,20 +25,20 @@ func Login(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		logger.Logger.Println(err)
 
-		return model.Token{Token: "", Errors: errors.ReturnHccError(errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
+		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
 	}
 
 	// Given password is hashed password with bcrypt
 	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(dbPassword))
 	if err != nil {
-		return model.Token{Token: "", Errors: errors.ReturnHccError(errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
+		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
 	}
 
 	logger.Logger.Println("User logged in: " + id)
 
 	token, err := userTool.GenerateToken(id, password)
 	if err != nil {
-		return model.Token{Token: "", Errors: errors.ReturnHccError(errors.PiccoloGraphQLTokenGenerationError, err.Error())}, nil
+		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTokenGenerationError, err.Error())}, nil
 	}
 
 	return model.Token{Token: token, Errors: errors.ReturnHccEmptyError()}, nil
@@ -49,7 +49,7 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 	token, tokenOk := args["token"].(string)
 
 	if !tokenOk {
-		return model.IsValid{IsValid: false, Errors: errors.ReturnHccError(errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
+		return model.IsValid{IsValid: false, Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
 	}
 
 	var tokenArg = make(map[string]interface{})
