@@ -401,7 +401,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 		},
 		// flute
 		"on_node": &graphql.Field{
-			Type:        graphql.String,
+			Type:        graphqlType.PowerControlNodeType,
 			Description: "On node",
 			Args: graphql.FieldConfigArgument{
 				"uuid": &graphql.ArgumentConfig{
@@ -421,7 +421,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"off_node": &graphql.Field{
-			Type:        graphql.String,
+			Type:        graphqlType.PowerControlNodeType,
 			Description: "Off node",
 			Args: graphql.FieldConfigArgument{
 				"uuid": &graphql.ArgumentConfig{
@@ -444,7 +444,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"force_restart_node": &graphql.Field{
-			Type:        graphql.String,
+			Type:        graphqlType.PowerControlNodeType,
 			Description: "Force restart node",
 			Args: graphql.FieldConfigArgument{
 				"uuid": &graphql.ArgumentConfig{

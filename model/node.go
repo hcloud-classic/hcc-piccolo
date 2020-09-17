@@ -34,6 +34,12 @@ type NodeNum struct {
 	Errors []errors.HccError `json:"errors"`
 }
 
+// PowerControlNode : Contain the result of node's power control
+type PowerControlNode struct {
+	Result string            `json:"result"`
+	Errors []errors.HccError `json:"errors"`
+}
+
 // PowerStateNode : Contain the power state of the node
 type PowerStateNode struct {
 	Result string            `json:"result"`

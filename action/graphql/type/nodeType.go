@@ -62,6 +62,21 @@ var NodeListType = graphql.NewObject(
 	},
 )
 
+// PowerControlNodeType : Graphql object type of PowerControlNodeType
+var PowerControlNodeType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "PowerControlNodeType",
+		Fields: graphql.Fields{
+			"result": &graphql.Field{
+				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
 // PowerStateNodeType : Graphql object type of PowerStateNode
 var PowerStateNodeType = graphql.NewObject(
 	graphql.ObjectConfig{
