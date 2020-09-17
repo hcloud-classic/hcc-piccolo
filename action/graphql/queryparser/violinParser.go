@@ -44,7 +44,7 @@ func pbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgT
 	}
 
 	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack).ConvertReportForm()
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelServer.Errors = *hccErrStack
 	}
 
@@ -82,7 +82,7 @@ func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, node *rpcfl
 	}
 
 	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack).ConvertReportForm()
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelServerNode.Errors = *hccErrStack
 	}
 
@@ -172,7 +172,7 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 		serverList = append(serverList, *modelServer)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resListServer.HccErrorStack).ConvertReportForm()
+	hccErrStack := errconv.GrpcStackToHcc(&resListServer.HccErrorStack)
 
 	return model.ServerList{Servers: serverList, Errors: *hccErrStack}, nil
 }
@@ -191,7 +191,7 @@ func NumServer() (interface{}, error) {
 
 	var modelServerNum model.ServerNum
 	modelServerNum.Number = int(resGetServerNum.Num)
-	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNum.HccErrorStack).ConvertReportForm()
+	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNum.HccErrorStack)
 	modelServerNum.Errors = *hccErrStack
 
 	return modelServerNum, nil
@@ -255,7 +255,7 @@ func ListServerNode(args map[string]interface{}) (interface{}, error) {
 		serverNodeList = append(serverNodeList, *modelServerNode)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resListServerNode.HccErrorStack).ConvertReportForm()
+	hccErrStack := errconv.GrpcStackToHcc(&resListServerNode.HccErrorStack)
 
 	return model.ServerNodeList{ServerNodes: serverNodeList, Errors: *hccErrStack}, nil
 }
@@ -279,7 +279,7 @@ func NumServerNode(args map[string]interface{}) (interface{}, error) {
 
 	var modelServerNodeNum model.ServerNodeNum
 	modelServerNodeNum.Number = int(resGetServerNodeNum.Num)
-	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNodeNum.HccErrorStack).ConvertReportForm()
+	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNodeNum.HccErrorStack)
 	modelServerNodeNum.Errors = *hccErrStack
 
 	return modelServerNodeNum, nil

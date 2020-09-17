@@ -36,7 +36,7 @@ func ControlVnc(args map[string]interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resControlVNC.HccErrorStack).ConvertReportForm()
+	hccErrStack := errconv.GrpcStackToHcc(&resControlVNC.HccErrorStack)
 
 	return model.VncPort{Port: resControlVNC.Port, Errors: *hccErrStack.ConvertReportForm()}, nil
 }

@@ -43,7 +43,7 @@ func pbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgT
 	}
 
 	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack).ConvertReportForm()
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelServer.Errors = *hccErrStack
 	}
 
@@ -75,7 +75,7 @@ func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, hccGrpcErrS
 	}
 
 	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack).ConvertReportForm()
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelServerNode.Errors = *hccErrStack
 	}
 
@@ -210,7 +210,7 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	}
 	server.UUID = resDeleteServer.UUID
 
-	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServer.HccErrorStack).ConvertReportForm()
+	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServer.HccErrorStack)
 	server.Errors = *hccErrStack
 
 	return server, nil
@@ -253,7 +253,7 @@ func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
 	}
 	serverNode.UUID = resDeleteServerNode.UUID
 
-	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServerNode.HccErrorStack).ConvertReportForm()
+	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServerNode.HccErrorStack)
 	serverNode.Errors = *hccErrStack
 
 	return serverNode, nil
