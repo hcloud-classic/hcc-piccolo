@@ -19,6 +19,9 @@ var AdaptiveIPServerType = graphql.NewObject(
 			"private_gateway": &graphql.Field{
 				Type: graphql.String,
 			},
+			"created_at": &graphql.Field{
+				Type: graphql.String,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},

@@ -255,11 +255,17 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 	var adaptiveIPServerList []model.AdaptiveIPServer
 	for _, adaptiveIPServer := range resAdaptiveIPServerList.AdaptiveipServer {
+		_createdAt, err := ptypes.Timestamp(adaptiveIPServer.CreatedAt)
+		if err != nil {
+			return model.AdaptiveIPServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil
+		}
+
 		adaptiveIPServerList = append(adaptiveIPServerList, model.AdaptiveIPServer{
 			ServerUUID:     adaptiveIPServer.ServerUUID,
 			PublicIP:       adaptiveIPServer.PublicIP,
 			PrivateIP:      adaptiveIPServer.PrivateIP,
 			PrivateGateway: adaptiveIPServer.PrivateGateway,
+			CreatedAt:      _createdAt,
 		})
 	}
 

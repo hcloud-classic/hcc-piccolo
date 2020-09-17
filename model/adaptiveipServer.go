@@ -1,6 +1,9 @@
 package model
 
-import "hcc/piccolo/lib/errors"
+import (
+	"hcc/piccolo/lib/errors"
+	"time"
+)
 
 // AdaptiveIPServer - ish
 type AdaptiveIPServer struct {
@@ -8,6 +11,7 @@ type AdaptiveIPServer struct {
 	PublicIP       string            `json:"public_ip"`
 	PrivateIP      string            `json:"private_ip"`
 	PrivateGateway string            `json:"private_gateway"`
+	CreatedAt      time.Time         `json:"created_at"`
 	Errors         []errors.HccError `json:"errors"`
 }
 
