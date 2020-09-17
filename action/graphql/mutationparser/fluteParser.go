@@ -44,7 +44,7 @@ func pbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 	}
 
 	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack).ConvertReportForm()
 		modelNode.Errors = *hccErrStack
 	}
 
@@ -60,7 +60,7 @@ func pbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail, hccGrpcErrSt
 	}
 
 	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack).ConvertReportForm()
 		modelNodeDetail.Errors = *hccErrStack
 	}
 
@@ -238,7 +238,7 @@ func DeleteNode(args map[string]interface{}) (interface{}, error) {
 	}
 	node.UUID = resDeleteNode.UUID
 
-	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNode.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNode.HccErrorStack).ConvertReportForm()
 	node.Errors = *hccErrStack
 
 	return node, nil
@@ -289,7 +289,7 @@ func DeleteNodeDetail(args map[string]interface{}) (interface{}, error) {
 	}
 	nodeDetail.NodeUUID = resDeleteNodeDetail.NodeUUID
 
-	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNodeDetail.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNodeDetail.HccErrorStack).ConvertReportForm()
 	nodeDetail.Errors = *hccErrStack
 
 	return nodeDetail, nil

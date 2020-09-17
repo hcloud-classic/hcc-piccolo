@@ -70,7 +70,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 
 	modelTelegraf := pbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData)
 
-	hccErrStack := errconv.GrpcStackToHcc(&resMonitoringData.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(&resMonitoringData.HccErrorStack).ConvertReportForm()
 	modelTelegraf.Errors = *hccErrStack.ConvertReportForm()
 
 	return *modelTelegraf, nil

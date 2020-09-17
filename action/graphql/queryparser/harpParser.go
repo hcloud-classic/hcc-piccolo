@@ -44,7 +44,7 @@ func pbSubnetToModelSubnet(subnet *rpcharp.Subnet, hccGrpcErrStack *[]*rpcmsgTyp
 	}
 
 	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack).ConvertReportForm()
 		modelSubnet.Errors = *hccErrStack
 	}
 
@@ -140,7 +140,7 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 		subnetList = append(subnetList, *modelSubnet)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resListSubnet.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(&resListSubnet.HccErrorStack).ConvertReportForm()
 
 	return model.SubnetList{Subnets: subnetList, Errors: *hccErrStack}, nil
 }

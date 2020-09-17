@@ -44,7 +44,7 @@ func pbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 	}
 
 	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack).ConvertReportForm()
 		modelNode.Errors = *hccErrStack
 	}
 
@@ -60,7 +60,7 @@ func pbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail, hccGrpcErrSt
 	}
 
 	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack).ConvertReportForm()
 		modelNodeDetail.Errors = *hccErrStack
 	}
 
@@ -166,7 +166,7 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 		nodeList = append(nodeList, *modelNode)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeList.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeList.HccErrorStack).ConvertReportForm()
 
 	return model.NodeList{Nodes: nodeList, Errors: *hccErrStack}, nil
 }
@@ -185,7 +185,7 @@ func NumNode() (interface{}, error) {
 
 	var modelNodeNum model.NodeNum
 	modelNodeNum.Number = int(resGetNodeNum.Num)
-	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeNum.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeNum.HccErrorStack).ConvertReportForm()
 	modelNodeNum.Errors = *hccErrStack
 
 	return modelNodeNum, nil
