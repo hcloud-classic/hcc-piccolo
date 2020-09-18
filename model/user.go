@@ -8,7 +8,7 @@ import (
 // User : Contain infos of a user
 type User struct {
 	UUID      string            `json:"uuid"`
-	Id        string            `json:"id"`
+	ID        string            `json:"id"`
 	Password  string            `json:"password"`
 	Name      string            `json:"name"`
 	Email     string            `json:"email"`

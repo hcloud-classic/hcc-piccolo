@@ -28,7 +28,7 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 
 	user := model.User{
 		UUID:     UUID,
-		Id:       id,
+		ID:       id,
 		Password: password,
 		Name:     name,
 		Email:    email,
@@ -43,7 +43,7 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	defer func() {
 		_ = stmt.Close()
 	}()
-	result, err := stmt.Exec(user.UUID, user.Id, user.Password, user.Name, user.Email)
+	result, err := stmt.Exec(user.UUID, user.ID, user.Password, user.Name, user.Email)
 	if err != nil {
 		errors.NewHccError(errors.PiccoloMySQLExecuteError, err.Error()).Println()
 		return nil, err
