@@ -2,7 +2,7 @@ package model
 
 import "hcc/piccolo/lib/errors"
 
-// NodeDetail - cgs
+// NodeDetail : Contain detail infos of the node
 type NodeDetail struct {
 	NodeUUID      string            `json:"node_uuid"`
 	CPUModel      string            `json:"cpu_model"`

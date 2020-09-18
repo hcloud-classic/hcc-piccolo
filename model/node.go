@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Node : Contain infos of a node
+// Node : Contain infos of the node
 type Node struct {
 	UUID        string            `json:"uuid"`
 	ServerUUID  string            `json:"server_uuid"`

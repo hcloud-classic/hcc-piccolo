@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Server - cgs
+// Server : Contain infos of the server
 type Server struct {
 	UUID       string            `json:"uuid"`
 	SubnetUUID string            `json:"subnet_uuid"`
@@ -27,7 +27,7 @@ type ServerList struct {
 	Errors  []errors.HccError `json:"errors"`
 }
 
-// ServerNum - cgs
+// ServerNum : Contain the number of servers
 type ServerNum struct {
 	Number int               `json:"number"`
 	Errors []errors.HccError `json:"errors"`

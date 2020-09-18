@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Subnet - cgs
+// Subnet : Contain infos of the subnet
 type Subnet struct {
 	UUID           string            `json:"uuid"`
 	NetworkIP      string            `json:"network_ip"`
@@ -28,7 +28,7 @@ type SubnetList struct {
 	Errors  []errors.HccError `json:"errors"`
 }
 
-// SubnetNum - cgs
+// SubnetNum : Contain the number of subnets
 type SubnetNum struct {
 	Number int               `json:"number"`
 	Errors []errors.HccError `json:"errors"`
