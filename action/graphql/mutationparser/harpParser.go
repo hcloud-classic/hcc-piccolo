@@ -92,7 +92,7 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 		Subnet: &subnet,
 	})
 	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
+		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelSubnet := pbSubnetToModelSubnet(resCreateSubnet.Subnet, &resCreateSubnet.HccErrorStack)
@@ -104,7 +104,7 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
-		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need a uuid argument").New()
+		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
 	networkIP, networkIPOk := args["network_ip"].(string)
@@ -155,7 +155,7 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 		Subnet: &subnet,
 	})
 	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
+		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelSubnet := pbSubnetToModelSubnet(resUpdateSubnet.Subnet, &resUpdateSubnet.HccErrorStack)
@@ -167,13 +167,13 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
-		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need a uuid argument").New()
+		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
 	var subnet model.Subnet
 	resDeleteSubnet, err := client.RC.DeleteSubnet(requestedUUID)
 	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
+		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 	subnet.UUID = resDeleteSubnet.UUID
 
@@ -185,15 +185,15 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
 	nodeUUIDs, nodeUUIDsOk := args["nodeUUIDs"].(string)
 	if !subnetUUIDOk || !nodeUUIDsOk {
-		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need subnet_uuid and nodeUUIDs arguments").New()
+		return model.CreateDHCPConfResult{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need subnet_uuid and nodeUUIDs arguments")}, nil
 	}
 
-	result, err := client.RC.CreateDHCPDConfig(subnetUUID, nodeUUIDs)
+	resCreateDHCPDConfig, err := client.RC.CreateDHCPDConfig(subnetUUID, nodeUUIDs)
 	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
+		return model.CreateDHCPConfResult{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return result, nil
+	return model.CreateDHCPConfResult{Result: resCreateDHCPDConfig.Result}, nil
 }
 
 // CreateAdaptiveIPServer : Create a adaptiveIP server
@@ -211,7 +211,7 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 	resCreateadAptiveIPServer, err := client.RC.CreateAdaptiveIPServer(&reqCreateAdaptiveIPServer)
 	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
+		return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	resAdaptiveIPServer := resCreateadAptiveIPServer.AdaptiveipServer
@@ -229,12 +229,12 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["server_uuid"].(string)
 	if !requestedUUIDOk {
-		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument").New()
+		return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
 	resDeleteAdaptiveIPServer, err := client.RC.DeleteAdaptiveIPServer(requestedUUID)
 	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
+		return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	return model.AdaptiveIPServer{ServerUUID: resDeleteAdaptiveIPServer.ServerUUID}, nil
@@ -271,7 +271,7 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 
 	resCreateAdaptiveIPSetting, err := client.RC.CreateAdaptiveIPSetting(&reqCreateAdaptiveIPSetting)
 	if err != nil {
-		return nil, errors.NewHccError(errors.PiccoloGrpcRequestError, err.Error()).New()
+		return model.AdaptiveIPSetting{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	adaptiveipSetting := resCreateAdaptiveIPSetting.AdaptiveipSetting

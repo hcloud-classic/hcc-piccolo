@@ -243,12 +243,12 @@ func ListServerNode(args map[string]interface{}) (interface{}, error) {
 	for _, pServerNode := range resListServerNode.ServerNode {
 		resGetNode, err := client.RC.GetNode(pServerNode.NodeUUID)
 		if err != nil {
-			return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+			return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 		}
 
 		resGetNodeDetail, err := client.RC.GetNodeDetail(pServerNode.NodeUUID)
 		if err != nil {
-			return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+			return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 		}
 
 		modelServerNode := pbServerNodeToModelServerNode(pServerNode, resGetNode.Node, resGetNodeDetail.NodeDetail, nil)

@@ -48,6 +48,7 @@ const (
 	sendError     // send error to client
 	receiveError  // get error as result from server
 	parsingError
+	invalidToken
 	tokenExpired
 	operationFail
 	noResult
@@ -107,6 +108,7 @@ var actionList = [...]string{
 	"Send error -> ",
 	"Receive error -> ",
 	"Parsing error -> ",
+	"Invalid Token -> ",
 	"Token Expired -> ",
 	"DB operationfail -> ",
 	"DB no result",

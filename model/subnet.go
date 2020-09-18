@@ -33,3 +33,9 @@ type SubnetNum struct {
 	Number int               `json:"number"`
 	Errors []errors.HccError `json:"errors"`
 }
+
+// CreateDHCPConfResult : Contain result of creating DHCP configuration
+type CreateDHCPConfResult struct {
+	Result string            `json:"result"`
+	Errors []errors.HccError `json:"errors"`
+}

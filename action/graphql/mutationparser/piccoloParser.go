@@ -3,7 +3,6 @@ package mutationparser
 import (
 	uuid "github.com/nu7hatch/gouuid"
 	"hcc/piccolo/lib/errors"
-	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
 )
@@ -16,13 +15,12 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	email, emailOk := args["email"].(string)
 
 	if !idOk || !passwordOk || !nameOk || !emailOk {
-		return nil, errors.NewHccError(errors.PiccoloGraphQLArgumentError, "need id and password, name, email arguments").New()
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need id and password, name, email arguments")}, nil
 	}
 
 	out, err := uuid.NewV4()
 	if err != nil {
-		errors.NewHccError(errors.PiccoloInternalUUIDGenerationError, err.Error()).Println()
-		return nil, err
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloInternalUUIDGenerationError, err.Error())}, nil
 	}
 	UUID := out.String()
 
@@ -37,18 +35,15 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	sql := "insert into user(uuid, id, password, name, email, created_at) values (?, ?, ?, ?, ?, now())"
 	stmt, err := mysql.Db.Prepare(sql)
 	if err != nil {
-		errors.NewHccError(errors.PiccoloMySQLPrepareError, err.Error()).Println()
-		return nil, err
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLPrepareError, err.Error())}, nil
 	}
 	defer func() {
 		_ = stmt.Close()
 	}()
-	result, err := stmt.Exec(user.UUID, user.ID, user.Password, user.Name, user.Email)
+	_, err = stmt.Exec(user.UUID, user.ID, user.Password, user.Name, user.Email)
 	if err != nil {
-		errors.NewHccError(errors.PiccoloMySQLExecuteError, err.Error()).Println()
-		return nil, err
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
-	logger.Logger.Println(result.LastInsertId())
 
 	return &user, nil
 }

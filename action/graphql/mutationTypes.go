@@ -3,8 +3,10 @@ package graphql
 import (
 	"hcc/piccolo/action/graphql/mutationparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
+	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/userTool"
+	"hcc/piccolo/model"
 
 	"github.com/graphql-go/graphql"
 )
@@ -74,7 +76,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: violin / create_server")
 				return mutationparser.CreateServer(params.Args)
@@ -121,7 +123,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: violin / update_server")
 				return mutationparser.UpdateServer(params.Args)
@@ -141,7 +143,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: violin / delete_server")
 				return mutationparser.DeleteServer(params.Args)
@@ -164,7 +166,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: violin / create_server_node")
 				return mutationparser.CreateServerNode(params.Args)
@@ -184,7 +186,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: violin / delete server_node")
 				return mutationparser.DeleteServerNode(params.Args)
@@ -226,7 +228,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				return mutationparser.CreateSubnet(params.Args)
 			},
@@ -275,7 +277,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: harp / update_subnet")
 				return mutationparser.UpdateSubnet(params.Args)
@@ -295,14 +297,14 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: harp / delete_subnet")
 				return mutationparser.DeleteSubnet(params.Args)
 			},
 		},
 		"create_dhcpd_conf": &graphql.Field{
-			Type:        graphql.String,
+			Type:        graphqlType.CreateDHCPConfResultType,
 			Description: "Create new dhcpd config",
 			Args: graphql.FieldConfigArgument{
 				"subnet_uuid": &graphql.ArgumentConfig{
@@ -318,7 +320,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.CreateDHCPConfResult{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: harp / create_dhcpd_conf")
 				return mutationparser.CreateDHCPDConf(params.Args)
@@ -350,7 +352,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.AdaptiveIPSetting{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: harp / create_adaptiveip_setting")
 				return mutationparser.CreateAdaptiveIPSetting(params.Args)
@@ -373,7 +375,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: harp / create_adaptiveip_server")
 				return mutationparser.CreateAdaptiveIPServer(params.Args)
@@ -393,7 +395,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: harp / delete_adaptiveip_server")
 				return mutationparser.DeleteAdaptiveIPServer(params.Args)
@@ -414,7 +416,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: flute / on_node")
 				return mutationparser.OnNode(params.Args)
@@ -437,7 +439,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: flute / off_node")
 				return mutationparser.OffNode(params.Args)
@@ -457,7 +459,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: flute / force_restart_node")
 				return mutationparser.ForceRestartNode(params.Args)
@@ -498,7 +500,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: flute / create_node")
 				return mutationparser.CreateNode(params.Args)
@@ -545,7 +547,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: flute / update_node")
 				return mutationparser.UpdateNode(params.Args)
@@ -565,7 +567,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: flute / delete_node")
 				return mutationparser.DeleteNode(params.Args)
@@ -595,7 +597,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: flute / create_node_detail")
 				return mutationparser.CreateNodeDetail(params.Args)
@@ -615,7 +617,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				err := userTool.ValidateToken(params.Args)
 				if err != nil {
-					return nil, err
+					return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				logger.Logger.Println("Resolving: flute / delete_node_detail")
 				return mutationparser.DeleteNodeDetail(params.Args)

@@ -64,3 +64,18 @@ var SubnetListType = graphql.NewObject(
 		},
 	},
 )
+
+// CreateDHCPConfResultType : Graphql object type of CreateDHCPConfResult
+var CreateDHCPConfResultType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "CreateDHCPConfResult",
+		Fields: graphql.Fields{
+			"result": &graphql.Field{
+				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)

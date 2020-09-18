@@ -202,7 +202,7 @@ func GetAdaptiveIPSetting() (interface{}, error) {
 func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
-		return model.AdaptiveIPSetting{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
+		return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
 	resGetAdaptiveIPServer, err := client.RC.GetAdaptiveIPServer(serverUUID)
