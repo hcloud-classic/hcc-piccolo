@@ -249,6 +249,10 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 	endIPaddress, endIPaddressOk := args["end_ip_address"].(string)
 
 	var reqCreateAdaptiveIPSetting rpcharp.ReqCreateAdaptiveIPSetting
+	var reqAdaptiveipSetting rpcharp.AdaptiveIPSetting
+
+	reqCreateAdaptiveIPSetting.AdaptiveipSetting = &reqAdaptiveipSetting
+
 	if extIfaceIPAddressOk {
 		reqCreateAdaptiveIPSetting.AdaptiveipSetting.ExtIfaceIPAddress = extIfaceIPAddress
 	}
