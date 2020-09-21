@@ -46,15 +46,12 @@ func Login(args map[string]interface{}) (interface{}, error) {
 
 // CheckToken : Do token validation check process
 func CheckToken(args map[string]interface{}) (interface{}, error) {
-	token, tokenOk := args["token"].(string)
-
+	_, tokenOk := args["token"].(string)
 	if !tokenOk {
 		return model.IsValid{IsValid: false, Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
 	}
 
-	var tokenArg = make(map[string]interface{})
-	tokenArg["token"] = token
-	err := userTool.ValidateToken(tokenArg)
+	err := userTool.ValidateToken(args)
 	if err != nil {
 		return model.IsValid{IsValid: false}, nil
 	}
