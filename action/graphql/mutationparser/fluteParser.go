@@ -252,6 +252,9 @@ func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 	cpuThreads, cpuThreadsOk := args["cpu_threads"].(int)
 
 	var reqCreateNodeDetail rpcflute.ReqCreateNodeDetail
+	var nodeDetail rpcflute.NodeDetail
+	reqCreateNodeDetail.NodeDetail = &nodeDetail
+
 	if nodeUUIDOk {
 		reqCreateNodeDetail.NodeDetail.NodeUUID = nodeUUID
 	}
