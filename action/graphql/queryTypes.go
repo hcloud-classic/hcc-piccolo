@@ -44,6 +44,23 @@ var queryTypes = graphql.NewObject(
 					return queryparser.CheckToken(params.Args)
 				},
 			},
+			"resource_usage": &graphql.Field{
+				Type:        graphqlType.ResourceUsageType,
+				Description: "Get resource usage",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := userTool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ResourceUsage{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / resource_usage")
+					return queryparser.ResourceUsage()
+				},
+			},
 			// violin
 			"server": &graphql.Field{
 				Type:        graphqlType.ServerType,

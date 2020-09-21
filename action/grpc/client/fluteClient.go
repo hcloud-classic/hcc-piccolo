@@ -189,7 +189,7 @@ func (rc *RPCClient) GetNode(uuid string) (*rpcflute.ResGetNode, error) {
 	return resGetNode, nil
 }
 
-// GetNodeList : Get the list of nodes by server UUID.
+// GetNodeList : Get the list of nodes
 func (rc *RPCClient) GetNodeList(in *rpcflute.ReqGetNodeList) (*rpcflute.ResGetNodeList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
