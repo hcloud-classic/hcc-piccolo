@@ -83,9 +83,8 @@ func ValidateToken(args map[string]interface{}) error {
 		}
 
 		var dbPassword string
-
 		sql := "select password from user where id = ?"
-		err := mysql.Db.QueryRow(sql, claims["ID"].(string)).Scan(&dbPassword)
+		err := mysql.Db.QueryRow(sql, claims["Id"].(string)).Scan(&dbPassword)
 		if err != nil {
 			logger.Logger.Println(err)
 			return loginMismatchError
@@ -97,7 +96,7 @@ func ValidateToken(args map[string]interface{}) error {
 			return loginMismatchError
 		}
 
-		logger.Logger.Println("Token validated for user [" + claims["ID"].(string) + "]")
+		logger.Logger.Println("Token validated for user [" + claims["Id"].(string) + "]")
 
 		return nil
 	}
