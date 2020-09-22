@@ -7,7 +7,7 @@ import (
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
-	"hcc/piccolo/lib/userTool"
+	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
 )
 
@@ -38,7 +38,7 @@ func Login(args map[string]interface{}) (interface{}, error) {
 
 	logger.Logger.Println("User logged in: " + id)
 
-	token, err := userTool.GenerateToken(id, password)
+	token, err := usertool.GenerateToken(id, password)
 	if err != nil {
 		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTokenGenerationError, err.Error())}, nil
 	}
@@ -53,7 +53,7 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 		return model.IsValid{IsValid: false, Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
 	}
 
-	err := userTool.ValidateToken(args)
+	err := usertool.ValidateToken(args)
 	if err != nil {
 		return model.IsValid{IsValid: false, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
 	}
@@ -69,16 +69,16 @@ func ResourceUsage() (interface{}, error) {
 	}
 
 	var total model.Resource
-	var in_use model.Resource
+	var inUse model.Resource
 
 	total.CPU = 0
 	total.Memory = 0
 	total.Storage = 0
 	total.Node = 0
-	in_use.CPU = 0
-	in_use.Memory = 0
-	in_use.Storage = 0
-	in_use.Node = 0
+	inUse.CPU = 0
+	inUse.Memory = 0
+	inUse.Storage = 0
+	inUse.Node = 0
 
 	// TODO : Currently, total storage is hard coded.
 	// FIXME : Need to fix to get total storage from cello module.
@@ -86,12 +86,12 @@ func ResourceUsage() (interface{}, error) {
 
 	for _, node := range resGetNodeList.Node {
 		if node.Active == 1 {
-			in_use.CPU += int(node.CPUCores)
-			in_use.Memory += int(node.Memory)
+			inUse.CPU += int(node.CPUCores)
+			inUse.Memory += int(node.Memory)
 			// TODO : Currently, in-use storage is hard coded.
 			// FIXME : Need to fix to get in-use storage from cello module.
-			in_use.Storage += 10
-			in_use.Node++
+			inUse.Storage += 10
+			inUse.Node++
 		}
 
 		total.CPU += int(node.CPUCores)
@@ -99,5 +99,5 @@ func ResourceUsage() (interface{}, error) {
 		total.Node++
 	}
 
-	return model.ResourceUsage{Total: total, InUse: in_use, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+	return model.ResourceUsage{Total: total, InUse: inUse, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
 }

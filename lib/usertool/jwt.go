@@ -1,4 +1,4 @@
-package userTool
+package usertool
 
 import (
 	"errors"
@@ -11,20 +11,21 @@ import (
 )
 
 type claims struct {
-	Id       string
+	ID       string
 	Password string
 	jwt.StandardClaims
 }
 
 var jwtKey = []byte("hccJWTKey")
-var loginMismatchError = errors.New("can not login with provided token")
+var errLoginMismatch = errors.New("can not login with provided token")
 
+// GenerateToken : Generate token by ID and password.
 func GenerateToken(id string, password string) (string, error) {
 	// Declare the expiration time of the token
 	expirationTime := time.Now().Add(time.Minute * time.Duration(config.User.TokenExpirationTimeMinutes))
 	// Create the JWT claims, which includes the user id and password with expiry time
 	claims := &claims{
-		Id:       id,
+		ID:       id,
 		Password: password,
 		StandardClaims: jwt.StandardClaims{
 			Issuer:  "piccolo",
@@ -43,9 +44,9 @@ func GenerateToken(id string, password string) (string, error) {
 		// If there is an error in creating the JWT return an internal server error
 		// w.WriteHeader(http.StatusInternalServerError)
 		return "", errors.New("token signing error")
-	} else {
-		return tokenString, nil
 	}
+
+	return tokenString, nil
 }
 
 // ValidateToken : Validate given token string
@@ -84,19 +85,19 @@ func ValidateToken(args map[string]interface{}) error {
 
 		var dbPassword string
 		sql := "select password from user where id = ?"
-		err := mysql.Db.QueryRow(sql, claims["Id"].(string)).Scan(&dbPassword)
+		err := mysql.Db.QueryRow(sql, claims["ID"].(string)).Scan(&dbPassword)
 		if err != nil {
 			logger.Logger.Println(err)
-			return loginMismatchError
+			return errLoginMismatch
 		}
 
 		// Given password is hashed password with bcrypt
 		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(dbPassword))
 		if err != nil {
-			return loginMismatchError
+			return errLoginMismatch
 		}
 
-		logger.Logger.Println("Token validated for user [" + claims["Id"].(string) + "]")
+		logger.Logger.Println("Token validated for user [" + claims["ID"].(string) + "]")
 
 		return nil
 	}
