@@ -45,7 +45,7 @@ func pbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelNode.Errors = *hccErrStack
+		modelNode.Errors = *hccErrStack.ConvertReportForm()
 	}
 
 	return modelNode
@@ -61,7 +61,7 @@ func pbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail, hccGrpcErrSt
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelNodeDetail.Errors = *hccErrStack
+		modelNodeDetail.Errors = *hccErrStack.ConvertReportForm()
 	}
 
 	return modelNodeDetail
@@ -79,7 +79,9 @@ func OnNode(args map[string]interface{}) (interface{}, error) {
 		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return model.PowerControlNode{Result: resNodePowerControl.Result[0]}, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
+
+	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: *hccErrStack.ConvertReportForm()}, nil
 }
 
 // OffNode : Turn off the node
@@ -100,7 +102,9 @@ func OffNode(args map[string]interface{}) (interface{}, error) {
 		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return model.PowerControlNode{Result: resNodePowerControl.Result[0]}, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
+
+	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: *hccErrStack.ConvertReportForm()}, nil
 }
 
 // ForceRestartNode : Force restart the node
@@ -115,7 +119,9 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return model.PowerControlNode{Result: resNodePowerControl.Result[0]}, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
+
+	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: *hccErrStack.ConvertReportForm()}, nil
 }
 
 // CreateNode : Create a node
@@ -239,7 +245,7 @@ func DeleteNode(args map[string]interface{}) (interface{}, error) {
 	node.UUID = resDeleteNode.UUID
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNode.HccErrorStack)
-	node.Errors = *hccErrStack
+	node.Errors = *hccErrStack.ConvertReportForm()
 
 	return node, nil
 }
@@ -293,7 +299,7 @@ func DeleteNodeDetail(args map[string]interface{}) (interface{}, error) {
 	nodeDetail.NodeUUID = resDeleteNodeDetail.NodeUUID
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNodeDetail.HccErrorStack)
-	nodeDetail.Errors = *hccErrStack
+	nodeDetail.Errors = *hccErrStack.ConvertReportForm()
 
 	return nodeDetail, nil
 }

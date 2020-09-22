@@ -71,16 +71,16 @@ func (rc *RPCClient) GetSubnetList(in *rpcharp.ReqGetSubnetList) (*rpcharp.ResGe
 }
 
 // GetSubnetNum : Get the number of subnets
-func (rc *RPCClient) GetSubnetNum() (int, error) {
+func (rc *RPCClient) GetSubnetNum() (*rpcharp.ResGetSubnetNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	num, err := rc.harp.GetSubnetNum(ctx, &rpcharp.Empty{})
+	resGetSubnetNum, err := rc.harp.GetSubnetNum(ctx, &rpcharp.Empty{})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return int(num.Num), nil
+	return resGetSubnetNum, nil
 }
 
 // UpdateSubnet : Update infos of the subnet

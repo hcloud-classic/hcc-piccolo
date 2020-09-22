@@ -45,7 +45,7 @@ func pbSubnetToModelSubnet(subnet *rpcharp.Subnet, hccGrpcErrStack *[]*rpcmsgTyp
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelSubnet.Errors = *hccErrStack
+		modelSubnet.Errors = *hccErrStack.ConvertReportForm()
 	}
 
 	return modelSubnet
@@ -177,6 +177,9 @@ func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 	subnet.UUID = resDeleteSubnet.UUID
 
+	hccErrStack := errconv.GrpcStackToHcc(&resDeleteSubnet.HccErrorStack)
+	subnet.Errors = *hccErrStack.ConvertReportForm()
+
 	return subnet, nil
 }
 
@@ -193,7 +196,9 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 		return model.CreateDHCPConfResult{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return model.CreateDHCPConfResult{Result: resCreateDHCPDConfig.Result}, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resCreateDHCPDConfig.HccErrorStack)
+
+	return model.CreateDHCPConfResult{Result: resCreateDHCPDConfig.Result, Errors: *hccErrStack.ConvertReportForm()}, nil
 }
 
 // CreateAdaptiveIPServer : Create a adaptiveIP server
@@ -214,12 +219,15 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
+	hccErrStack := errconv.GrpcStackToHcc(&resCreateadAptiveIPServer.HccErrorStack)
+
 	resAdaptiveIPServer := resCreateadAptiveIPServer.AdaptiveipServer
 	adaptiveIPServer := model.AdaptiveIPServer{
 		ServerUUID:     resAdaptiveIPServer.ServerUUID,
 		PublicIP:       resAdaptiveIPServer.PublicIP,
 		PrivateIP:      resAdaptiveIPServer.PrivateIP,
 		PrivateGateway: resAdaptiveIPServer.PrivateGateway,
+		Errors: *hccErrStack.ConvertReportForm(),
 	}
 
 	return adaptiveIPServer, nil
@@ -237,7 +245,9 @@ func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return model.AdaptiveIPServer{ServerUUID: resDeleteAdaptiveIPServer.ServerUUID}, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resDeleteAdaptiveIPServer.HccErrorStack)
+
+	return model.AdaptiveIPServer{ServerUUID: resDeleteAdaptiveIPServer.ServerUUID, Errors: *hccErrStack.ConvertReportForm()}, nil
 }
 
 // CreateAdaptiveIPSetting : Create settings of the adaptiveIP
@@ -275,11 +285,13 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 	}
 
 	adaptiveipSetting := resCreateAdaptiveIPSetting.AdaptiveipSetting
+	hccErrStack := errconv.GrpcStackToHcc(&resCreateAdaptiveIPSetting.HccErrorStack)
 	return model.AdaptiveIPSetting{
 		ExtIfaceIPAddress: adaptiveipSetting.ExtIfaceIPAddress,
 		Netmask:           adaptiveipSetting.Netmask,
 		GatewayAddress:    adaptiveipSetting.GatewayAddress,
 		StartIPAddress:    adaptiveipSetting.StartIPAddress,
 		EndIPAddress:      adaptiveipSetting.EndIPAddress,
+		Errors: *hccErrStack.ConvertReportForm(),
 	}, nil
 }

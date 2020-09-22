@@ -45,5 +45,7 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
+	user.Errors = errors.ReturnHccEmptyErrorPiccolo()
+
 	return &user, nil
 }

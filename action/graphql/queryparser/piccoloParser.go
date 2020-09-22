@@ -55,10 +55,10 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 
 	err := userTool.ValidateToken(args)
 	if err != nil {
-		return model.IsValid{IsValid: false}, nil
+		return model.IsValid{IsValid: false, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
 	}
 
-	return model.IsValid{IsValid: true}, nil
+	return model.IsValid{IsValid: true, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // ResourceUsage : Get usage of resources
@@ -99,5 +99,5 @@ func ResourceUsage() (interface{}, error) {
 		total.Node++
 	}
 
-	return model.ResourceUsage{Total: total, InUse: in_use}, nil
+	return model.ResourceUsage{Total: total, InUse: in_use, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
 }

@@ -45,7 +45,7 @@ func pbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelNode.Errors = *hccErrStack
+		modelNode.Errors = *hccErrStack.ConvertReportForm()
 	}
 
 	return modelNode
@@ -61,7 +61,7 @@ func pbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail, hccGrpcErrSt
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelNodeDetail.Errors = *hccErrStack
+		modelNodeDetail.Errors = *hccErrStack.ConvertReportForm()
 	}
 
 	return modelNodeDetail
@@ -80,7 +80,9 @@ func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 		return model.PowerStateNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return model.PowerStateNode{Result: resNodePowerState.Result}, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerState.HccErrorStack)
+
+	return model.PowerStateNode{Result: resNodePowerState.Result, Errors: *hccErrStack.ConvertReportForm()}, nil
 }
 
 // Node : Get infos of the node
@@ -168,7 +170,7 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 
 	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeList.HccErrorStack)
 
-	return model.NodeList{Nodes: nodeList, Errors: *hccErrStack}, nil
+	return model.NodeList{Nodes: nodeList, Errors: *hccErrStack.ConvertReportForm()}, nil
 }
 
 // AllNode : Get node list with provided options (Just call ListNode())
@@ -185,8 +187,9 @@ func NumNode() (interface{}, error) {
 
 	var modelNodeNum model.NodeNum
 	modelNodeNum.Number = int(resGetNodeNum.Num)
+
 	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeNum.HccErrorStack)
-	modelNodeNum.Errors = *hccErrStack
+	modelNodeNum.Errors = *hccErrStack.ConvertReportForm()
 
 	return modelNodeNum, nil
 }
