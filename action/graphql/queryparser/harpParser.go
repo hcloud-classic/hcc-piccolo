@@ -183,7 +183,7 @@ func GetAdaptiveIPAvailableIPList() (interface{}, error) {
 
 	return model.AdaptiveIPAvailableIPList{
 		AvailableIPList: adaptiveIPAvailableIPList,
-		Errors: *hccErrStack.ConvertReportForm(),
+		Errors:          *hccErrStack.ConvertReportForm(),
 	}, nil
 }
 
@@ -203,7 +203,7 @@ func GetAdaptiveIPSetting() (interface{}, error) {
 		GatewayAddress:    adaptiveipSetting.GatewayAddress,
 		StartIPAddress:    adaptiveipSetting.StartIPAddress,
 		EndIPAddress:      adaptiveipSetting.EndIPAddress,
-		Errors: *hccErrStack.ConvertReportForm(),
+		Errors:            *hccErrStack.ConvertReportForm(),
 	}, nil
 }
 
@@ -226,7 +226,7 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		PublicIP:       resGetAdaptiveIPServer.AdaptiveipServer.PublicIP,
 		PrivateIP:      resGetAdaptiveIPServer.AdaptiveipServer.PrivateIP,
 		PrivateGateway: resGetAdaptiveIPServer.AdaptiveipServer.PrivateGateway,
-		Errors: *hccErrStack.ConvertReportForm(),
+		Errors:         *hccErrStack.ConvertReportForm(),
 	}, nil
 }
 

@@ -23,7 +23,6 @@ var ResourceType = graphql.NewObject(
 	},
 )
 
-
 // ResourceUsageType : Graphql object type of ResourceUsage
 var ResourceUsageType = graphql.NewObject(
 	graphql.ObjectConfig{

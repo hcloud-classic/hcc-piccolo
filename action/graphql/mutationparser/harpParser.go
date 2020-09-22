@@ -227,7 +227,7 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		PublicIP:       resAdaptiveIPServer.PublicIP,
 		PrivateIP:      resAdaptiveIPServer.PrivateIP,
 		PrivateGateway: resAdaptiveIPServer.PrivateGateway,
-		Errors: *hccErrStack.ConvertReportForm(),
+		Errors:         *hccErrStack.ConvertReportForm(),
 	}
 
 	return adaptiveIPServer, nil
@@ -292,6 +292,6 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 		GatewayAddress:    adaptiveipSetting.GatewayAddress,
 		StartIPAddress:    adaptiveipSetting.StartIPAddress,
 		EndIPAddress:      adaptiveipSetting.EndIPAddress,
-		Errors: *hccErrStack.ConvertReportForm(),
+		Errors:            *hccErrStack.ConvertReportForm(),
 	}, nil
 }
