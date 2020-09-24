@@ -30,10 +30,11 @@ const (
 	graphql                             // action
 	grpc
 	sql
+	influxDB
 	rabbitmq
 )
 
-var functionList = [...]string{"", "Internal", "Driver", "GraphQL", "Grpc", "SQL", "RabbitMQ"}
+var functionList = [...]string{"", "Internal", "Driver", "GraphQL", "Grpc", "SQL", "InfluxDB", "RabbitMQ"}
 
 const (
 	// Use Generally
@@ -73,6 +74,7 @@ const (
 	// viola specific
 
 	// piano specific
+	readMetricError
 
 	// harp specific
 	interfaceAddrLookupError
@@ -133,6 +135,7 @@ var actionList = [...]string{
 	// viola specific
 
 	// piano specific
+	"Read Metric Error -> ",
 
 	// harp specific
 	"interface address lookup error -> ",
