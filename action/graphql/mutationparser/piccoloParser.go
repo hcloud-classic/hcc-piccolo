@@ -4,7 +4,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	uuid "github.com/nu7hatch/gouuid"
+	"hcc/piccolo/action/graphql/queryparser"
 	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
 )
@@ -59,4 +61,37 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	user.Errors = errors.ReturnHccEmptyErrorPiccolo()
 
 	return &user, nil
+}
+
+// Unregister : Do user unregister process
+func Unregister(args map[string]interface{}) (interface{}, error) {
+	id, idOk := args["id"].(string)
+
+	if !idOk {
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a id argument")}, nil
+	}
+
+	user, _ := queryparser.User(args)
+	if len(user.(model.User).Errors) != 0 && user.(model.User).Errors[0].ErrCode != 0 {
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, "user not found")}, nil
+	}
+
+	sql := "delete from user where id = ?"
+	stmt, err := mysql.Db.Prepare(sql)
+	if err != nil {
+		errStr := "Unregister(): " + err.Error()
+		logger.Logger.Println(errStr)
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, errStr)}, nil
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+	_, err2 := stmt.Exec(id)
+	if err2 != nil {
+		errStr := "Unregister(): " + err2.Error()
+		logger.Logger.Println(errStr)
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, errStr)}, nil
+	}
+
+	return model.User{ID: id, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
 }

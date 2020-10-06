@@ -37,6 +37,26 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return mutationparser.SignUp(params.Args)
 			},
 		},
+		"unregister": &graphql.Field{
+			Type:        graphqlType.UserType,
+			Description: "Execute user unregister process for piccolo",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err := usertool.ValidateToken(params.Args)
+				if err != nil {
+					return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				logger.Logger.Println("Resolving: piccolo / unregister")
+				return mutationparser.Unregister(params.Args)
+			},
+		},
 		// violin
 		"create_server": &graphql.Field{
 			Type:        graphqlType.ServerType,
