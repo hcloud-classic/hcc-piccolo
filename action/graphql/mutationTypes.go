@@ -230,6 +230,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				if err != nil {
 					return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
+				logger.Logger.Println("Resolving: harp / create_subnet")
 				return mutationparser.CreateSubnet(params.Args)
 			},
 		},
