@@ -16,7 +16,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		// piccolo
 		"signup": &graphql.Field{
-			Type:        graphqlType.ServerType,
+			Type:        graphqlType.UserType,
 			Description: "Execute user sign up process for piccolo",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
