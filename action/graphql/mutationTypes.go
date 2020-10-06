@@ -49,7 +49,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err := usertool.ValidateTokenForAdmin(params.Args)
 				if err != nil {
 					return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
