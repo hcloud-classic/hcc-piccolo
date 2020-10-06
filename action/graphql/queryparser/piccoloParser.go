@@ -13,6 +13,27 @@ import (
 	"time"
 )
 
+func updateUserLoginAt(id string) error {
+	sql := "update user set login_at = now() where id = ?"
+
+	stmt, err := mysql.Db.Prepare(sql)
+	if err != nil {
+		logger.Logger.Println("updateUserLoginAt(): " + err.Error())
+		return err
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+
+	_, err2 := stmt.Exec(id)
+	if err2 != nil {
+		logger.Logger.Println("updateUserLoginAt(): " + err2.Error())
+		return err2
+	}
+
+	return nil
+}
+
 // Login : Do user login process
 func Login(args map[string]interface{}) (interface{}, error) {
 	id, idOk := args["id"].(string)
@@ -39,6 +60,11 @@ func Login(args map[string]interface{}) (interface{}, error) {
 	}
 
 	logger.Logger.Println("User logged in: " + id)
+
+	err = updateUserLoginAt(id)
+	if err != nil {
+		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
 
 	token, err := usertool.GenerateToken(id, password)
 	if err != nil {
