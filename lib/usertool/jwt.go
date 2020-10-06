@@ -104,3 +104,63 @@ func ValidateToken(args map[string]interface{}) error {
 
 	return errors.New("invalid token")
 }
+
+// ValidateTokenForAdmin : Validate given token string for admin
+func ValidateTokenForAdmin(args map[string]interface{}) error {
+	tokenString, tokenStringOk := args["token"].(string)
+	if !tokenStringOk {
+		return errors.New("need a token argument")
+	}
+
+	// Parse takes the token string and a function for looking up the key. The latter is especially
+	// useful if you use multiple keys for your application.  The standard is to use 'kid' in the
+	// head of the token to identify which key to use, but the parsed token (head and claims) is provided
+	// to the callback, providing flexibility.
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method: " + token.Header["alg"].(string))
+		}
+
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return jwtKey, nil
+	})
+	if err != nil {
+		return errors.New("invalid token")
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if claims["iss"].(string) != "piccolo" &&
+			claims["sub"].(string) != "Auth" {
+			return errors.New("invalid token")
+		}
+
+		if time.Now().Unix() >= int64(claims["exp"].(float64)) {
+			return errors.New("token is expired")
+		}
+
+		if claims["ID"].(string) != "admin" {
+			return errors.New("hey there, you are not the admin")
+		}
+
+		var dbPassword string
+		sql := "select password from user where id = ?"
+		err := mysql.Db.QueryRow(sql, claims["ID"].(string)).Scan(&dbPassword)
+		if err != nil {
+			logger.Logger.Println(err)
+			return errLoginMismatch
+		}
+
+		// Given password is hashed password with bcrypt
+		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(dbPassword))
+		if err != nil {
+			return errLoginMismatch
+		}
+
+		logger.Logger.Println("TOKEN VALIDATED FOR ADMIN")
+
+		return nil
+	}
+
+	return errors.New("invalid token")
+}
