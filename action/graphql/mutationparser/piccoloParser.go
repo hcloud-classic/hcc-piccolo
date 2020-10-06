@@ -24,6 +24,7 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	}
 
 	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
+		logger.Logger.Println("SignUp(): Someone tried to sign up with one of administrative ID.")
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLUserExist, "Hey, hey you! Yeah, you.")}, nil
 	}
 
