@@ -1,6 +1,8 @@
 package mutationparser
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	uuid "github.com/nu7hatch/gouuid"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/mysql"
@@ -24,10 +26,14 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	}
 	UUID := out.String()
 
+	hash := sha256.New()
+	hash.Write([]byte(password))
+	hashPassword := hex.EncodeToString(hash.Sum(nil))
+
 	user := model.User{
 		UUID:     UUID,
 		ID:       id,
-		Password: password,
+		Password: hashPassword,
 		Name:     name,
 		Email:    email,
 	}
