@@ -109,7 +109,6 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 		return model.UserList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
 	}
 
-
 	sql := "select uuid, id, name, email, login_at, created_at from user where 1=1"
 
 	if idOk {

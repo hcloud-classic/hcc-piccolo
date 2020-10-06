@@ -37,10 +37,10 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	hashPassword := hex.EncodeToString(hash.Sum(nil))
 
 	user := model.User{
-		UUID:     UUID,
-		ID:       id,
-		Name:     name,
-		Email:    email,
+		UUID:  UUID,
+		ID:    id,
+		Name:  name,
+		Email: email,
 	}
 
 	sql = "insert into user(uuid, id, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, now(), now())"
