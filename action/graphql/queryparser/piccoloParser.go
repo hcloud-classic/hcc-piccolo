@@ -10,6 +10,7 @@ import (
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
+	"strings"
 	"time"
 )
 
@@ -59,7 +60,11 @@ func Login(args map[string]interface{}) (interface{}, error) {
 		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
 	}
 
-	logger.Logger.Println("User logged in: " + id)
+	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
+		logger.Logger.Println("ADMIN LOGGED IN")
+	} else {
+		logger.Logger.Println("User logged in: " + id)
+	}
 
 	err = updateUserLoginAt(id)
 	if err != nil {
