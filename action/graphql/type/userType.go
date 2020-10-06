@@ -28,6 +28,9 @@ var UserType = graphql.NewObject(
 			"login_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )
