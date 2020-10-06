@@ -98,7 +98,12 @@ func ValidateToken(args map[string]interface{}) error {
 			return errLoginMismatch
 		}
 
-		logger.Logger.Println("Token validated for user [" + claims["ID"].(string) + "]")
+		id := claims["ID"].(string)
+		if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
+			logger.Logger.Println("TOKEN VALIDATED FOR ADMIN")
+		} else {
+			logger.Logger.Println("Token validated for user [" + claims["ID"].(string) + "]")
+		}
 
 		return nil
 	}
