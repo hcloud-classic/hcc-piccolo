@@ -9,6 +9,7 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
+	"strings"
 )
 
 // SignUp : Do user sign up process
@@ -20,6 +21,10 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 
 	if !idOk || !passwordOk || !nameOk || !emailOk {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need id and password, name, email arguments")}, nil
+	}
+
+	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLUserExist, "Hey, hey you! Yeah, you.")}, nil
 	}
 
 	sql := "select id from user where id = ?"
