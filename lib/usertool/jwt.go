@@ -7,6 +7,7 @@ import (
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
+	"strings"
 	"time"
 )
 
@@ -139,7 +140,8 @@ func ValidateTokenForAdmin(args map[string]interface{}) error {
 			return errors.New("token is expired")
 		}
 
-		if claims["ID"].(string) != "admin" {
+		id := claims["ID"].(string)
+		if strings.ToLower(id) != "admin" && strings.ToLower(id) != "administrator" {
 			return errors.New("hey there, you are not the admin")
 		}
 
