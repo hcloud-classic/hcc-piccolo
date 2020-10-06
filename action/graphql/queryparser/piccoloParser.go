@@ -1,6 +1,7 @@
 package queryparser
 
 import (
+	dbsql "database/sql"
 	"golang.org/x/crypto/bcrypt"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/pb/rpcflute"
@@ -9,6 +10,7 @@ import (
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
+	"time"
 )
 
 // Login : Do user login process
@@ -44,6 +46,113 @@ func Login(args map[string]interface{}) (interface{}, error) {
 	}
 
 	return model.Token{Token: token, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+}
+
+// User : Get the user info
+func User(args map[string]interface{}) (interface{}, error) {
+	var name string
+	var email string
+	var loginAt time.Time
+	var createdAt time.Time
+
+	uuid, uuidOk := args["uuid"].(string)
+	id, idOk := args["id"].(string)
+
+	sql := "select uuid, id, name, email, login_at, created_at from user where"
+
+	var row *dbsql.Row
+	var err error
+
+	if idOk && uuidOk {
+		sql += " id = ? and uuid = ? order by created_at"
+		row = mysql.Db.QueryRow(sql, id, uuid)
+	} else if idOk {
+		sql += " id = ? order by created_at"
+		row = mysql.Db.QueryRow(sql, id)
+	} else if uuidOk {
+		sql += " uuid = ? order by created_at"
+		row = mysql.Db.QueryRow(sql, uuid)
+	} else {
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "please insert uuid or id arguments")}, nil
+	}
+
+	err = row.Scan(&uuid, &id, &name, &email, &loginAt, &createdAt)
+	if err != nil {
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
+	user := model.User{UUID: uuid, ID: id, Name: name, Email: email, LoginAt: loginAt, CreatedAt: createdAt}
+	user.Errors = errors.ReturnHccEmptyErrorPiccolo()
+
+	return user, nil
+}
+
+// UserList : Get the user list
+func UserList(args map[string]interface{}) (interface{}, error) {
+	var users []model.User
+	var uuid string
+	var loginAt time.Time
+	var createdAt time.Time
+	var noLimit bool
+
+	id, idOk := args["id"].(string)
+	name, nameOk := args["name"].(string)
+	email, emailOk := args["email"].(string)
+
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
+	if !rowOk && !pageOk {
+		noLimit = true
+	} else if rowOk && pageOk {
+		noLimit = false
+	} else {
+		return model.UserList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
+	}
+
+
+	sql := "select uuid, id, name, email, login_at, created_at from user where 1=1"
+
+	if idOk {
+		sql += " and id = '" + id + "'"
+	}
+	if nameOk {
+		sql += " and name = '" + name + "'"
+	}
+	if emailOk {
+		sql += " and email = '" + email + "'"
+	}
+
+	if !noLimit {
+		sql += " order by created_at desc limit ? offset ?"
+	}
+
+	var stmt *dbsql.Rows
+	var err error
+
+	if noLimit {
+		stmt, err = mysql.Db.Query(sql)
+	} else {
+		stmt, err = mysql.Db.Query(sql, row, row*(page-1))
+	}
+
+	if err != nil {
+		logger.Logger.Println(err)
+		return nil, err
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+
+	for stmt.Next() {
+		err := stmt.Scan(&uuid, &id, &name, &email, &loginAt, &createdAt)
+		if err != nil {
+			logger.Logger.Println(err)
+		}
+		user := model.User{UUID: uuid, ID: id, Name: name, Email: email, LoginAt: loginAt, CreatedAt: createdAt}
+		users = append(users, user)
+	}
+
+	return model.UserList{Users: users, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // CheckToken : Do token validation check process

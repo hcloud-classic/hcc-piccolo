@@ -9,12 +9,17 @@ import (
 type User struct {
 	UUID      string            `json:"uuid"`
 	ID        string            `json:"id"`
-	Password  string            `json:"password"`
 	Name      string            `json:"name"`
 	Email     string            `json:"email"`
-	CreatedAt time.Time         `json:"created_at"`
 	LoginAt   time.Time         `json:"login_at"`
+	CreatedAt time.Time         `json:"created_at"`
 	Errors    []errors.HccError `json:"errors"`
+}
+
+// UserList : Contain list of users
+type UserList struct {
+	Users  []User            `json:"user_list"`
+	Errors []errors.HccError `json:"errors"`
 }
 
 // Token : Contain the user token

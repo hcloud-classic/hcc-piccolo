@@ -31,6 +31,61 @@ var queryTypes = graphql.NewObject(
 					return queryparser.Login(params.Args)
 				},
 			},
+			"user": &graphql.Field{
+				Type:        graphqlType.UserType,
+				Description: "Get the user list from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / user")
+					return queryparser.User(params.Args)
+				},
+			},
+			"list_user": &graphql.Field{
+				Type:        graphqlType.UserListType,
+				Description: "Get the user list from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"email": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.UserList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / list_user")
+					return queryparser.UserList(params.Args)
+				},
+			},
 			"check_token": &graphql.Field{
 				Type:        graphqlType.IsValid,
 				Description: "Check validation of the token for piccolo",

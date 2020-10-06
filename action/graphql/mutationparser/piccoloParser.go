@@ -20,6 +20,12 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need id and password, name, email arguments")}, nil
 	}
 
+	sql := "select id from user where id = ?"
+	err := mysql.Db.QueryRow(sql, id).Scan(&id)
+	if err == nil {
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLUserExist, "Provided ID is in use")}, nil
+	}
+
 	out, err := uuid.NewV4()
 	if err != nil {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloInternalUUIDGenerationError, err.Error())}, nil
@@ -33,12 +39,11 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	user := model.User{
 		UUID:     UUID,
 		ID:       id,
-		Password: hashPassword,
 		Name:     name,
 		Email:    email,
 	}
 
-	sql := "insert into user(uuid, id, password, name, email, created_at) values (?, ?, ?, ?, ?, now())"
+	sql = "insert into user(uuid, id, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, now(), now())"
 	stmt, err := mysql.Db.Prepare(sql)
 	if err != nil {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLPrepareError, err.Error())}, nil
@@ -46,7 +51,7 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	defer func() {
 		_ = stmt.Close()
 	}()
-	_, err = stmt.Exec(user.UUID, user.ID, user.Password, user.Name, user.Email)
+	_, err = stmt.Exec(user.UUID, user.ID, hashPassword, user.Name, user.Email)
 	if err != nil {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
