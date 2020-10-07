@@ -215,7 +215,7 @@ var queryTypes = graphql.NewObject(
 			},
 			"num_server": &graphql.Field{
 				Type:        graphqlType.ServerNumType,
-				Description: "Get the number of server",
+				Description: "Get the number of servers",
 				Args: graphql.FieldConfigArgument{
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -436,7 +436,7 @@ var queryTypes = graphql.NewObject(
 			},
 			"num_subnet": &graphql.Field{
 				Type:        graphqlType.SubnetNumType,
-				Description: "Get the number of subnet",
+				Description: "Get the number of subnets",
 				Args: graphql.FieldConfigArgument{
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -559,7 +559,7 @@ var queryTypes = graphql.NewObject(
 			},
 			"num_adaptiveip_server": &graphql.Field{
 				Type:        graphqlType.AdaptiveIPServerNumType,
-				Description: "Get the number of adaptiveip_server",
+				Description: "Get the number of AdaptiveIP Servers",
 				Args: graphql.FieldConfigArgument{
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -696,7 +696,7 @@ var queryTypes = graphql.NewObject(
 			},
 			"num_node": &graphql.Field{
 				Type:        graphqlType.NodeNumType,
-				Description: "Get the number of node",
+				Description: "Get the number of nodes",
 				Args: graphql.FieldConfigArgument{
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
