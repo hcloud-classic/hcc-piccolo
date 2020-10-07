@@ -185,6 +185,19 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	return model.UserList{Users: users, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
+// NumUser : Get number of users
+func NumUser() (interface{}, error) {
+	var userNum int
+
+	sql := "select count(*) from user"
+	err := mysql.Db.QueryRow(sql).Scan(&userNum)
+	if err != nil {
+		return model.UserNum{Number: userNum, Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
+	return model.UserNum{Number: userNum, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+}
+
 // CheckToken : Do token validation check process
 func CheckToken(args map[string]interface{}) (interface{}, error) {
 	_, tokenOk := args["token"].(string)

@@ -86,6 +86,23 @@ var queryTypes = graphql.NewObject(
 					return queryparser.UserList(params.Args)
 				},
 			},
+			"num_user": &graphql.Field{
+				Type:        graphqlType.UserNumType,
+				Description: "Get the number of users",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.UserNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / num_user")
+					return queryparser.NumUser()
+				},
+			},
 			"check_token": &graphql.Field{
 				Type:        graphqlType.IsValid,
 				Description: "Check validation of the token for piccolo",

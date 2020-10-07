@@ -22,6 +22,12 @@ type UserList struct {
 	Errors []errors.HccError `json:"errors"`
 }
 
+// UserNum : Contain the number of users
+type UserNum struct {
+	Number int               `json:"number"`
+	Errors []errors.HccError `json:"errors"`
+}
+
 // Token : Contain the user token
 type Token struct {
 	Token  string            `json:"token"`
