@@ -4,5 +4,5 @@
 
 
 
-API Gateway역활
+API Gateway 역할
 
