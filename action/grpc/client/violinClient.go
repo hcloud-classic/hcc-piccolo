@@ -2,12 +2,13 @@ package client
 
 import (
 	"context"
-	"google.golang.org/grpc"
 	"hcc/piccolo/action/grpc/pb/rpcviolin"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"strconv"
 	"time"
+
+	"google.golang.org/grpc"
 )
 
 var violinConn *grpc.ClientConn

@@ -644,5 +644,44 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return mutationparser.DeleteNodeDetail(params.Args)
 			},
 		},
+
+		//Cello
+		// volume DB
+		"create_volume": &graphql.Field{
+			Type:        graphqlType.VolumeType,
+			Description: "Create new volume",
+			Args: graphql.FieldConfigArgument{
+				"size": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"filesystem": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"server_uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"network_ip": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"use_type": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"user_uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"gateway_ip": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"lun_num": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"pool": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				return mutationparser.CreateVolume(params.Args)
+			},
+		},
 	},
 })

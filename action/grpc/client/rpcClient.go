@@ -1,6 +1,7 @@
 package client
 
 import (
+	"hcc/piccolo/action/grpc/pb/rpccello"
 	"hcc/piccolo/action/grpc/pb/rpcflute"
 	"hcc/piccolo/action/grpc/pb/rpcharp"
 	"hcc/piccolo/action/grpc/pb/rpcpiano"
@@ -15,6 +16,7 @@ type RPCClient struct {
 	violin rpcviolin.ViolinClient
 	novnc  rpcnovnc.NovncClient
 	piano  rpcpiano.PianoClient
+	cello  rpccello.CelloClient
 }
 
 // RC : Exported variable pointed to RPCClient
@@ -46,6 +48,10 @@ func Init() error {
 	if err != nil {
 		return err
 	}
+	err = initCello()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -57,4 +63,5 @@ func End() {
 	closeViolin()
 	closeHarp()
 	closeFlute()
+	closeCello()
 }
