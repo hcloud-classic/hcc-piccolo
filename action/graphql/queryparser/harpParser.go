@@ -216,7 +216,7 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 	resGetAdaptiveIPServer, err := client.RC.GetAdaptiveIPServer(serverUUID)
 	if err != nil {
-		return model.AdaptiveIPSetting{Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+		return model.AdaptiveIPSetting{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resGetAdaptiveIPServer.HccErrorStack)
