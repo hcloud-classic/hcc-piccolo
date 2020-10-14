@@ -1,8 +1,6 @@
 package mutationparser
 
 import (
-	"github.com/golang/protobuf/ptypes"
-	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcmsgType"
@@ -10,6 +8,9 @@ import (
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
 	"time"
+
+	"github.com/golang/protobuf/ptypes"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 )
 
 func pbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Server {
