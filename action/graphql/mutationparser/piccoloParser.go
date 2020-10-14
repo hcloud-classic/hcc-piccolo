@@ -77,6 +77,11 @@ func Unregister(args map[string]interface{}) (interface{}, error) {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a id argument")}, nil
 	}
 
+	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
+		logger.Logger.Println("Unregister(): Someone tried to unregister one of administrative ID.")
+		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLUserExist, "You can't delete administrative IDs")}, nil
+	}
+
 	user, _ := queryparser.User(args)
 	if len(user.(model.User).Errors) != 0 && user.(model.User).Errors[0].ErrCode != 0 {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, "user not found")}, nil
