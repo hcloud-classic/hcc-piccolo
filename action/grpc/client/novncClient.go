@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -39,6 +40,7 @@ func (rc *RPCClient) ControlVNC(in *rpcnovnc.ReqControlVNC) (*rpcnovnc.ResContro
 		time.Duration(config.ViolinNoVnc.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 
+	fmt.Println(in)
 	resControlVNC, err := rc.novnc.ControlVNC(ctx, in)
 	if err != nil {
 		return nil, err
