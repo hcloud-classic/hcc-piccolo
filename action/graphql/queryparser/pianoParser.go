@@ -1,34 +1,13 @@
 package queryparser
 
 import (
+	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcpiano"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
 )
-
-func pbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData) *model.Telegraf {
-	var seriesArr []model.Series
-
-	for _, monitoringDataSeries := range monitoringData.Series {
-		var series model.Series
-
-		series.Time = int(monitoringDataSeries.Time)
-		series.Value = int(monitoringDataSeries.Value)
-
-		seriesArr = append(seriesArr, series)
-	}
-
-	modelTelegraf := &model.Telegraf{
-		Metric:    monitoringData.Metric,
-		SubMetric: monitoringData.SubMetric,
-		UUID:      monitoringData.UUID,
-		Series:    seriesArr,
-	}
-
-	return modelTelegraf
-}
 
 func checkTelegrafArgsAll(args map[string]interface{}) bool {
 	_, metricOk := args["metric"].(string)
@@ -68,7 +47,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 		return model.Telegraf{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelTelegraf := pbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData)
+	modelTelegraf := pbtomodel.PbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData)
 
 	hccErrStack := errconv.GrpcStackToHcc(&resMonitoringData.HccErrorStack)
 	modelTelegraf.Errors = *hccErrStack.ConvertReportForm()

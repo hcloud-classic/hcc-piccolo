@@ -1,55 +1,13 @@
 package mutationparser
 
 import (
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
+	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcharp"
-	"hcc/piccolo/action/grpc/pb/rpcmsgType"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
-	"time"
 )
-
-func pbSubnetToModelSubnet(subnet *rpcharp.Subnet, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Subnet {
-	var createdAt time.Time
-	if subnet.CreatedAt == nil {
-		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
-			Seconds: 0,
-			Nanos:   0,
-		})
-	} else {
-		var err error
-
-		createdAt, err = ptypes.Timestamp(subnet.CreatedAt)
-		if err != nil {
-			return &model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
-		}
-	}
-
-	modelSubnet := &model.Subnet{
-		UUID:           subnet.UUID,
-		NetworkIP:      subnet.NetworkIP,
-		Netmask:        subnet.Netmask,
-		Gateway:        subnet.Gateway,
-		NextServer:     subnet.NextServer,
-		NameServer:     subnet.NameServer,
-		DomainName:     subnet.DomainName,
-		ServerUUID:     subnet.ServerUUID,
-		LeaderNodeUUID: subnet.LeaderNodeUUID,
-		OS:             subnet.OS,
-		SubnetName:     subnet.SubnetName,
-		CreatedAt:      createdAt,
-	}
-
-	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelSubnet.Errors = *hccErrStack.ConvertReportForm()
-	}
-
-	return modelSubnet
-}
 
 // CreateSubnet : Create a subnet
 func CreateSubnet(args map[string]interface{}) (interface{}, error) {
@@ -95,7 +53,7 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelSubnet := pbSubnetToModelSubnet(resCreateSubnet.Subnet, &resCreateSubnet.HccErrorStack)
+	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resCreateSubnet.Subnet, &resCreateSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
@@ -158,7 +116,7 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelSubnet := pbSubnetToModelSubnet(resUpdateSubnet.Subnet, &resUpdateSubnet.HccErrorStack)
+	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resUpdateSubnet.Subnet, &resUpdateSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
