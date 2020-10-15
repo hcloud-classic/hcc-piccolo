@@ -112,9 +112,13 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 	}
 	if cpuOk {
 		reqCreateServer.Server.CPU = int32(cpu)
+	} else {
+		reqCreateServer.Server.CPU = 0
 	}
 	if memoryOk {
 		reqCreateServer.Server.Memory = int32(memory)
+	} else {
+		reqCreateServer.Server.Memory = 0
 	}
 	if diskSizeOk {
 		reqCreateServer.Server.DiskSize = int32(diskSize)
