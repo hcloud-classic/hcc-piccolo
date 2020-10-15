@@ -47,6 +47,9 @@ func PbVolumeToModelVolume(volume *rpccello.Volume, hccGrpcErrStack *[]*rpcmsgTy
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelVolume.Errors = *hccErrStack.ConvertReportForm()
+		if modelVolume.Errors[0].ErrCode == 0 {
+			modelVolume.Errors = errors.ReturnHccEmptyErrorPiccolo()
+		}
 	}
 
 	return modelVolume
