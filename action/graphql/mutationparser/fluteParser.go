@@ -29,18 +29,20 @@ func pbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 	}
 
 	modelNode := &model.Node{
-		UUID:        node.UUID,
-		ServerUUID:  node.ServerUUID,
-		BmcMacAddr:  node.BmcMacAddr,
-		BmcIP:       node.BmcIP,
-		PXEMacAddr:  node.PXEMacAddr,
-		Status:      node.Status,
-		CPUCores:    int(node.CPUCores),
-		Memory:      int(node.Memory),
-		Description: node.Description,
-		CreatedAt:   createdAt,
-		Active:      int(node.Active),
-		ForceOff:    node.ForceOff,
+		UUID:            node.UUID,
+		ServerUUID:      node.ServerUUID,
+		BmcMacAddr:      node.BmcMacAddr,
+		BmcIP:           node.BmcIP,
+		BmcIPSubnetMask: node.BmcIPSubnetMask,
+		PXEMacAddr:      node.PXEMacAddr,
+		Status:          node.Status,
+		CPUCores:        int(node.CPUCores),
+		Memory:          int(node.Memory),
+		Description:     node.Description,
+		RackNumber:      int(node.RackNumber),
+		CreatedAt:       createdAt,
+		Active:          int(node.Active),
+		ForceOff:        node.ForceOff,
 	}
 
 	if hccGrpcErrStack != nil {
@@ -132,6 +134,7 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 	status, statusOk := args["status"].(string)
 	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
 	memory, memoryOk := args["memory"].(int)
+	rackNumber, rackNumberOk := args["rack_number"].(int)
 	description, descriptionOk := args["description"].(string)
 	active, activeOk := args["active"].(int)
 
@@ -156,6 +159,9 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 	}
 	if memoryOk {
 		reqCreateNode.Node.Memory = int32(memory)
+	}
+	if rackNumberOk {
+		reqCreateNode.Node.RackNumber = int32(rackNumber)
 	}
 	if descriptionOk {
 		reqCreateNode.Node.Description = description
@@ -187,6 +193,7 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	status, statusOk := args["status"].(string)
 	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
 	memory, memoryOk := args["memory"].(int)
+	rackNumber, rackNumberOk := args["rack_number"].(int)
 	description, descriptionOk := args["description"].(string)
 	active, activeOk := args["active"].(int)
 
@@ -212,6 +219,9 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	}
 	if memoryOk {
 		reqUpdateNode.Node.Memory = int32(memory)
+	}
+	if rackNumberOk {
+		reqUpdateNode.Node.RackNumber = int32(rackNumber)
 	}
 	if descriptionOk {
 		reqUpdateNode.Node.Description = description

@@ -29,18 +29,20 @@ func pbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 	}
 
 	modelNode := &model.Node{
-		UUID:        node.UUID,
-		ServerUUID:  node.ServerUUID,
-		BmcMacAddr:  node.BmcMacAddr,
-		BmcIP:       node.BmcIP,
-		PXEMacAddr:  node.PXEMacAddr,
-		Status:      node.Status,
-		CPUCores:    int(node.CPUCores),
-		Memory:      int(node.Memory),
-		Description: node.Description,
-		CreatedAt:   createdAt,
-		Active:      int(node.Active),
-		ForceOff:    node.ForceOff,
+		UUID:            node.UUID,
+		ServerUUID:      node.ServerUUID,
+		BmcMacAddr:      node.BmcMacAddr,
+		BmcIP:           node.BmcIP,
+		BmcIPSubnetMask: node.BmcIPSubnetMask,
+		PXEMacAddr:      node.PXEMacAddr,
+		Status:          node.Status,
+		CPUCores:        int(node.CPUCores),
+		Memory:          int(node.Memory),
+		Description:     node.Description,
+		RackNumber:      int(node.RackNumber),
+		CreatedAt:       createdAt,
+		Active:          int(node.Active),
+		ForceOff:        node.ForceOff,
 	}
 
 	if hccGrpcErrStack != nil {
@@ -113,6 +115,7 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
 	memory, memoryOk := args["memory"].(int)
 	description, descriptionOk := args["description"].(string)
+	rackNumber, rackNumberOk := args["rack_number"].(int)
 	active, activeOk := args["active"].(int)
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
@@ -147,6 +150,9 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	}
 	if descriptionOk {
 		reqListNode.Node.Description = description
+	}
+	if rackNumberOk {
+		reqListNode.Node.RackNumber = int32(rackNumber)
 	}
 	if activeOk {
 		reqListNode.Node.Active = int32(active)

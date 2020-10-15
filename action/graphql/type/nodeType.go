@@ -19,6 +19,9 @@ var NodeType = graphql.NewObject(
 			"bmc_ip": &graphql.Field{
 				Type: graphql.String,
 			},
+			"bmc_ip_subnet_mask": &graphql.Field{
+				Type: graphql.String,
+			},
 			"pxe_mac_addr": &graphql.Field{
 				Type: graphql.String,
 			},
@@ -33,6 +36,9 @@ var NodeType = graphql.NewObject(
 			},
 			"description": &graphql.Field{
 				Type: graphql.String,
+			},
+			"rack_number": &graphql.Field{
+				Type: graphql.Int,
 			},
 			"active": &graphql.Field{
 				Type: graphql.Int,

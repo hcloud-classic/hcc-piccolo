@@ -663,6 +663,9 @@ var queryTypes = graphql.NewObject(
 					"description": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"rack_number": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"active": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
