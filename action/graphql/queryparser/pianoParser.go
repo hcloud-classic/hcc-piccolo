@@ -3,7 +3,6 @@ package queryparser
 import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
-	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcpiano"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
@@ -47,10 +46,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 		return model.Telegraf{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelTelegraf := pbtomodel.PbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData)
-
-	hccErrStack := errconv.GrpcStackToHcc(&resMonitoringData.HccErrorStack)
-	modelTelegraf.Errors = *hccErrStack.ConvertReportForm()
+	modelTelegraf := pbtomodel.PbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData, &resMonitoringData.HccErrorStack)
 
 	return *modelTelegraf, nil
 }
