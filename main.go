@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"hcc/piccolo/action/graphql"
+	"hcc/piccolo/action/http"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/errors"
@@ -50,5 +50,5 @@ func main() {
 		os.Exit(0)
 	}()
 
-	graphql.Init()
+	http.Init()
 }

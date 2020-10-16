@@ -784,7 +784,11 @@ var queryTypes = graphql.NewObject(
 						return model.Telegraf{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piano / telegraf")
-					return queryparser.Telegraf(params.Args)
+					telegraf, err := queryparser.Telegraf(params.Args)
+
+					Publisher()
+
+					return telegraf, err
 				},
 			},
 		},
