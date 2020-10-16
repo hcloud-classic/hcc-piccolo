@@ -31,7 +31,7 @@ func PbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData, hc
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelTelegraf.Errors = *hccErrStack.ConvertReportForm()
-		if modelTelegraf.Errors[0].ErrCode == 0 {
+		if len(modelTelegraf.Errors) != 0 && modelTelegraf.Errors[0].ErrCode == 0 {
 			modelTelegraf.Errors = errors.ReturnHccEmptyErrorPiccolo()
 		}
 	} else {

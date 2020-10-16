@@ -48,7 +48,7 @@ func PbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelNode.Errors = *hccErrStack.ConvertReportForm()
-		if modelNode.Errors[0].ErrCode == 0 {
+		if len(modelNode.Errors) != 0 &&  modelNode.Errors[0].ErrCode == 0 {
 			modelNode.Errors = errors.ReturnHccEmptyErrorPiccolo()
 		}
 	}
@@ -68,7 +68,7 @@ func PbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail, hccGrpcErrSt
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelNodeDetail.Errors = *hccErrStack.ConvertReportForm()
-		if modelNodeDetail.Errors[0].ErrCode == 0 {
+		if len(modelNodeDetail.Errors) != 0 && modelNodeDetail.Errors[0].ErrCode == 0 {
 			modelNodeDetail.Errors = errors.ReturnHccEmptyErrorPiccolo()
 		}
 	}

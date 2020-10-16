@@ -46,7 +46,7 @@ func PbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgT
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelServer.Errors = *hccErrStack.ConvertReportForm()
-		if modelServer.Errors[0].ErrCode == 0 {
+		if len(modelServer.Errors) != 0 && modelServer.Errors[0].ErrCode == 0 {
 			modelServer.Errors = errors.ReturnHccEmptyErrorPiccolo()
 		}
 	}
@@ -88,7 +88,7 @@ func PbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, node *rpcfl
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelServerNode.Errors = *hccErrStack.ConvertReportForm()
-		if modelServerNode.Errors[0].ErrCode == 0 {
+		if len(modelServerNode.Errors) != 0 && modelServerNode.Errors[0].ErrCode == 0 {
 			modelServerNode.Errors = errors.ReturnHccEmptyErrorPiccolo()
 		}
 	}
