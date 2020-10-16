@@ -11,8 +11,8 @@ var SchemaExported graphql.Schema
 // Schema : GraphQL schema definition
 var Schema, _ = graphql.NewSchema(
 	graphql.SchemaConfig{
-		Query:    queryTypes,
-		Mutation: mutationTypes,
+		Query:        queryTypes,
+		Mutation:     mutationTypes,
 		Subscription: subscriptionTypes,
 	},
 )
@@ -26,8 +26,8 @@ var Schema, _ = graphql.NewSchema(
 //
 // GraphiQL : Show GraphQL GUI request form in web browser
 var Handler = handler.New(&handler.Config{
-	Schema:   &Schema,
-	Pretty:   true,
-	GraphiQL: false,
+	Schema:     &Schema,
+	Pretty:     true,
+	GraphiQL:   false,
 	Playground: true,
 })

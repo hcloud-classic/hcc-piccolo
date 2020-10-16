@@ -9,7 +9,7 @@ import (
 )
 
 // PbMonitoringDataToModelTelegraf : Change monitoringData of proto type to telegraf model
-func PbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData,  hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Telegraf {
+func PbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Telegraf {
 	var seriesArr []model.Series
 
 	for _, monitoringDataSeries := range monitoringData.Series {
@@ -37,7 +37,6 @@ func PbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData,  h
 	} else {
 		modelTelegraf.Errors = errors.ReturnHccEmptyErrorPiccolo()
 	}
-
 
 	return modelTelegraf
 }

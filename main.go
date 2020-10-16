@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"hcc/piccolo/action/http"
 	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/http"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
