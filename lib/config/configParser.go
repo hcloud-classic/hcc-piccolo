@@ -54,10 +54,7 @@ func parseHTTP() {
 		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
 
-	HTTP.Port, err = config.HTTPConfig.Int("port")
-	if err != nil {
-		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
-	}
+	HTTP.UsePlayground, err = config.HTTPConfig.Bool("use_playground")
 }
 
 func parseFlute() {
