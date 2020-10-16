@@ -136,6 +136,7 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	rackNumber, rackNumberOk := args["rack_number"].(int)
 	description, descriptionOk := args["description"].(string)
 	active, activeOk := args["active"].(int)
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 
 	var reqUpdateNode rpcflute.ReqUpdateNode
 	var reqNode rpcflute.Node
@@ -168,6 +169,9 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	}
 	if activeOk {
 		reqUpdateNode.Node.Active = int32(active)
+	}
+	if serverUUIDOk {
+		reqUpdateNode.Node.ServerUUID = serverUUID
 	}
 
 	resUpdateNode, err := client.RC.UpdateNode(&reqUpdateNode)
