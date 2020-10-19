@@ -1,86 +1,13 @@
 package mutationparser
 
 import (
+	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
-	"hcc/piccolo/action/grpc/pb/rpcmsgType"
 	"hcc/piccolo/action/grpc/pb/rpcviolin"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
-	"time"
-
-	"github.com/golang/protobuf/ptypes"
-	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 )
-
-func pbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Server {
-	var createdAt time.Time
-	if server.CreatedAt == nil {
-		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
-			Seconds: 0,
-			Nanos:   0,
-		})
-	} else {
-		var err error
-
-		createdAt, err = ptypes.Timestamp(server.CreatedAt)
-		if err != nil {
-			return &model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
-		}
-	}
-
-	modelServer := &model.Server{
-		UUID:       server.UUID,
-		SubnetUUID: server.SubnetUUID,
-		OS:         server.OS,
-		ServerName: server.ServerName,
-		ServerDesc: server.ServerDesc,
-		CPU:        int(server.CPU),
-		Memory:     int(server.Memory),
-		DiskSize:   int(server.DiskSize),
-		Status:     server.Status,
-		UserUUID:   server.UserUUID,
-		CreatedAt:  createdAt,
-	}
-
-	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelServer.Errors = *hccErrStack.ConvertReportForm()
-	}
-
-	return modelServer
-}
-
-func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.ServerNode {
-	var createdAt time.Time
-	if serverNode.CreatedAt == nil {
-		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
-			Seconds: 0,
-			Nanos:   0,
-		})
-	} else {
-		var err error
-
-		createdAt, err = ptypes.Timestamp(serverNode.CreatedAt)
-		if err != nil {
-			return &model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
-		}
-	}
-
-	modelServerNode := &model.ServerNode{
-		UUID:       serverNode.UUID,
-		ServerUUID: serverNode.ServerUUID,
-		NodeUUID:   serverNode.NodeUUID,
-		CreatedAt:  createdAt,
-	}
-
-	if hccGrpcErrStack != nil {
-		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelServerNode.Errors = *hccErrStack.ConvertReportForm()
-	}
-
-	return modelServerNode
-}
 
 // CreateServer : Create a server
 func CreateServer(args map[string]interface{}) (interface{}, error) {
@@ -135,7 +62,7 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServer := pbServerToModelServer(resCreateServer.Server, &resCreateServer.HccErrorStack)
+	modelServer := pbtomodel.PbServerToModelServer(resCreateServer.Server, &resCreateServer.HccErrorStack)
 
 	return *modelServer, nil
 }
@@ -195,7 +122,7 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServer := pbServerToModelServer(resUpdateServer.Server, &resUpdateServer.HccErrorStack)
+	modelServer := pbtomodel.PbServerToModelServer(resUpdateServer.Server, &resUpdateServer.HccErrorStack)
 
 	return *modelServer, nil
 }
@@ -238,7 +165,7 @@ func CreateServerNode(args map[string]interface{}) (interface{}, error) {
 		return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServerNode := pbServerNodeToModelServerNode(resCreateServerNode.ServerNode, &resCreateServerNode.HccErrorStack)
+	modelServerNode := pbtomodel.PbServerNodeToModelServerNode(resCreateServerNode.ServerNode, nil, nil, &resCreateServerNode.HccErrorStack)
 
 	return *modelServerNode, nil
 }

@@ -77,12 +77,15 @@ func PbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, node *rpcfl
 		ServerUUID:    serverNode.ServerUUID,
 		NodeUUID:      serverNode.NodeUUID,
 		CPUModel:      nodeDetail.CPUModel,
-		CPUProcessors: int(nodeDetail.CPUProcessors),
-		CPUCores:      int(node.CPUCores),
-		CPUThreads:    int(nodeDetail.CPUThreads),
-		Memory:        int(node.Memory),
 		CreatedAt:     createdAt,
 		Errors:        *errors.NewHccErrorStack(),
+	}
+
+	if node != nil && nodeDetail != nil {
+		modelServerNode.CPUProcessors = int(nodeDetail.CPUProcessors)
+		modelServerNode.CPUCores = int(node.CPUCores)
+		modelServerNode.CPUThreads = int(nodeDetail.CPUThreads)
+		modelServerNode.Memory = int(node.Memory)
 	}
 
 	if hccGrpcErrStack != nil {
