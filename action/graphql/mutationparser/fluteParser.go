@@ -22,8 +22,12 @@ func OnNode(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: *hccErrStack.ConvertReportForm()}, nil
+	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: Errors}, nil
 }
 
 // OffNode : Turn off the node
@@ -45,8 +49,12 @@ func OffNode(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: *hccErrStack.ConvertReportForm()}, nil
+	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: Errors}, nil
 }
 
 // ForceRestartNode : Force restart the node
@@ -62,8 +70,12 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: *hccErrStack.ConvertReportForm()}, nil
+	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: Errors}, nil
 }
 
 // CreateNode : Create a node
@@ -200,6 +212,9 @@ func DeleteNode(args map[string]interface{}) (interface{}, error) {
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNode.HccErrorStack)
 	node.Errors = *hccErrStack.ConvertReportForm()
+	if len(node.Errors) != 0 && node.Errors[0].ErrCode == 0 {
+		node.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return node, nil
 }
@@ -254,6 +269,9 @@ func DeleteNodeDetail(args map[string]interface{}) (interface{}, error) {
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNodeDetail.HccErrorStack)
 	nodeDetail.Errors = *hccErrStack.ConvertReportForm()
+	if len(nodeDetail.Errors) != 0 && nodeDetail.Errors[0].ErrCode == 0 {
+		nodeDetail.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return nodeDetail, nil
 }

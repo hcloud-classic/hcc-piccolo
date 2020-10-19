@@ -23,8 +23,12 @@ func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerState.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.PowerStateNode{Result: resNodePowerState.Result, Errors: *hccErrStack.ConvertReportForm()}, nil
+	return model.PowerStateNode{Result: resNodePowerState.Result, Errors: Errors}, nil
 }
 
 // Node : Get infos of the node
@@ -115,8 +119,12 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeList.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.NodeList{Nodes: nodeList, Errors: *hccErrStack.ConvertReportForm()}, nil
+	return model.NodeList{Nodes: nodeList, Errors: Errors}, nil
 }
 
 // AllNode : Get node list with provided options (Just call ListNode())
@@ -136,6 +144,9 @@ func NumNode() (interface{}, error) {
 
 	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeNum.HccErrorStack)
 	modelNodeNum.Errors = *hccErrStack.ConvertReportForm()
+	if len(modelNodeNum.Errors) != 0 && modelNodeNum.Errors[0].ErrCode == 0 {
+		modelNodeNum.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return modelNodeNum, nil
 }

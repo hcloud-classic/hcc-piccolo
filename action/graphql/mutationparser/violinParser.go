@@ -143,6 +143,9 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServer.HccErrorStack)
 	server.Errors = *hccErrStack.ConvertReportForm()
+	if len(server.Errors) != 0 && server.Errors[0].ErrCode == 0 {
+		server.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return server, nil
 }
@@ -186,6 +189,9 @@ func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServerNode.HccErrorStack)
 	serverNode.Errors = *hccErrStack.ConvertReportForm()
+	if len(serverNode.Errors) != 0 && serverNode.Errors[0].ErrCode == 0 {
+		serverNode.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return serverNode, nil
 }

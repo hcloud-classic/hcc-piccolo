@@ -93,8 +93,12 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resListServer.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.ServerList{Servers: serverList, Errors: *hccErrStack.ConvertReportForm()}, nil
+	return model.ServerList{Servers: serverList, Errors: Errors}, nil
 }
 
 // AllServer : Get server list with provided options (Just call ListServer())
@@ -114,6 +118,9 @@ func NumServer() (interface{}, error) {
 
 	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNum.HccErrorStack)
 	modelServerNum.Errors = *hccErrStack.ConvertReportForm()
+	if len(modelServerNum.Errors) != 0 && modelServerNum.Errors[0].ErrCode == 0 {
+		modelServerNum.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return modelServerNum, nil
 }
@@ -177,8 +184,12 @@ func ListServerNode(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resListServerNode.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.ServerNodeList{ServerNodes: serverNodeList, Errors: *hccErrStack.ConvertReportForm()}, nil
+	return model.ServerNodeList{ServerNodes: serverNodeList, Errors: Errors}, nil
 }
 
 // AllServerNode : Get serverNode list with provided options (Just call ListServerNode())
@@ -202,6 +213,9 @@ func NumServerNode(args map[string]interface{}) (interface{}, error) {
 	modelServerNodeNum.Number = int(resGetServerNodeNum.Num)
 	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNodeNum.HccErrorStack)
 	modelServerNodeNum.Errors = *hccErrStack.ConvertReportForm()
+	if len(modelServerNodeNum.Errors) != 0 && modelServerNodeNum.Errors[0].ErrCode == 0 {
+		modelServerNodeNum.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return modelServerNodeNum, nil
 }

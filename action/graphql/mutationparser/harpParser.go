@@ -137,6 +137,9 @@ func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteSubnet.HccErrorStack)
 	subnet.Errors = *hccErrStack.ConvertReportForm()
+	if len(subnet.Errors) != 0 && subnet.Errors[0].ErrCode == 0 {
+		subnet.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return subnet, nil
 }
@@ -155,8 +158,12 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resCreateDHCPDConfig.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.CreateDHCPConfResult{Result: resCreateDHCPDConfig.Result, Errors: *hccErrStack.ConvertReportForm()}, nil
+	return model.CreateDHCPConfResult{Result: resCreateDHCPDConfig.Result, Errors: Errors}, nil
 }
 
 // CreateAdaptiveIPServer : Create a adaptiveIP server
@@ -185,8 +192,13 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		PublicIP:       resAdaptiveIPServer.PublicIP,
 		PrivateIP:      resAdaptiveIPServer.PrivateIP,
 		PrivateGateway: resAdaptiveIPServer.PrivateGateway,
-		Errors:         *hccErrStack.ConvertReportForm(),
 	}
+
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
+	adaptiveIPServer.Errors = Errors
 
 	return adaptiveIPServer, nil
 }
@@ -204,8 +216,12 @@ func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteAdaptiveIPServer.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.AdaptiveIPServer{ServerUUID: resDeleteAdaptiveIPServer.ServerUUID, Errors: *hccErrStack.ConvertReportForm()}, nil
+	return model.AdaptiveIPServer{ServerUUID: resDeleteAdaptiveIPServer.ServerUUID, Errors: Errors}, nil
 }
 
 // CreateAdaptiveIPSetting : Create settings of the adaptiveIP
@@ -243,13 +259,19 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 	}
 
 	adaptiveipSetting := resCreateAdaptiveIPSetting.AdaptiveipSetting
+
 	hccErrStack := errconv.GrpcStackToHcc(&resCreateAdaptiveIPSetting.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
+
 	return model.AdaptiveIPSetting{
 		ExtIfaceIPAddress: adaptiveipSetting.ExtIfaceIPAddress,
 		Netmask:           adaptiveipSetting.Netmask,
 		GatewayAddress:    adaptiveipSetting.GatewayAddress,
 		StartIPAddress:    adaptiveipSetting.StartIPAddress,
 		EndIPAddress:      adaptiveipSetting.EndIPAddress,
-		Errors:            *hccErrStack.ConvertReportForm(),
+		Errors:            Errors,
 	}, nil
 }
