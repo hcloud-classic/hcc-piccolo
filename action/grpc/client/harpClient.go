@@ -214,11 +214,11 @@ func (rc *RPCClient) DeleteAdaptiveIPServer(serverUUID string) (*rpcharp.ResDele
 }
 
 // CreateDHCPDConfig : Do dhcpd config file creation works
-func (rc *RPCClient) CreateDHCPDConfig(subnetUUID string, nodeUUIDs string) (*rpcharp.ResCreateDHPCDConf, error) {
+func (rc *RPCClient) CreateDHCPDConfig(subnetUUID string, nodeUUIDs string) (*rpcharp.ResCreateDHCPDConf, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resCreateDHPCDConf, err := rc.harp.CreateDHPCDConf(ctx, &rpcharp.ReqCreateDHPCDConf{
+	resCreateDHCPDConf, err := rc.harp.CreateDHCPDConf(ctx, &rpcharp.ReqCreateDHCPDConf{
 		SubnetUUID: subnetUUID,
 		NodeUUIDs:  nodeUUIDs,
 	})
@@ -226,5 +226,5 @@ func (rc *RPCClient) CreateDHCPDConfig(subnetUUID string, nodeUUIDs string) (*rp
 		return nil, err
 	}
 
-	return resCreateDHPCDConf, nil
+	return resCreateDHCPDConf, nil
 }
