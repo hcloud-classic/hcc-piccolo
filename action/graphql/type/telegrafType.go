@@ -19,7 +19,7 @@ var TelegrafType = graphql.NewObject(
 				Type: graphql.String,
 			},
 			"data": &graphql.Field{
-				Type: graphql.NewList(SeriesType),
+				Type: graphql.NewList(graphql.NewList(graphql.Float)),
 			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
@@ -33,14 +33,8 @@ var SeriesType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "seriesType",
 		Fields: graphql.Fields{
-			"x": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"y": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"errors": &graphql.Field{
-				Type: graphql.NewList(Errors),
+			"values": &graphql.Field{
+				Type: graphql.NewList(graphql.Float),
 			},
 		},
 	},
