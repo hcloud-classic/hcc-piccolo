@@ -2,7 +2,6 @@ package queryparser
 
 import (
 	dbsql "database/sql"
-	"golang.org/x/crypto/bcrypt"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/pb/rpcflute"
 	"hcc/piccolo/lib/errors"
@@ -10,8 +9,11 @@ import (
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
+	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func updateUserLoginAt(id string) error {
@@ -234,18 +236,31 @@ func ResourceUsage() (interface{}, error) {
 
 	// TODO : Currently, total storage is hard coded.
 	// FIXME : Need to fix to get total storage from cello module.
-	total.Storage = 2048
+	poolArg := map[string]interface{}{
+		"action":        "read",
+		"uuid":          "",
+		"size":          "",
+		"free":          "",
+		"capacity":      "",
+		"health":        "",
+		"name":          "",
+		"availablesize": "",
+	}
 
+	total.Storage = 2048
+	poolStruct, err := PoolHandler(poolArg)
+	convModelPool := poolStruct.(model.Pool)
+	total.Storage, _ = strconv.Atoi(convModelPool.Free)
 	for _, node := range resGetNodeList.Node {
 		if node.Active == 1 {
 			inUse.CPU += int(node.CPUCores)
 			inUse.Memory += int(node.Memory)
-			// TODO : Currently, in-use storage is hard coded.
-			// FIXME : Need to fix to get in-use storage from cello module.
-			inUse.Storage += 10
+
 			inUse.Node++
 		}
-
+		// TODO : Currently, in-use storage is hard coded.
+		// FIXME : Need to fix to get in-use storage from cello module.
+		inUse.Storage, _ = strconv.Atoi(convModelPool.AvailableSize)
 		total.CPU += int(node.CPUCores)
 		total.Memory += int(node.Memory)
 		total.Node++

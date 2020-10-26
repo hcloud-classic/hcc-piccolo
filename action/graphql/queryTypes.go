@@ -1,13 +1,14 @@
 package graphql
 
 import (
-	"github.com/graphql-go/graphql"
 	"hcc/piccolo/action/graphql/queryparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
+
+	"github.com/graphql-go/graphql"
 )
 
 var queryTypes = graphql.NewObject(

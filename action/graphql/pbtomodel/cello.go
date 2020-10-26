@@ -1,8 +1,6 @@
 package pbtomodel
 
 import (
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpccello"
 	"hcc/piccolo/action/grpc/pb/rpcmsgType"
@@ -11,6 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 )
 
 // PbVolumeToModelVolume : Change volume of proto type to model
@@ -53,4 +54,29 @@ func PbVolumeToModelVolume(volume *rpccello.Volume, hccGrpcErrStack *[]*rpcmsgTy
 	}
 
 	return modelVolume
+}
+
+// PbPoolToModelPool : Change volume of proto type to model
+func PbPoolToModelPool(pool *rpccello.Pool, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Pool {
+
+	modelPool := &model.Pool{
+		UUID:          pool.UUID,
+		Size:          pool.Size,
+		Free:          pool.Free,
+		Capacity:      pool.Capacity,
+		Health:        pool.Health,
+		Name:          pool.Name,
+		AvailableSize: pool.AvailableSize,
+		Action:        pool.Action,
+	}
+
+	if hccGrpcErrStack != nil {
+		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+		modelPool.Errors = *hccErrStack.ConvertReportForm()
+		if len(modelPool.Errors) != 0 && modelPool.Errors[0].ErrCode == 0 {
+			modelPool.Errors = errors.ReturnHccEmptyErrorPiccolo()
+		}
+	}
+
+	return modelPool
 }
