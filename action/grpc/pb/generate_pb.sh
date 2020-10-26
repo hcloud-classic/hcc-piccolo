@@ -11,5 +11,7 @@ fi
 
 cp -r $GOPATH/src/$ROOT_PROJECT_NAME/$PROTO_PROJECT_NAME ./tmp_$PROTO_PROJECT_NAME
 ./tmp_$PROTO_PROJECT_NAME/$PACKAGING_SCRIPT_FILE $PROJECT_NAME
-protoc -I ./tmp_$PROTO_PROJECT_NAME --go_out=$GOPATH/src --go-grpc_out=$GOPATH/src ./tmp_$PROTO_PROJECT_NAME/*.proto
+#protoc -I ./tmp_$PROTO_PROJECT_NAME --go_out=$GOPATH/src --go-grpc_out=$GOPATH/src ./tmp_$PROTO_PROJECT_NAME/*.proto
+protoc -I /usr/local/include -I  ./tmp_$PROTO_PROJECT_NAME --go_out=$GOPATH/src --go-grpc_out=$GOPATH/src ./tmp_$PROTO_PROJECT_NAME/*.proto
+
 rm -rf ./tmp_$PROTO_PROJECT_NAME

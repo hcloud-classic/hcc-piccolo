@@ -44,3 +44,16 @@ func (rc *RPCClient) CreateVolume(in *rpccello.ReqVolumeHandler) (*rpccello.ResV
 
 	return resCreateVolume, nil
 }
+
+// PoolHandler : PoolHandler
+func (rc *RPCClient) PoolHandler(in *rpccello.ReqPoolHandler) (*rpccello.ResPoolHandler, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resPoolhandler, err := rc.cello.PoolHandler(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resPoolhandler, nil
+}
