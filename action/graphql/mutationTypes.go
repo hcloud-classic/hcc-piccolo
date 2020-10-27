@@ -490,29 +490,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphqlType.NodeType,
 			Description: "Create new node",
 			Args: graphql.FieldConfigArgument{
-				"bmc_mac_addr": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
 				"bmc_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"pxe_mac_addr": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"status": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"cpu_cores": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
-				"memory": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
 				"description": &graphql.ArgumentConfig{
 					Type: graphql.String,
-				},
-				"active": &graphql.ArgumentConfig{
-					Type: graphql.Int,
 				},
 				"token": &graphql.ArgumentConfig{
 					Type: graphql.String,
