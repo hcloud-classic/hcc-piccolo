@@ -68,6 +68,7 @@ func PbPoolToModelPool(pool *rpccello.Pool, hccGrpcErrStack *[]*rpcmsgType.HccEr
 		Name:          pool.Name,
 		AvailableSize: pool.AvailableSize,
 		Action:        pool.Action,
+		Used:          pool.Used,
 	}
 
 	if hccGrpcErrStack != nil {

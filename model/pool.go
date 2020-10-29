@@ -11,6 +11,7 @@ type Pool struct {
 	Health        string            `json:"health"`
 	Name          string            `json:"name"`
 	AvailableSize string            `json:"availablesize"`
+	Used          string            `json:"used"`
 	Action        string            `json:"action"`
 	Errors        []errors.HccError `json:"errors"`
 }
