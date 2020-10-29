@@ -128,20 +128,14 @@ func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	var subnet model.Subnet
 	resDeleteSubnet, err := client.RC.DeleteSubnet(requestedUUID)
 	if err != nil {
 		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	subnet.UUID = resDeleteSubnet.UUID
 
-	hccErrStack := errconv.GrpcStackToHcc(&resDeleteSubnet.HccErrorStack)
-	subnet.Errors = *hccErrStack.ConvertReportForm()
-	if len(subnet.Errors) != 0 && subnet.Errors[0].ErrCode == 0 {
-		subnet.Errors = errors.ReturnHccEmptyErrorPiccolo()
-	}
+	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resDeleteSubnet.Subnet, &resDeleteSubnet.HccErrorStack)
 
-	return subnet, nil
+	return *modelSubnet, nil
 }
 
 // CreateDHCPDConf : Create the configuration of the DHCP server

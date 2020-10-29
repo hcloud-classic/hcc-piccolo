@@ -175,20 +175,14 @@ func DeleteNode(args map[string]interface{}) (interface{}, error) {
 		return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	var node model.Node
 	resDeleteNode, err := client.RC.DeleteNode(requestedUUID)
 	if err != nil {
 		return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	node.UUID = resDeleteNode.UUID
 
-	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNode.HccErrorStack)
-	node.Errors = *hccErrStack.ConvertReportForm()
-	if len(node.Errors) != 0 && node.Errors[0].ErrCode == 0 {
-		node.Errors = errors.ReturnHccEmptyErrorPiccolo()
-	}
+	modelNode := pbtomodel.PbNodeToModelNode(resDeleteNode.Node, &resDeleteNode.HccErrorStack)
 
-	return node, nil
+	return *modelNode, nil
 }
 
 // CreateNodeDetail : Create detail infos of the node
@@ -232,18 +226,12 @@ func DeleteNodeDetail(args map[string]interface{}) (interface{}, error) {
 		return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a node_uuid argument")}, nil
 	}
 
-	var nodeDetail model.NodeDetail
 	resDeleteNodeDetail, err := client.RC.DeleteNodeDetail(requestedUUID)
 	if err != nil {
 		return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	nodeDetail.NodeUUID = resDeleteNodeDetail.NodeUUID
 
-	hccErrStack := errconv.GrpcStackToHcc(&resDeleteNodeDetail.HccErrorStack)
-	nodeDetail.Errors = *hccErrStack.ConvertReportForm()
-	if len(nodeDetail.Errors) != 0 && nodeDetail.Errors[0].ErrCode == 0 {
-		nodeDetail.Errors = errors.ReturnHccEmptyErrorPiccolo()
-	}
+	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resDeleteNodeDetail.NodeDetail, &resDeleteNodeDetail.HccErrorStack)
 
-	return nodeDetail, nil
+	return *modelNodeDetail, nil
 }
