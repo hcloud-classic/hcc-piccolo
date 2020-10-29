@@ -250,7 +250,7 @@ func ResourceUsage() (interface{}, error) {
 	// total.Storage = 2048
 	poolStruct, err := PoolHandler(poolArg)
 	convModelPool := poolStruct.(model.Pool)
-	total.Storage, _ = strconv.Atoi(convModelPool.Free)
+	total.Storage, _ = strconv.Atoi(convModelPool.Size)
 	for _, node := range resGetNodeList.Node {
 		if node.Active == 1 {
 			inUse.CPU += int(node.CPUCores)
