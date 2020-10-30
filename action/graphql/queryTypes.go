@@ -5,6 +5,7 @@ import (
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
 
@@ -132,6 +133,26 @@ var queryTypes = graphql.NewObject(
 					}
 					logger.Logger.Println("Resolving: piccolo / resource_usage")
 					return queryparser.ResourceUsage()
+				},
+			},
+			"server_log": &graphql.Field{
+				Type:        serveractions.ServerActionsType,
+				Description: "Get the server's log",
+				Args: graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return serveractions.ServerActions{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / server_log")
+					return serveractions.ShowServerActions(params.Args)
 				},
 			},
 			// violin

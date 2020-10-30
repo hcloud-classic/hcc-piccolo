@@ -10,6 +10,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/graphql-go/graphql v0.7.8
 	github.com/graphql-go/handler v0.2.3
+	github.com/mattn/go-sqlite3 v1.14.4
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	google.golang.org/grpc v1.31.0
