@@ -1992,6 +1992,86 @@ func (x *ScheduleServer) GetNumOfNodes() int32 {
 	return 0
 }
 
+// piccolo
+type ServerAction struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Action string               `protobuf:"bytes,1,opt,name=action,proto3" json:"action,omitempty"`
+	Result string               `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
+	ErrStr string               `protobuf:"bytes,3,opt,name=err_str,json=errStr,proto3" json:"err_str,omitempty"`
+	UserID string               `protobuf:"bytes,4,opt,name=userID,proto3" json:"userID,omitempty"`
+	Time   *timestamp.Timestamp `protobuf:"bytes,5,opt,name=time,proto3" json:"time,omitempty"`
+}
+
+func (x *ServerAction) Reset() {
+	*x = ServerAction{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msgType_proto_msgTypes[25]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ServerAction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServerAction) ProtoMessage() {}
+
+func (x *ServerAction) ProtoReflect() protoreflect.Message {
+	mi := &file_msgType_proto_msgTypes[25]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServerAction.ProtoReflect.Descriptor instead.
+func (*ServerAction) Descriptor() ([]byte, []int) {
+	return file_msgType_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *ServerAction) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *ServerAction) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
+func (x *ServerAction) GetErrStr() string {
+	if x != nil {
+		return x.ErrStr
+	}
+	return ""
+}
+
+func (x *ServerAction) GetUserID() string {
+	if x != nil {
+		return x.UserID
+	}
+	return ""
+}
+
+func (x *ServerAction) GetTime() *timestamp.Timestamp {
+	if x != nil {
+		return x.Time
+	}
+	return nil
+}
+
 var File_msgType_proto protoreflect.FileDescriptor
 
 var file_msgType_proto_rawDesc = []byte{
@@ -2264,10 +2344,20 @@ var file_msgType_proto_rawDesc = []byte{
 	0x2e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x52, 0x0e, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c,
 	0x65, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x12, 0x1e, 0x0a, 0x0a, 0x6e, 0x75, 0x6d, 0x4f, 0x66,
 	0x4e, 0x6f, 0x64, 0x65, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x6e, 0x75, 0x6d,
-	0x4f, 0x66, 0x4e, 0x6f, 0x64, 0x65, 0x73, 0x42, 0x27, 0x5a, 0x25, 0x68, 0x63, 0x63, 0x2f, 0x70,
-	0x69, 0x63, 0x63, 0x6f, 0x6c, 0x6f, 0x2f, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x67, 0x72,
-	0x70, 0x63, 0x2f, 0x70, 0x62, 0x2f, 0x72, 0x70, 0x63, 0x6d, 0x73, 0x67, 0x54, 0x79, 0x70, 0x65,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x4f, 0x66, 0x4e, 0x6f, 0x64, 0x65, 0x73, 0x22, 0x9f, 0x01, 0x0a, 0x0c, 0x53, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e,
+	0x12, 0x16, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x17, 0x0a, 0x07, 0x65, 0x72, 0x72, 0x5f,
+	0x73, 0x74, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x65, 0x72, 0x72, 0x53, 0x74,
+	0x72, 0x12, 0x16, 0x0a, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x44, 0x18, 0x04, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x44, 0x12, 0x2e, 0x0a, 0x04, 0x74, 0x69, 0x6d,
+	0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74,
+	0x61, 0x6d, 0x70, 0x52, 0x04, 0x74, 0x69, 0x6d, 0x65, 0x42, 0x27, 0x5a, 0x25, 0x68, 0x63, 0x63,
+	0x2f, 0x70, 0x69, 0x63, 0x63, 0x6f, 0x6c, 0x6f, 0x2f, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2f,
+	0x67, 0x72, 0x70, 0x63, 0x2f, 0x70, 0x62, 0x2f, 0x72, 0x70, 0x63, 0x6d, 0x73, 0x67, 0x54, 0x79,
+	0x70, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2282,7 +2372,7 @@ func file_msgType_proto_rawDescGZIP() []byte {
 	return file_msgType_proto_rawDescData
 }
 
-var file_msgType_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_msgType_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_msgType_proto_goTypes = []interface{}{
 	(*Empty)(nil),                     // 0: MsgType.Empty
 	(*HccError)(nil),                  // 1: MsgType.HccError
@@ -2309,19 +2399,20 @@ var file_msgType_proto_goTypes = []interface{}{
 	(*Controls)(nil),                  // 22: MsgType.Controls
 	(*ScheduledNodes)(nil),            // 23: MsgType.ScheduledNodes
 	(*ScheduleServer)(nil),            // 24: MsgType.ScheduleServer
-	(*timestamp.Timestamp)(nil),       // 25: google.protobuf.Timestamp
+	(*ServerAction)(nil),              // 25: MsgType.ServerAction
+	(*timestamp.Timestamp)(nil),       // 26: google.protobuf.Timestamp
 }
 var file_msgType_proto_depIdxs = []int32{
-	25, // 0: MsgType.Node.created_at:type_name -> google.protobuf.Timestamp
-	25, // 1: MsgType.Server.created_at:type_name -> google.protobuf.Timestamp
-	25, // 2: MsgType.ServerNode.created_at:type_name -> google.protobuf.Timestamp
-	25, // 3: MsgType.Volume.created_at:type_name -> google.protobuf.Timestamp
-	25, // 4: MsgType.VolumeAttachment.created_at:type_name -> google.protobuf.Timestamp
-	25, // 5: MsgType.VolumeAttachment.updated_at:type_name -> google.protobuf.Timestamp
-	25, // 6: MsgType.Pool.created_at:type_name -> google.protobuf.Timestamp
-	25, // 7: MsgType.Pool.updated_at:type_name -> google.protobuf.Timestamp
-	25, // 8: MsgType.AdaptiveIPServer.created_at:type_name -> google.protobuf.Timestamp
-	25, // 9: MsgType.Subnet.created_at:type_name -> google.protobuf.Timestamp
+	26, // 0: MsgType.Node.created_at:type_name -> google.protobuf.Timestamp
+	26, // 1: MsgType.Server.created_at:type_name -> google.protobuf.Timestamp
+	26, // 2: MsgType.ServerNode.created_at:type_name -> google.protobuf.Timestamp
+	26, // 3: MsgType.Volume.created_at:type_name -> google.protobuf.Timestamp
+	26, // 4: MsgType.VolumeAttachment.created_at:type_name -> google.protobuf.Timestamp
+	26, // 5: MsgType.VolumeAttachment.updated_at:type_name -> google.protobuf.Timestamp
+	26, // 6: MsgType.Pool.created_at:type_name -> google.protobuf.Timestamp
+	26, // 7: MsgType.Pool.updated_at:type_name -> google.protobuf.Timestamp
+	26, // 8: MsgType.AdaptiveIPServer.created_at:type_name -> google.protobuf.Timestamp
+	26, // 9: MsgType.Subnet.created_at:type_name -> google.protobuf.Timestamp
 	15, // 10: MsgType.MonitoringData.series:type_name -> MsgType.Series
 	18, // 11: MsgType.Action.normal_action:type_name -> MsgType.NormalAction
 	19, // 12: MsgType.Action.hcc_action:type_name -> MsgType.HccAction
@@ -2329,11 +2420,12 @@ var file_msgType_proto_depIdxs = []int32{
 	21, // 14: MsgType.Controls.control:type_name -> MsgType.Control
 	2,  // 15: MsgType.ScheduledNodes.shceduledNode:type_name -> MsgType.Node
 	4,  // 16: MsgType.ScheduleServer.scheduleServer:type_name -> MsgType.Server
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	26, // 17: MsgType.ServerAction.time:type_name -> google.protobuf.Timestamp
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_msgType_proto_init() }
@@ -2642,6 +2734,18 @@ func file_msgType_proto_init() {
 				return nil
 			}
 		}
+		file_msgType_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ServerAction); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2649,7 +2753,7 @@ func file_msgType_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_msgType_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   25,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
