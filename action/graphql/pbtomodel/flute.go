@@ -48,7 +48,7 @@ func PbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
 		modelNode.Errors = *hccErrStack.ConvertReportForm()
-		if len(modelNode.Errors) != 0 &&  modelNode.Errors[0].ErrCode == 0 {
+		if len(modelNode.Errors) != 0 && modelNode.Errors[0].ErrCode == 0 {
 			modelNode.Errors = errors.ReturnHccEmptyErrorPiccolo()
 		}
 	}

@@ -73,12 +73,12 @@ func PbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, node *rpcfl
 	}
 
 	modelServerNode := &model.ServerNode{
-		UUID:          serverNode.UUID,
-		ServerUUID:    serverNode.ServerUUID,
-		NodeUUID:      serverNode.NodeUUID,
-		CPUModel:      nodeDetail.CPUModel,
-		CreatedAt:     createdAt,
-		Errors:        *errors.NewHccErrorStack(),
+		UUID:       serverNode.UUID,
+		ServerUUID: serverNode.ServerUUID,
+		NodeUUID:   serverNode.NodeUUID,
+		CPUModel:   nodeDetail.CPUModel,
+		CreatedAt:  createdAt,
+		Errors:     *errors.NewHccErrorStack(),
 	}
 
 	if node != nil && nodeDetail != nil {
