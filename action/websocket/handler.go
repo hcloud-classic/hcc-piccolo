@@ -2,7 +2,6 @@ package websocket
 
 import (
 	"encoding/json"
-	"fmt"
 	"hcc/piccolo/lib/logger"
 	"net/http"
 	"sync"
@@ -58,7 +57,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		for {
 			_, p, err := conn.ReadMessage()
-			fmt.Println(p)
+
 			if websocket.IsCloseError(err, websocket.CloseGoingAway) {
 				continue
 			}
@@ -71,7 +70,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				logger.Logger.Printf("websocket.Handler(): failed to unmarshal: %v", err)
 				continue
 			}
-			fmt.Println(msg)
+
 			if msg.Type == "start" {
 				length := 0
 				Subscribers.Range(func(key, value interface{}) bool {
