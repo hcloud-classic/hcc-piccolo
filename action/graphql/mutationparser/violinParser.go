@@ -5,11 +5,15 @@ import (
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/pb/rpcviolin"
 	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/model"
 )
 
 // CreateServer : Create a server
 func CreateServer(args map[string]interface{}) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
+
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
 	os, osOK := args["os"].(string)
 	serverName, serverNameOk := args["server_name"].(string)
@@ -62,6 +66,16 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelServer := pbtomodel.PbServerToModelServer(resCreateServer.Server, &resCreateServer.HccErrorStack)
+
+	err = serveractions.WriteServerAction(
+		resCreateServer.Server.UUID,
+		"violin / create_server",
+		"Success",
+		"",
+		tokenString)
+	if err != nil {
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
+	}
 
 	return *modelServer, nil
 }
@@ -139,6 +153,11 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelServer := pbtomodel.PbServerToModelServer(resDeleteServer.Server, &resDeleteServer.HccErrorStack)
+
+	err = serveractions.DeleteServerAction(requestedUUID)
+	if err != nil {
+		logger.Logger.Println(err)
+	}
 
 	return *modelServer, nil
 }
