@@ -60,6 +60,8 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 		reqCreateServer.NrNode = int32(nrNode)
 	}
 
+	reqCreateServer.Token = tokenString
+
 	resCreateServer, err := client.RC.CreateServer(&reqCreateServer)
 	if err != nil {
 		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil

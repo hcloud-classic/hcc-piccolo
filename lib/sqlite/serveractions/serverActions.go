@@ -90,7 +90,6 @@ func DeleteServerAction(serverUUID string) error {
 	return nil
 }
 
-
 // ShowServerActions : Show server actions from the sqlite db file
 func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 	var err error
