@@ -51,6 +51,6 @@ func main() {
 		os.Exit(0)
 	}()
 
-	server.Init()
+	go server.Init()
 	http.Init()
 }
