@@ -12,7 +12,7 @@ import (
 )
 
 func dbPath(serverUUID string) string {
-	return "/var/log/" + logger.LogName + "/" + serverUUID
+	return "/var/log/" + logger.LogName + "/server_actions/"
 }
 
 func dbFile(serverUUID string) string {
@@ -110,14 +110,12 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 	var db *sql.DB
 	var rows *sql.Rows
 
-	var dbFile = "/var/log/" + logger.LogName + "/" + serverUUID + "/" + serverUUID + ".db"
-
-	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
+	if _, err := os.Stat(dbFile(serverUUID)); os.IsNotExist(err) {
 		err = errors.New("ShowServerActions(): Action log database file is not exist")
 		goto ERROR
 	}
 
-	db, err = sql.Open("sqlite3", dbFile)
+	db, err = sql.Open("sqlite3", dbFile(serverUUID))
 	if err != nil {
 		goto ERROR
 	}
