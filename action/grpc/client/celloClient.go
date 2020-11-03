@@ -57,3 +57,16 @@ func (rc *RPCClient) PoolHandler(in *rpccello.ReqPoolHandler) (*rpccello.ResPool
 
 	return resPoolhandler, nil
 }
+
+// GetVolumeList : GetVolumeList
+func (rc *RPCClient) GetVolumeList(in *rpccello.ReqGetVolumeList) (*rpccello.ResGetVolumeList, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resGetVolumeList, err := rc.cello.GetVolumeList(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resGetVolumeList, nil
+}

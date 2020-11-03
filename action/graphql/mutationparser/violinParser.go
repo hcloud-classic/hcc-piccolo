@@ -139,7 +139,7 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	server.UUID = resDeleteServer.UUID
+	server.UUID = resDeleteServer.Server.UUID
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServer.HccErrorStack)
 	server.Errors = *hccErrStack.ConvertReportForm()
@@ -185,7 +185,7 @@ func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	serverNode.UUID = resDeleteServerNode.UUID
+	serverNode.UUID = resDeleteServerNode.ServerNode.UUID
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteServerNode.HccErrorStack)
 	serverNode.Errors = *hccErrStack.ConvertReportForm()

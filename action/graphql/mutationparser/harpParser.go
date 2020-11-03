@@ -133,7 +133,7 @@ func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	subnet.UUID = resDeleteSubnet.UUID
+	subnet.UUID = resDeleteSubnet.Subnet.UUID
 
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteSubnet.HccErrorStack)
 	subnet.Errors = *hccErrStack.ConvertReportForm()
