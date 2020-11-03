@@ -81,3 +81,34 @@ func PbPoolToModelPool(pool *rpccello.Pool, hccGrpcErrStack *[]*rpcmsgType.HccEr
 
 	return modelPool
 }
+
+// // PbVolumeListToModelVolumeList : Change volume of proto type to model
+// func PbVolumeListToModelVolumeList(pbVolumeList []*rpccello.Volume, hccGrpcErrStack *[]*rpcmsgType.HccError) []*model.Volume {
+
+// 	var modelVolumeList []*model.Volume
+
+// 	for _, args := range pbVolumeList {
+// 		strSize,_:=strconv.Atoi(args.Size)
+// 		tempPbVol := model.Volume{
+// 			UUID:       args.UUID,
+// 			Size:       strSize,
+// 			Filesystem: args.Filesystem,
+// 			ServerUUID: args.ServerUUID,
+// 			UseType:    args.UseType,
+// 			UserUUID:   args.UserUUID,
+// 			Pool:       args.Pool,
+// 			LunNum:        int(args.Lun),
+// 			CreatedAt: time.Unix(args.CreatedAt.Seconds, int64(args.CreatedAt.Nanos)).UTC(),
+// 		}
+// 		modelVolumeList = append(modelVolumeList, &tempPbVol)
+// 	}
+// 	if hccGrpcErrStack != nil {
+// 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
+// 		modelVolumeList.Errors = *hccErrStack.ConvertReportForm()
+// 		if len(modelPool.Errors) != 0 && modelPool.Errors[0].ErrCode == 0 {
+// 			modelPool.Errors = errors.ReturnHccEmptyErrorPiccolo()
+// 		}
+// 	}
+
+// 	return modelPool
+// }

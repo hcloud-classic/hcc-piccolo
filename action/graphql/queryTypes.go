@@ -813,5 +813,35 @@ var queryTypes = graphql.NewObject(
 					return telegraf, err
 				},
 			},
+			// volume_list
+			"volume_list": &graphql.Field{
+				Type:        graphqlType.VolumeListType,
+				Description: "Get server by uuid",
+				Args: graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"user_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: violin / volume list")
+					return queryparser.GetVolumeList(params.Args)
+				},
+			},
 		},
 	})

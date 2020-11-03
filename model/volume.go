@@ -26,3 +26,8 @@ type VolumeNum struct {
 	Number int               `json:"number"`
 	Errors []errors.HccError `json:"errors"`
 }
+
+type VolumeList struct {
+	Volumes []Volume          `json:"volume_list"`
+	Errors  []errors.HccError `json:"errors"`
+}
