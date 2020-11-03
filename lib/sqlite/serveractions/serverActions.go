@@ -8,6 +8,7 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/usertool"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -101,6 +102,17 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 		return ServerActions{ServerActions: actions, Errors: hccerr.ReturnHccErrorPiccolo(hccerr.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
+	var isLimit bool
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
+	if !rowOk && !pageOk {
+		isLimit = false
+	} else if rowOk && pageOk {
+		isLimit = true
+	} else {
+		return ServerActions{ServerActions: actions, Errors: hccerr.ReturnHccErrorPiccolo(hccerr.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
+	}
+
 	var action string
 	var result string
 	var errStr string
@@ -109,6 +121,8 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 
 	var db *sql.DB
 	var rows *sql.Rows
+
+	query := "SELECT * FROM server_actions ORDER BY time DESC"
 
 	if _, err := os.Stat(dbFile(serverUUID)); os.IsNotExist(err) {
 		err = errors.New("ShowServerActions(): Action log database file is not exist")
@@ -123,7 +137,11 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 		_ = db.Close()
 	}()
 
-	rows, err = db.Query("SELECT * FROM server_actions ORDER BY time DESC")
+	if isLimit {
+		query += " LIMIT " + strconv.Itoa(row) + " OFFSET " + strconv.Itoa(row*(page-1))
+	}
+
+	rows, err = db.Query(query)
 	if err != nil {
 		goto ERROR
 	}
