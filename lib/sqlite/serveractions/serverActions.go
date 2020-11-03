@@ -125,7 +125,7 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 		_ = db.Close()
 	}()
 
-	rows, err = db.Query("SELECT * FROM server_actions")
+	rows, err = db.Query("SELECT * FROM server_actions ORDER BY time DESC")
 	if err != nil {
 		goto ERROR
 	}
