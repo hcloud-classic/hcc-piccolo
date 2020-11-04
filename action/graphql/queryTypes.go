@@ -822,5 +822,35 @@ var queryTypes = graphql.NewObject(
 					return queryparser.GetVolumeList(params.Args)
 				},
 			},
+			// pool_list
+			"pool_list": &graphql.Field{
+				Type:        graphqlType.PoolListType,
+				Description: "Get server by uuid",
+				Args: graphql.FieldConfigArgument{
+					"user_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"action": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: violin / volume list")
+					return queryparser.GetPoolList(params.Args)
+				},
+			},
 		},
 	})

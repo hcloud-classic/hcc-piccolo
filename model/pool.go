@@ -15,3 +15,9 @@ type Pool struct {
 	Action        string            `json:"action"`
 	Errors        []errors.HccError `json:"errors"`
 }
+
+// PoolList :
+type PoolList struct {
+	Pools  []Pool            `json:"pool_list"`
+	Errors []errors.HccError `json:"errors"`
+}
