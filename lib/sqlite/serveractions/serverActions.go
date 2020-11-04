@@ -12,16 +12,16 @@ import (
 	"time"
 )
 
-func dbPath(serverUUID string) string {
+func dbPath() string {
 	return "/var/log/" + logger.LogName + "/server_actions/"
 }
 
 func dbFile(serverUUID string) string {
-	return dbPath(serverUUID) + "/" + serverUUID + ".db"
+	return dbPath() + "/" + serverUUID + ".db"
 }
 
 func createDatabase(serverUUID string) error {
-	err := logger.CreateDirIfNotExist(dbPath(serverUUID))
+	err := logger.CreateDirIfNotExist(dbPath())
 	if err != nil {
 		return err
 	}
