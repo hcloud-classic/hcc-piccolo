@@ -5,12 +5,16 @@ import (
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/pb/rpccello"
 	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/model"
 	"strconv"
 )
 
 // CreateVolume : oboe to cello
 func CreateVolume(args map[string]interface{}) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
+
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	fileSystem, fileSystemOK := args["filesystem"].(string)
 	diskSize, diskSizeOk := args["size"].(int)
@@ -59,9 +63,44 @@ func CreateVolume(args map[string]interface{}) (interface{}, error) {
 	reqCreateVolume.Volume.Action = "create"
 	resCreateVolume, err := client.RC.CreateVolume(&reqCreateVolume)
 	if err != nil {
+		err2 := serveractions.WriteServerAction(
+			serverUUID,
+			"cello / create_volume",
+			"Failed",
+			err.Error(),
+			tokenString)
+		if err2 != nil {
+			logger.Logger.Println("WriteServerAction(): " + err.Error())
+		}
+
 		return model.Volume{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelVolume := pbtomodel.PbVolumeToModelVolume(resCreateVolume.Volume, &resCreateVolume.HccErrorStack)
+
+	var success  = true
+	var errStr = ""
+
+	if len(modelVolume.Errors) != 0 {
+		success = false
+	}
+
+	var result string
+	if success {
+		result = "Success"
+	} else {
+		result = "Failed"
+	}
+
+	err = serveractions.WriteServerAction(
+		serverUUID,
+		"cello / create_volume",
+		result,
+		errStr,
+		tokenString)
+	if err != nil {
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
+	}
+
 	return *modelVolume, nil
 }
