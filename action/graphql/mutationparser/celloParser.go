@@ -13,6 +13,8 @@ import (
 
 // VolumeHandle : oboe to cello
 func VolumeHandle(args map[string]interface{}) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
+
 	UUID, UUIDOk := args["uuid"].(string)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	fileSystem, fileSystemOK := args["filesystem"].(string)
@@ -71,14 +73,58 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 	if reqVolumeHandle.Volume.Action != "" {
 		resVolumeHandle, err := client.RC.VolumeHandler(&reqVolumeHandle)
 		if err != nil {
+			err2 := serveractions.WriteServerAction(
+				serverUUID,
+				"cello / volume_handle",
+				"Failed",
+				err.Error(),
+				tokenString)
+			if err2 != nil {
+				logger.Logger.Println("WriteServerAction(): " + err2.Error())
+			}
+
 			return model.Volume{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 		}
 		modelVolume = pbtomodel.PbVolumeToModelVolume(resVolumeHandle.Volume, &resVolumeHandle.HccErrorStack)
 
 	} else {
-		return model.Volume{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, "None Action")}, nil
+		err2 := serveractions.WriteServerAction(
+			serverUUID,
+			"cello / volume_handle",
+			"Failed",
+			"None Action",
+			tokenString)
+		if err2 != nil {
+			logger.Logger.Println("WriteServerAction(): " + err2.Error())
+		}
 
+		return model.Volume{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, "None Action")}, nil
 	}
+
+	var success  = true
+	var errStr = ""
+
+	if len(modelVolume.Errors) != 0 {
+		success = false
+	}
+
+	var result string
+	if success {
+		result = "Success"
+	} else {
+		result = "Failed"
+	}
+
+	err := serveractions.WriteServerAction(
+		serverUUID,
+		"cello / volume_handle",
+		result,
+		errStr,
+		tokenString)
+	if err != nil {
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
+	}
+
 
 	return *modelVolume, nil
 }
