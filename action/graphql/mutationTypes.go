@@ -629,10 +629,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 
 		//Cello
 		// volume DB
-		"create_volume": &graphql.Field{
+		"volume_handle": &graphql.Field{
 			Type:        graphqlType.VolumeType,
 			Description: "Create new volume",
 			Args: graphql.FieldConfigArgument{
+				"uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 				"size": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
@@ -660,9 +663,21 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"pool": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"action": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				return mutationparser.CreateVolume(params.Args)
+				err := usertool.ValidateToken(params.Args)
+				if err != nil {
+					return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				logger.Logger.Println("Resolving: cello / createVolume")
+
+				return mutationparser.VolumeHandle(params.Args)
 			},
 		},
 	},
