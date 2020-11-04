@@ -10,6 +10,7 @@ import (
 	"hcc/piccolo/model"
 )
 
+// PoolHandler : Handler of zfs pool
 func PoolHandler(args map[string]interface{}) (interface{}, error) {
 
 	// UUID, UUIDOk := args["uuid"].(string)

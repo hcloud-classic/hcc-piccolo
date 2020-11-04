@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/server"
 	"hcc/piccolo/action/http"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/errors"
@@ -50,5 +51,6 @@ func main() {
 		os.Exit(0)
 	}()
 
+	go server.Init()
 	http.Init()
 }

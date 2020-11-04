@@ -6,6 +6,7 @@ var configLocation = "/etc/hcc/piccolo/piccolo.conf"
 
 type piccoloConfig struct {
 	MysqlConfig       *goconf.Section
+	GrpcConfig        *goconf.Section
 	HTTPConfig        *goconf.Section
 	FluteConfig       *goconf.Section
 	CelloConfig       *goconf.Section

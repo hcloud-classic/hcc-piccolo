@@ -42,6 +42,18 @@ func parseMysql() {
 	}
 }
 
+func parseGrpc() {
+	config.GrpcConfig = conf.Get("grpc")
+	if config.GrpcConfig == nil {
+		errors.NewHccError(errors.PiccoloInternalInitFail, "no grpc section").Fatal()
+	}
+
+	Grpc.Port, err = config.GrpcConfig.Int("port")
+	if err != nil {
+		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+}
+
 func parseHTTP() {
 	config.HTTPConfig = conf.Get("http")
 	if config.HTTPConfig == nil {
@@ -215,6 +227,7 @@ func Init() {
 	}
 
 	parseMysql()
+	parseGrpc()
 	parseHTTP()
 	parseFlute()
 	parseCello()

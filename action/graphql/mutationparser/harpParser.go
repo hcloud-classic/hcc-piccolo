@@ -6,6 +6,8 @@ import (
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcharp"
 	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/model"
 )
 
@@ -128,20 +130,14 @@ func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	var subnet model.Subnet
 	resDeleteSubnet, err := client.RC.DeleteSubnet(requestedUUID)
 	if err != nil {
 		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	subnet.UUID = resDeleteSubnet.Subnet.UUID
 
-	hccErrStack := errconv.GrpcStackToHcc(&resDeleteSubnet.HccErrorStack)
-	subnet.Errors = *hccErrStack.ConvertReportForm()
-	if len(subnet.Errors) != 0 && subnet.Errors[0].ErrCode == 0 {
-		subnet.Errors = errors.ReturnHccEmptyErrorPiccolo()
-	}
+	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resDeleteSubnet.Subnet, &resDeleteSubnet.HccErrorStack)
 
-	return subnet, nil
+	return *modelSubnet, nil
 }
 
 // CreateDHCPDConf : Create the configuration of the DHCP server
@@ -168,6 +164,8 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 
 // CreateAdaptiveIPServer : Create a adaptiveIP server
 func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
+
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	publicIP, publicIPOk := args["public_ip"].(string)
 
@@ -194,10 +192,39 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		PrivateGateway: resAdaptiveIPServer.PrivateGateway,
 	}
 
+	var success bool
+	var errStr = ""
+
 	Errors := *hccErrStack.ConvertReportForm()
-	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
-		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	if len(Errors) != 0 {
+		if Errors[0].ErrCode == 0 {
+			success = true
+			Errors = errors.ReturnHccEmptyErrorPiccolo()
+		} else {
+			success = false
+			errStr = Errors[0].ErrText
+		}
+	} else {
+		success = true
 	}
+
+	var result string
+	if success {
+		result = "Success"
+	} else {
+		result = "Failed"
+	}
+
+	err = serveractions.WriteServerAction(
+		serverUUID,
+		"harp / create_adaptiveip_server",
+		result,
+		errStr,
+		tokenString)
+	if err != nil {
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
+	}
+
 	adaptiveIPServer.Errors = Errors
 
 	return adaptiveIPServer, nil
@@ -205,6 +232,8 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 // DeleteAdaptiveIPServer : Delete the adaptiveIP server
 func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
+
 	requestedUUID, requestedUUIDOk := args["server_uuid"].(string)
 	if !requestedUUIDOk {
 		return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
@@ -215,10 +244,38 @@ func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
+	var success bool
+	var errStr = ""
+
 	hccErrStack := errconv.GrpcStackToHcc(&resDeleteAdaptiveIPServer.HccErrorStack)
 	Errors := *hccErrStack.ConvertReportForm()
-	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
-		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	if len(Errors) != 0 {
+		if Errors[0].ErrCode == 0 {
+			success = true
+			Errors = errors.ReturnHccEmptyErrorPiccolo()
+		} else {
+			success = false
+			errStr = Errors[0].ErrText
+		}
+	} else {
+		success = true
+	}
+
+	var result string
+	if success {
+		result = "Success"
+	} else {
+		result = "Failed"
+	}
+
+	err = serveractions.WriteServerAction(
+		requestedUUID,
+		"harp / delete_adaptiveip_server",
+		result,
+		errStr,
+		tokenString)
+	if err != nil {
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
 	}
 
 	return model.AdaptiveIPServer{ServerUUID: resDeleteAdaptiveIPServer.ServerUUID, Errors: Errors}, nil
