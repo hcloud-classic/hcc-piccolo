@@ -75,7 +75,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 		if err != nil {
 			err2 := serveractions.WriteServerAction(
 				serverUUID,
-				"cello / volume_handle",
+				"cello / volume_handle (action" + action + ")",
 				"Failed",
 				err.Error(),
 				tokenString)
@@ -90,7 +90,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 	} else {
 		err2 := serveractions.WriteServerAction(
 			serverUUID,
-			"cello / volume_handle",
+			"cello / volume_handle (action" + action + ")",
 			"Failed",
 			"None Action",
 			tokenString)
@@ -117,7 +117,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 
 	err := serveractions.WriteServerAction(
 		serverUUID,
-		"cello / volume_handle",
+		"cello / volume_handle (action" + action + ")",
 		result,
 		errStr,
 		tokenString)
