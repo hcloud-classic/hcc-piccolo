@@ -234,8 +234,6 @@ func ResourceUsage() (interface{}, error) {
 	inUse.Storage = 0
 	inUse.Node = 0
 
-	// TODO : Currently, total storage is hard coded.
-	// FIXME : Need to fix to get total storage from cello module.
 	poolArg := map[string]interface{}{
 		"action":        "read",
 		"uuid":          "",
@@ -247,7 +245,6 @@ func ResourceUsage() (interface{}, error) {
 		"availablesize": "",
 	}
 
-	// total.Storage = 2048
 	poolStruct, err := GetPoolList(poolArg)
 	convModelPools := poolStruct.(model.PoolList)
 	for _, eachPool := range convModelPools.Pools {
