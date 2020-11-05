@@ -862,7 +862,7 @@ var queryTypes = graphql.NewObject(
 					if err != nil {
 						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
-					logger.Logger.Println("Resolving: violin / volume list")
+					logger.Logger.Println("Resolving: cello / volume list")
 					return queryparser.GetVolumeList(params.Args)
 				},
 			},
@@ -892,7 +892,7 @@ var queryTypes = graphql.NewObject(
 					if err != nil {
 						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
-					logger.Logger.Println("Resolving: violin / volume list")
+					logger.Logger.Println("Resolving: cello / volume list")
 					return queryparser.GetPoolList(params.Args)
 				},
 			},
