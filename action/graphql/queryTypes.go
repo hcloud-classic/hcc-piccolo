@@ -479,6 +479,23 @@ var queryTypes = graphql.NewObject(
 					return queryparser.AllSubnet(params.Args)
 				},
 			},
+			"available_subnet": &graphql.Field{
+				Type:        graphqlType.SubnetListType,
+				Description: "Get available subnet list",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: harp / available_subnet")
+					return queryparser.AvailableSubnetList()
+				},
+			},
 			"num_subnet": &graphql.Field{
 				Type:        graphqlType.SubnetNumType,
 				Description: "Get the number of subnets",

@@ -57,12 +57,25 @@ func (rc *RPCClient) GetSubnet(uuid string) (*rpcharp.ResGetSubnet, error) {
 	return resGetSubnet, nil
 }
 
-// GetSubnetList : Get list of the subnet
+// GetSubnetList : Get the list of subnets
 func (rc *RPCClient) GetSubnetList(in *rpcharp.ReqGetSubnetList) (*rpcharp.ResGetSubnetList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	subnetList, err := rc.harp.GetSubnetList(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return subnetList, nil
+}
+
+// GetAvailableSubnetList : Get the list of available subnets
+func (rc *RPCClient) GetAvailableSubnetList() (*rpcharp.ResGetAvailableSubnetList, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	subnetList, err := rc.harp.GetAvailableSubnetList(ctx, &rpcharp.Empty{})
 	if err != nil {
 		return nil, err
 	}

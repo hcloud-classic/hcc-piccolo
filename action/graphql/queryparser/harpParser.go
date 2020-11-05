@@ -109,6 +109,24 @@ func AllSubnet(args map[string]interface{}) (interface{}, error) {
 	return ListSubnet(args)
 }
 
+// AvailableSubnetList : Get available subnet list
+func AvailableSubnetList() (interface{}, error) {
+	resListSubnet, err := client.RC.GetAvailableSubnetList()
+	if err != nil {
+		return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	var subnetList []model.Subnet
+	for _, pSubnet := range resListSubnet.Subnet {
+		modelSubnet := pbtomodel.PbSubnetToModelSubnet(pSubnet, nil)
+		subnetList = append(subnetList, *modelSubnet)
+	}
+
+	hccErrStack := errconv.GrpcStackToHcc(&resListSubnet.HccErrorStack)
+
+	return model.SubnetList{Subnets: subnetList, Errors: *hccErrStack.ConvertReportForm()}, nil
+}
+
 // NumSubnet : Get number of subnets
 func NumSubnet() (interface{}, error) {
 	resGetSubnetNum, err := client.RC.GetSubnetNum()
