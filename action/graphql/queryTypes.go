@@ -161,6 +161,26 @@ var queryTypes = graphql.NewObject(
 					return serveractions.ShowServerActions(params.Args)
 				},
 			},
+			"num_server_log": &graphql.Field{
+				Type:        serveractions.ServerActionsNumType,
+				Description: "Get the number of server's log",
+				Args: graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return serveractions.ServerActionsNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / num_server_log")
+					return serveractions.ShowServerActionsNum(params.Args)
+				},
+			},
 			// violin
 			"server": &graphql.Field{
 				Type:        graphqlType.ServerType,

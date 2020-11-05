@@ -43,3 +43,18 @@ var ServerActionsType = graphql.NewObject(
 		},
 	},
 )
+
+// ServerActionsNumType : Graphql object type of ServerActionsNumType
+var ServerActionsNumType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "ServerActionsNumType",
+		Fields: graphql.Fields{
+			"number": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(graphqltype.Errors),
+			},
+		},
+	},
+)

@@ -177,3 +177,51 @@ ERROR:
 
 	return serverActions, nil
 }
+
+// ShowServerActionsNum : Show number of server actions from the sqlite db file
+func ShowServerActionsNum(args map[string]interface{}) (interface{}, error) {
+	var err error
+	var serverActionsNum ServerActionsNum
+	var serverActionsNr int64
+
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	if !serverUUIDOk {
+		return ServerActionsNum{Number: 0, Errors: hccerr.ReturnHccErrorPiccolo(hccerr.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
+	}
+
+	var db *sql.DB
+	query := "SELECT COUNT(*) FROM server_actions"
+
+	if _, err := os.Stat(dbFile(serverUUID)); os.IsNotExist(err) {
+		err = errors.New("ShowServerActions(): Action log database file is not exist")
+		goto ERROR
+	}
+
+	db, err = sql.Open("sqlite3", dbFile(serverUUID))
+	if err != nil {
+		goto ERROR
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	err = db.QueryRow(query).Scan(&serverActionsNr)
+	if err != nil {
+		goto ERROR
+	}
+
+	serverActionsNum.Number = int(serverActionsNr)
+	serverActionsNum.Errors = hccerr.ReturnHccEmptyErrorPiccolo()
+
+	return serverActionsNum, nil
+
+ERROR:
+	serverActionsNum.Number = 0
+	if err != nil {
+		serverActionsNum.Errors = hccerr.ReturnHccErrorPiccolo(hccerr.PiccoloInternalInitFail, err.Error())
+	} else {
+		serverActionsNum.Errors = hccerr.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return serverActionsNum, nil
+}
