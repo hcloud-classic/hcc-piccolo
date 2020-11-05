@@ -248,9 +248,15 @@ func ResourceUsage() (interface{}, error) {
 	}
 
 	// total.Storage = 2048
-	poolStruct, err := PoolHandler(poolArg)
-	convModelPool := poolStruct.(model.Pool)
-	total.Storage, _ = strconv.Atoi(convModelPool.Size)
+	poolStruct, err := GetPoolList(poolArg)
+	convModelPools := poolStruct.(model.PoolList)
+	for _, eachPool := range convModelPools.Pools {
+		tempSize, _ := strconv.Atoi(eachPool.Size)
+		total.Storage += tempSize
+		tempUsed, _ := strconv.Atoi(eachPool.Used)
+		inUse.Storage += tempUsed
+	}
+
 	for _, node := range resGetNodeList.Node {
 		if node.Active == 1 {
 			inUse.CPU += int(node.CPUCores)
@@ -258,9 +264,6 @@ func ResourceUsage() (interface{}, error) {
 
 			inUse.Node++
 		}
-		// TODO : Currently, in-use storage is hard coded.
-		// FIXME : Need to fix to get in-use storage from cello module.
-		inUse.Storage, _ = strconv.Atoi(convModelPool.Used)
 		total.CPU += int(node.CPUCores)
 		total.Memory += int(node.Memory)
 		total.Node++

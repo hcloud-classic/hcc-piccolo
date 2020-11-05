@@ -32,17 +32,17 @@ func closeCello() {
 	_ = celloConn.Close()
 }
 
-// CreateVolume : Create a server
-func (rc *RPCClient) CreateVolume(in *rpccello.ReqVolumeHandler) (*rpccello.ResVolumeHandler, error) {
+// VolumeHandler : VolumeHandler
+func (rc *RPCClient) VolumeHandler(in *rpccello.ReqVolumeHandler) (*rpccello.ResVolumeHandler, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resCreateVolume, err := rc.cello.VolumeHandler(ctx, in)
+	resVolumeHandle, err := rc.cello.VolumeHandler(ctx, in)
 	if err != nil {
 		return nil, err
 	}
 
-	return resCreateVolume, nil
+	return resVolumeHandle, nil
 }
 
 // PoolHandler : PoolHandler
@@ -56,6 +56,19 @@ func (rc *RPCClient) PoolHandler(in *rpccello.ReqPoolHandler) (*rpccello.ResPool
 	}
 
 	return resPoolhandler, nil
+}
+
+// GetPoolList : GetPoolList
+func (rc *RPCClient) GetPoolList(in *rpccello.ReqGetPoolList) (*rpccello.ResGetPoolList, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resPoolList, err := rc.cello.GetPoolList(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resPoolList, nil
 }
 
 // GetVolumeList : GetVolumeList

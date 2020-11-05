@@ -9,8 +9,9 @@ import (
 	"strconv"
 )
 
-// CreateVolume : oboe to cello
-func CreateVolume(args map[string]interface{}) (interface{}, error) {
+// VolumeHandle : oboe to cello
+func VolumeHandle(args map[string]interface{}) (interface{}, error) {
+	UUID, UUIDOk := args["uuid"].(string)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	fileSystem, fileSystemOK := args["filesystem"].(string)
 	diskSize, diskSizeOk := args["size"].(int)
@@ -20,48 +21,62 @@ func CreateVolume(args map[string]interface{}) (interface{}, error) {
 	gatewayIP, gatewayIPOk := args["gateway_ip"].(string)
 	lunNum, lunNumOk := args["lun_num"].(string)
 	pool, poolOk := args["pool"].(string)
-
-	var reqCreateVolume rpccello.ReqVolumeHandler
+	action, actionOk := args["action"].(string)
+	var modelVolume *model.Volume
+	var reqVolumeHandle rpccello.ReqVolumeHandler
 	var reqVolume rpccello.Volume
-	reqCreateVolume.Volume = &reqVolume
+	reqVolumeHandle.Volume = &reqVolume
+
+	if UUIDOk {
+		reqVolumeHandle.Volume.UUID = UUID
+	}
 
 	if serverUUIDOk {
-		reqCreateVolume.Volume.ServerUUID = serverUUID
+		reqVolumeHandle.Volume.ServerUUID = serverUUID
 	}
 
 	if fileSystemOK {
-		reqCreateVolume.Volume.Filesystem = fileSystem
+		reqVolumeHandle.Volume.Filesystem = fileSystem
 	}
 	strSize := strconv.Itoa(diskSize)
 	if diskSizeOk {
-		reqCreateVolume.Volume.Size = strSize
+		reqVolumeHandle.Volume.Size = strSize
 	}
 
 	if userUUIDOk {
-		reqCreateVolume.Volume.UserUUID = userUUID
+		reqVolumeHandle.Volume.UserUUID = userUUID
 	}
 	if useTypeOk {
-		reqCreateVolume.Volume.UseType = useType
+		reqVolumeHandle.Volume.UseType = useType
 	}
 	if networkIPOk {
-		reqCreateVolume.Volume.Network_IP = networkIP
+		reqVolumeHandle.Volume.Network_IP = networkIP
 	}
 	if gatewayIPOk {
-		reqCreateVolume.Volume.GatewayIp = gatewayIP
+		reqVolumeHandle.Volume.GatewayIp = gatewayIP
 	}
 	if lunNumOk {
 		convInt, _ := strconv.Atoi(lunNum)
-		reqCreateVolume.Volume.Lun = int64(convInt)
+		reqVolumeHandle.Volume.Lun = int64(convInt)
 	}
 	if poolOk {
-		reqCreateVolume.Volume.Pool = pool
+		reqVolumeHandle.Volume.Pool = pool
 	}
-	reqCreateVolume.Volume.Action = "create"
-	resCreateVolume, err := client.RC.CreateVolume(&reqCreateVolume)
-	if err != nil {
-		return model.Volume{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+	if actionOk {
+		reqVolumeHandle.Volume.Action = action
 	}
 
-	modelVolume := pbtomodel.PbVolumeToModelVolume(resCreateVolume.Volume, &resCreateVolume.HccErrorStack)
+	if reqVolumeHandle.Volume.Action != "" {
+		resVolumeHandle, err := client.RC.VolumeHandler(&reqVolumeHandle)
+		if err != nil {
+			return model.Volume{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+		modelVolume = pbtomodel.PbVolumeToModelVolume(resVolumeHandle.Volume, &resVolumeHandle.HccErrorStack)
+
+	} else {
+		return model.Volume{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, "None Action")}, nil
+
+	}
+
 	return *modelVolume, nil
 }
