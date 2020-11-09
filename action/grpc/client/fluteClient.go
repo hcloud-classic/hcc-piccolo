@@ -33,16 +33,18 @@ func closeFlute() {
 }
 
 // OnNode : Turn on selected node
-func (rc *RPCClient) OnNode(nodeUUID string) (*rpcflute.ResNodePowerControl, error) {
+func (rc *RPCClient) OnNode(nodeUUIDs []string) (*rpcflute.ResNodePowerControl, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 
 	var nodes []*pb.Node
-	node := pb.Node{
-		UUID: nodeUUID,
+	for i := range nodeUUIDs {
+		node := pb.Node{
+			UUID: nodeUUIDs[i],
+		}
+		nodes = append(nodes, &node)
 	}
-	nodes = append(nodes, &node)
 
 	resNodePowerControl, err := rc.flute.NodePowerControl(ctx, &rpcflute.ReqNodePowerControl{
 		Node:       nodes,
@@ -56,16 +58,18 @@ func (rc *RPCClient) OnNode(nodeUUID string) (*rpcflute.ResNodePowerControl, err
 }
 
 // OffNode : Turn off selected node
-func (rc *RPCClient) OffNode(nodeUUID string, forceOff bool) (*rpcflute.ResNodePowerControl, error) {
+func (rc *RPCClient) OffNode(nodeUUIDs []string, forceOff bool) (*rpcflute.ResNodePowerControl, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 
 	var nodes []*pb.Node
-	node := pb.Node{
-		UUID: nodeUUID,
+	for i := range nodeUUIDs {
+		node := pb.Node{
+			UUID: nodeUUIDs[i],
+		}
+		nodes = append(nodes, &node)
 	}
-	nodes = append(nodes, &node)
 
 	var powerState rpcflute.PowerState
 	if forceOff {
@@ -86,16 +90,18 @@ func (rc *RPCClient) OffNode(nodeUUID string, forceOff bool) (*rpcflute.ResNodeP
 }
 
 // ForceRestartNode : Force restart selected node
-func (rc *RPCClient) ForceRestartNode(nodeUUID string) (*rpcflute.ResNodePowerControl, error) {
+func (rc *RPCClient) ForceRestartNode(nodeUUIDs []string) (*rpcflute.ResNodePowerControl, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 
 	var nodes []*pb.Node
-	node := pb.Node{
-		UUID: nodeUUID,
+	for i := range nodeUUIDs {
+		node := pb.Node{
+			UUID: nodeUUIDs[i],
+		}
+		nodes = append(nodes, &node)
 	}
-	nodes = append(nodes, &node)
 
 	resNodePowerControl, err := rc.flute.NodePowerControl(ctx, &rpcflute.ReqNodePowerControl{
 		Node:       nodes,

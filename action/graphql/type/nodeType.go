@@ -73,8 +73,8 @@ var PowerControlNodeType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "PowerControlNodeType",
 		Fields: graphql.Fields{
-			"result": &graphql.Field{
-				Type: graphql.String,
+			"results": &graphql.Field{
+				Type: graphql.NewList(graphql.String),
 			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),

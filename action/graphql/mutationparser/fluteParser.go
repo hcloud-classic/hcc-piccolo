@@ -11,12 +11,17 @@ import (
 
 // OnNode : Turn on the node
 func OnNode(args map[string]interface{}) (interface{}, error) {
-	UUID, UUIDOk := args["uuid"].(string)
-	if !UUIDOk {
-		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+	UUIDs, UUIDsOk := args["uuids"].([]interface{})
+	if !UUIDsOk {
+		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuids argument")}, nil
 	}
 
-	resNodePowerControl, err := client.RC.OnNode(UUID)
+	var strUUIDs []string
+	for _, UUID := range UUIDs {
+		strUUIDs = append(strUUIDs, UUID.(string))
+	}
+
+	resNodePowerControl, err := client.RC.OnNode(strUUIDs)
 	if err != nil {
 		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -27,13 +32,13 @@ func OnNode(args map[string]interface{}) (interface{}, error) {
 		Errors = errors.ReturnHccEmptyErrorPiccolo()
 	}
 
-	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: Errors}, nil
+	return model.PowerControlNode{Results: resNodePowerControl.Result, Errors: Errors}, nil
 }
 
 // OffNode : Turn off the node
 func OffNode(args map[string]interface{}) (interface{}, error) {
-	UUID, UUIDOk := args["uuid"].(string)
-	if !UUIDOk {
+	UUIDs, UUIDsOk := args["uuids"].([]interface{})
+	if !UUIDsOk {
 		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
@@ -43,7 +48,12 @@ func OffNode(args map[string]interface{}) (interface{}, error) {
 		forceOff = false
 	}
 
-	resNodePowerControl, err := client.RC.OffNode(UUID, forceOff)
+	var strUUIDs []string
+	for _, UUID := range UUIDs {
+		strUUIDs = append(strUUIDs, UUID.(string))
+	}
+
+	resNodePowerControl, err := client.RC.OffNode(strUUIDs, forceOff)
 	if err != nil {
 		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -54,17 +64,22 @@ func OffNode(args map[string]interface{}) (interface{}, error) {
 		Errors = errors.ReturnHccEmptyErrorPiccolo()
 	}
 
-	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: Errors}, nil
+	return model.PowerControlNode{Results: resNodePowerControl.Result, Errors: Errors}, nil
 }
 
 // ForceRestartNode : Force restart the node
 func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
-	UUID, UUIDOk := args["uuid"].(string)
-	if !UUIDOk {
+	UUIDs, UUIDsOk := args["uuids"].([]interface{})
+	if !UUIDsOk {
 		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	resNodePowerControl, err := client.RC.ForceRestartNode(UUID)
+	var strUUIDs []string
+	for _, UUID := range UUIDs {
+		strUUIDs = append(strUUIDs, UUID.(string))
+	}
+
+	resNodePowerControl, err := client.RC.ForceRestartNode(strUUIDs)
 	if err != nil {
 		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -75,7 +90,7 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 		Errors = errors.ReturnHccEmptyErrorPiccolo()
 	}
 
-	return model.PowerControlNode{Result: resNodePowerControl.Result[0], Errors: Errors}, nil
+	return model.PowerControlNode{Results: resNodePowerControl.Result, Errors: Errors}, nil
 }
 
 // CreateNode : Create a node
