@@ -86,7 +86,8 @@ func ValidateToken(args map[string]interface{}) error {
 
 		var dbPassword string
 		sql := "select password from user where id = ?"
-		err := mysql.Db.QueryRow(sql, claims["ID"].(string)).Scan(&dbPassword)
+		row := mysql.Db.QueryRow(sql, claims["ID"].(string))
+		err := mysql.QueryRowScan(row, &dbPassword)
 		if err != nil {
 			logger.Logger.Println(err)
 			return errLoginMismatch
@@ -152,7 +153,8 @@ func ValidateTokenForAdmin(args map[string]interface{}) error {
 
 		var dbPassword string
 		sql := "select password from user where id = ?"
-		err := mysql.Db.QueryRow(sql, claims["ID"].(string)).Scan(&dbPassword)
+		row := mysql.Db.QueryRow(sql, claims["ID"].(string))
+		err := mysql.QueryRowScan(row, &dbPassword)
 		if err != nil {
 			logger.Logger.Println(err)
 			return errLoginMismatch
@@ -204,7 +206,8 @@ func GetUserID(tokenString string) (ID string, err error) {
 
 		var dbPassword string
 		sql := "select password from user where id = ?"
-		err := mysql.Db.QueryRow(sql, claims["ID"].(string)).Scan(&dbPassword)
+		row := mysql.Db.QueryRow(sql, claims["ID"].(string))
+		err := mysql.QueryRowScan(row, &dbPassword)
 		if err != nil {
 			return "", errors.New("invalid token")
 		}

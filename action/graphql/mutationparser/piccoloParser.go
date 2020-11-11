@@ -29,7 +29,8 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	}
 
 	sql := "select id from user where id = ?"
-	err := mysql.Db.QueryRow(sql, id).Scan(&id)
+	row := mysql.Db.QueryRow(sql, id)
+	err := mysql.QueryRowScan(row, &id)
 	if err == nil {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLUserExist, "Provided ID is in use")}, nil
 	}
@@ -52,7 +53,7 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	}
 
 	sql = "insert into user(uuid, id, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, now(), now())"
-	stmt, err := mysql.Db.Prepare(sql)
+	stmt, err := mysql.Prepare(sql)
 	if err != nil {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLPrepareError, err.Error())}, nil
 	}
@@ -88,7 +89,7 @@ func Unregister(args map[string]interface{}) (interface{}, error) {
 	}
 
 	sql := "delete from user where id = ?"
-	stmt, err := mysql.Db.Prepare(sql)
+	stmt, err := mysql.Prepare(sql)
 	if err != nil {
 		errStr := "Unregister(): " + err.Error()
 		logger.Logger.Println(errStr)

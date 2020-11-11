@@ -40,6 +40,16 @@ func parseMysql() {
 	if err != nil {
 		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
+	Mysql.ConnectionRetryCount, err = config.MysqlConfig.Int("connection_retry_count")
+	if err != nil {
+		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
+	Mysql.ConnectionRetryIntervalMs, err = config.MysqlConfig.Int("connection_retry_interval_ms")
+	if err != nil {
+		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
 }
 
 func parseGrpc() {

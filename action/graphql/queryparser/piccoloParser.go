@@ -19,7 +19,7 @@ import (
 func updateUserLoginAt(id string) error {
 	sql := "update user set login_at = now() where id = ?"
 
-	stmt, err := mysql.Db.Prepare(sql)
+	stmt, err := mysql.Prepare(sql)
 	if err != nil {
 		logger.Logger.Println("updateUserLoginAt(): " + err.Error())
 		return err
@@ -49,7 +49,8 @@ func Login(args map[string]interface{}) (interface{}, error) {
 	var dbPassword string
 
 	sql := "select password from user where id = ?"
-	err := mysql.Db.QueryRow(sql, id).Scan(&dbPassword)
+	row := mysql.Db.QueryRow(sql, id)
+	err := mysql.QueryRowScan(row, &dbPassword)
 	if err != nil {
 		logger.Logger.Println(err)
 
@@ -109,7 +110,7 @@ func User(args map[string]interface{}) (interface{}, error) {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "please insert uuid or id arguments")}, nil
 	}
 
-	err = row.Scan(&uuid, &id, &name, &email, &loginAt, &createdAt)
+	err = mysql.QueryRowScan(row, &uuid, &id, &name, &email, &loginAt, &createdAt)
 	if err != nil {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
@@ -162,9 +163,9 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	var err error
 
 	if noLimit {
-		stmt, err = mysql.Db.Query(sql)
+		stmt, err = mysql.Query(sql)
 	} else {
-		stmt, err = mysql.Db.Query(sql, row, row*(page-1))
+		stmt, err = mysql.Query(sql, row, row*(page-1))
 	}
 
 	if err != nil {
@@ -192,7 +193,8 @@ func NumUser() (interface{}, error) {
 	var userNum int
 
 	sql := "select count(*) from user"
-	err := mysql.Db.QueryRow(sql).Scan(&userNum)
+	row := mysql.Db.QueryRow(sql)
+	err := mysql.QueryRowScan(row, &userNum)
 	if err != nil {
 		return model.UserNum{Number: userNum, Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
