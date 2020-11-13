@@ -6,6 +6,7 @@ import (
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcflute"
 	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/lib/timpani"
 	"hcc/piccolo/model"
 )
 
@@ -76,6 +77,11 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 
 	var strUUIDs []string
 	for _, UUID := range UUIDs {
+		_, err := timpani.NormalRebootNotification(UUID.(string))
+		if err != nil {
+			return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
 		strUUIDs = append(strUUIDs, UUID.(string))
 	}
 

@@ -217,6 +217,34 @@ func parsePiano() {
 	}
 }
 
+func parseTimpani() {
+	config.TimpaniConfig = conf.Get("timpani")
+	if config.TimpaniConfig == nil {
+		errors.NewHccError(errors.PiccoloInternalInitFail, "no timpani section").Fatal()
+	}
+
+	Timpani = timpani{}
+	Timpani.ServerAddress, err = config.TimpaniConfig.String("timpani_server_address")
+	if err != nil {
+		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
+	Timpani.ServerPort, err = config.TimpaniConfig.Int("timpani_server_port")
+	if err != nil {
+		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
+	Timpani.RequestTimeoutMs, err = config.TimpaniConfig.Int("timpani_request_timeout_ms")
+	if err != nil {
+		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
+	Timpani.RequestRetry, err = config.TimpaniConfig.Int("timpani_request_retry")
+	if err != nil {
+		errors.NewHccError(errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+}
+
 func parseUser() {
 	config.UserConfig = conf.Get("user")
 	if config.UserConfig == nil {
