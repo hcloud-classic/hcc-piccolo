@@ -2,6 +2,8 @@ package data
 
 import "hcc/piccolo/model"
 
+// Query
+
 // AdaptiveIPServerData : Data structure of adaptiveip_server
 type AdaptiveIPServerData struct {
 	Data struct {

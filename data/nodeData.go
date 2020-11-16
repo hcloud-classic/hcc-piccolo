@@ -2,6 +2,8 @@ package data
 
 import "hcc/piccolo/model"
 
+// Query
+
 // NodeData : Data structure of node
 type NodeData struct {
 	Data struct {
