@@ -10,19 +10,10 @@ import (
 
 // PbMonitoringDataToModelTelegraf : Change monitoringData of proto type to telegraf model
 func PbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Telegraf {
-	var seriesArr [][]float64
-
-	for _, monitoringDataSeries := range monitoringData.Series {
-		var series []float64
-		series = (*monitoringDataSeries).Values
-		seriesArr = append(seriesArr, series)
-	}
 
 	modelTelegraf := &model.Telegraf{
-		Metric:    monitoringData.Metric,
-		SubMetric: monitoringData.SubMetric,
-		UUID:      monitoringData.UUID,
-		Series:    seriesArr,
+		UUID:   monitoringData.Uuid,
+		Result: monitoringData.Result,
 	}
 
 	if hccGrpcErrStack != nil {

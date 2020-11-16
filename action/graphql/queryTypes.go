@@ -821,6 +821,12 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.TelegrafType,
 				Description: "Get all cpu usage data",
 				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"metric": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -836,10 +842,16 @@ var queryTypes = graphql.NewObject(
 					"duration": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"uuid": &graphql.ArgumentConfig{
+					"time": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"token": &graphql.ArgumentConfig{
+					"groupBy": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"orderBy": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"limit": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 				},

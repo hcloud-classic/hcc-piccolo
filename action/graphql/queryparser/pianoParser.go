@@ -21,25 +21,29 @@ func checkTelegrafArgsAll(args map[string]interface{}) bool {
 
 // Telegraf : Set telegraf with provided options
 func Telegraf(args map[string]interface{}) (interface{}, error) {
+	uuid, _ := args["uuid"].(string)
 	metric, _ := args["metric"].(string)
 	subMetric, _ := args["subMetric"].(string)
 	period, _ := args["period"].(string)
-	aggregateType, _ := args["aggregateType"].(string)
+	aggregateFn, _ := args["aggregateType"].(string)
 	duration, _ := args["duration"].(string)
-	uuid, _ := args["uuid"].(string)
-
-	if !checkTelegrafArgsAll(args) {
-		return model.Telegraf{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "check needed arguments (metric, subMetric, period, aggregateType, duration, uuid)")}, nil
-	}
+	time, _ := args["time"].(string)
+	groupBy, _ := args["groupBy"].(string)
+	orderBy, _ := args["orderBy"].(string)
+	limit, _ := args["limit"].(string)
 
 	resMonitoringData, err := client.RC.Telegraph(&rpcpiano.ReqMetricInfo{
 		MetricInfo: &rpcpiano.MetricInfo{
-			Metric:        metric,
-			SubMetric:     subMetric,
-			Period:        period,
-			AggregateType: aggregateType,
-			Duration:      duration,
-			Uuid:          uuid,
+			Uuid:        uuid,
+			Metric:      metric,
+			SubMetric:   subMetric,
+			Period:      period,
+			AggregateFn: aggregateFn,
+			Duration:    duration,
+			Time:        time,
+			GroupBy:     groupBy,
+			OrderBy:     orderBy,
+			Limit:       limit,
 		},
 	})
 	if err != nil {
