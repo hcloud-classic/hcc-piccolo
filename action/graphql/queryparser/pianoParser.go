@@ -25,7 +25,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 	metric, _ := args["metric"].(string)
 	subMetric, _ := args["subMetric"].(string)
 	period, _ := args["period"].(string)
-	aggregateFn, _ := args["aggregateType"].(string)
+	aggregateFn, _ := args["aggregateFn"].(string)
 	duration, _ := args["duration"].(string)
 	time, _ := args["time"].(string)
 	groupBy, _ := args["groupBy"].(string)

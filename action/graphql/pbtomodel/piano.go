@@ -13,7 +13,7 @@ func PbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData, hc
 
 	modelTelegraf := &model.Telegraf{
 		UUID:   monitoringData.Uuid,
-		Result: monitoringData.Result,
+		Result: string(monitoringData.Result),
 	}
 
 	if hccGrpcErrStack != nil {
