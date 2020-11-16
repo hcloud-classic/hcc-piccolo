@@ -332,14 +332,30 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					}
 
 					return adaptiveIPData.Data.AdaptiveIP, nil
-				case "AdaptiveIPAvailableIPListData":
-					adaptiveIPAvailableIPListData := data.(hccGatewayData.AdaptiveIPAvailableIPListData)
-					err = json.Unmarshal([]byte(result), &adaptiveIPAvailableIPListData)
+				case "ListAdaptiveIPData":
+					listAdaptiveIPData := data.(hccGatewayData.ListAdaptiveIPData)
+					err = json.Unmarshal([]byte(result), &listAdaptiveIPData)
 					if err != nil {
 						return nil, err
 					}
 
-					return adaptiveIPAvailableIPListData.Data.AdaptiveIPAvailableIPList, nil
+					return listAdaptiveIPData.Data.ListAdaptiveIP, nil
+				case "AllAdaptiveIPData":
+					allAdaptiveIPData := data.(hccGatewayData.AllAdaptiveIPData)
+					err = json.Unmarshal([]byte(result), &allAdaptiveIPData)
+					if err != nil {
+						return nil, err
+					}
+
+					return allAdaptiveIPData.Data.AllAdaptiveIP, nil
+				case "NumAdaptiveIPData":
+					numAdaptiveIPData := data.(hccGatewayData.NumAdaptiveIPData)
+					err = json.Unmarshal([]byte(result), &numAdaptiveIPData)
+					if err != nil {
+						return nil, err
+					}
+
+					return numAdaptiveIPData.Data.NumAdaptiveIP, nil
 				case "CreateAdaptiveIPData":
 					createAdaptiveIPData := data.(hccGatewayData.CreateAdaptiveIPData)
 					err = json.Unmarshal([]byte(result), &createAdaptiveIPData)
@@ -348,6 +364,22 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					}
 
 					return createAdaptiveIPData.Data.AdaptiveIP, nil
+				case "UpdateAdaptiveIPData":
+					updateAdaptiveIPData := data.(hccGatewayData.UpdateAdaptiveIPData)
+					err = json.Unmarshal([]byte(result), &updateAdaptiveIPData)
+					if err != nil {
+						return nil, err
+					}
+
+					return updateAdaptiveIPData.Data.AdaptiveIP, nil
+				case "DeleteAdaptiveIPData":
+					deleteAdaptiveIPData := data.(hccGatewayData.DeleteAdaptiveIPData)
+					err = json.Unmarshal([]byte(result), &deleteAdaptiveIPData)
+					if err != nil {
+						return nil, err
+					}
+
+					return deleteAdaptiveIPData.Data.AdaptiveIP, nil
 				case "AdaptiveIPServerData":
 					adaptiveIPServerData := data.(hccGatewayData.AdaptiveIPServerData)
 					err = json.Unmarshal([]byte(result), &adaptiveIPServerData)
