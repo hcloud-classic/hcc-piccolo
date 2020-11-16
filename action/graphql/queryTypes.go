@@ -836,7 +836,7 @@ var queryTypes = graphql.NewObject(
 					"period": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"aggregateType": &graphql.ArgumentConfig{
+					"aggregateFn": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 					"duration": &graphql.ArgumentConfig{
