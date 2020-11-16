@@ -1,9 +1,8 @@
 package config
 
 import (
-	"hcc/piccolo/lib/logger"
-
 	"github.com/Terry-Mao/goconf"
+	"hcc/piccolo/lib/logger"
 )
 
 var conf = goconf.New()
@@ -49,16 +48,6 @@ func parseFlute() {
 	if err != nil {
 		logger.Logger.Panicln(err)
 	}
-}
-
-// Parser : Parse config file
-func Parser() {
-	if err = conf.Parse(configLocation); err != nil {
-		logger.Logger.Panicln(err)
-	}
-
-	parseHTTP()
-
 }
 
 func parseCello() {
