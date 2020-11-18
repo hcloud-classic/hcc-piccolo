@@ -31,6 +31,9 @@ var ServerNodeType = graphql.NewObject(
 			"memory": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"rack_number": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"created_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},

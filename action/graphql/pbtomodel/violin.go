@@ -81,6 +81,10 @@ func PbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, node *rpcfl
 		Errors:     *errors.NewHccErrorStack(),
 	}
 
+	if node != nil {
+		modelServerNode.RackNumber = int(node.RackNumber)
+	}
+
 	if node != nil && nodeDetail != nil {
 		modelServerNode.CPUProcessors = int(nodeDetail.CPUProcessors)
 		modelServerNode.CPUCores = int(node.CPUCores)
