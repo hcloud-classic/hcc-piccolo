@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 package graphqlType
 
 import "github.com/graphql-go/graphql"
 
+=======
+package graphqltype
+
+import "github.com/graphql-go/graphql"
+
+// VolumeType : GraphQL type of VolumeType
+>>>>>>> eebb5a0417798d0031b913a3fa3db7ac18f22d33
 var VolumeType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Volume",
@@ -30,6 +38,33 @@ var VolumeType = graphql.NewObject(
 			"created_at": &graphql.Field{
 				Type: graphql.String,
 			},
+<<<<<<< HEAD
+=======
+			"lun_num": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"pool": &graphql.Field{
+				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// VolumeListType : Graphql object type of ServerList
+var VolumeListType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "VolumeList",
+		Fields: graphql.Fields{
+			"volume_list": &graphql.Field{
+				Type: graphql.NewList(VolumeType),
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+>>>>>>> eebb5a0417798d0031b913a3fa3db7ac18f22d33
 		},
 	},
 )
