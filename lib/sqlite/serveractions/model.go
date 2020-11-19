@@ -1,7 +1,7 @@
 package serveractions
 
 import (
-	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/action/grpc/errconv"
 	"time"
 )
 
@@ -16,12 +16,12 @@ type ServerAction struct {
 
 // ServerActions : Struct of ServerActions
 type ServerActions struct {
-	ServerActions []ServerAction    `json:"server_actions"`
-	Errors        []errors.HccError `json:"errors"`
+	ServerActions []ServerAction        `json:"server_actions"`
+	Errors        []errconv.PiccoloHccError `json:"errors"`
 }
 
 // ServerActionsNum : Contain the number of ServerActions
 type ServerActionsNum struct {
-	Number int               `json:"number"`
-	Errors []errors.HccError `json:"errors"`
+	Number int                   `json:"number"`
+	Errors []errconv.PiccoloHccError `json:"errors"`
 }

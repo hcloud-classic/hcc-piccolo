@@ -1,18 +1,18 @@
 package pbtomodel
 
 import (
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"hcc/piccolo/action/grpc/errconv"
-	"hcc/piccolo/action/grpc/pb/rpcharp"
-	"hcc/piccolo/action/grpc/pb/rpcmsgType"
-	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
 	"time"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/hcloud-classic/hcc_errors"
+	"github.com/hcloud-classic/pb"
 )
 
 // PbSubnetToModelSubnet : Change subnet of proto type to model
-func PbSubnetToModelSubnet(subnet *rpcharp.Subnet, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Subnet {
+func PbSubnetToModelSubnet(subnet *pb.Subnet, hccGrpcErrStack *[]*pb.HccError) *model.Subnet {
 	var createdAt time.Time
 	if subnet.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
@@ -24,7 +24,7 @@ func PbSubnetToModelSubnet(subnet *rpcharp.Subnet, hccGrpcErrStack *[]*rpcmsgTyp
 
 		createdAt, err = ptypes.Timestamp(subnet.CreatedAt)
 		if err != nil {
-			return &model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+			return &model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
 		}
 	}
 
@@ -45,9 +45,9 @@ func PbSubnetToModelSubnet(subnet *rpcharp.Subnet, hccGrpcErrStack *[]*rpcmsgTyp
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelSubnet.Errors = *hccErrStack.ConvertReportForm()
+		modelSubnet.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 		if len(modelSubnet.Errors) != 0 && modelSubnet.Errors[0].ErrCode == 0 {
-			modelSubnet.Errors = errors.ReturnHccEmptyErrorPiccolo()
+			modelSubnet.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 		}
 	}
 

@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	rpcnovnc "hcc/piccolo/action/grpc/pb/rpcviolin_novnc"
+	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 )
@@ -24,7 +24,7 @@ func initNovnc() error {
 		return err
 	}
 
-	RC.novnc = rpcnovnc.NewNovncClient(novncConn)
+	RC.novnc = pb.NewNovncClient(novncConn)
 	logger.Logger.Println("gRPC novnc client ready")
 
 	return nil
@@ -35,7 +35,7 @@ func closeNovnc() {
 }
 
 // ControlVNC : Set VNC with provided options
-func (rc *RPCClient) ControlVNC(in *rpcnovnc.ReqControlVNC) (*rpcnovnc.ResControlVNC, error) {
+func (rc *RPCClient) ControlVNC(in *pb.ReqControlVNC) (*pb.ResControlVNC, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.ViolinNoVnc.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-package graphqlType
-=======
 package graphqltype
->>>>>>> eebb5a0417798d0031b913a3fa3db7ac18f22d33
 
 import "github.com/graphql-go/graphql"
 
@@ -20,11 +16,6 @@ var ServerNodeType = graphql.NewObject(
 			"node_uuid": &graphql.Field{
 				Type: graphql.String,
 			},
-<<<<<<< HEAD
-			"created_at": &graphql.Field{
-				Type: graphql.DateTime,
-			},
-=======
 			"cpu_model": &graphql.Field{
 				Type: graphql.String,
 			},
@@ -64,7 +55,6 @@ var ServerNodeListType = graphql.NewObject(
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},
->>>>>>> eebb5a0417798d0031b913a3fa3db7ac18f22d33
 		},
 	},
 )

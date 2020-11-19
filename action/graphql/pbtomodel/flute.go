@@ -1,18 +1,18 @@
 package pbtomodel
 
 import (
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"hcc/piccolo/action/grpc/errconv"
-	"hcc/piccolo/action/grpc/pb/rpcflute"
-	"hcc/piccolo/action/grpc/pb/rpcmsgType"
-	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
 	"time"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/hcloud-classic/hcc_errors"
+	"github.com/hcloud-classic/pb"
 )
 
 // PbNodeToModelNode : Change node of proto type to model
-func PbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Node {
+func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *[]*pb.HccError) *model.Node {
 	var createdAt time.Time
 	if node.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
@@ -24,7 +24,7 @@ func PbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 
 		createdAt, err = ptypes.Timestamp(node.CreatedAt)
 		if err != nil {
-			return &model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+			return &model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
 		}
 	}
 
@@ -47,9 +47,9 @@ func PbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelNode.Errors = *hccErrStack.ConvertReportForm()
+		modelNode.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 		if len(modelNode.Errors) != 0 && modelNode.Errors[0].ErrCode == 0 {
-			modelNode.Errors = errors.ReturnHccEmptyErrorPiccolo()
+			modelNode.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 		}
 	}
 
@@ -57,7 +57,7 @@ func PbNodeToModelNode(node *rpcflute.Node, hccGrpcErrStack *[]*rpcmsgType.HccEr
 }
 
 // PbNodeDetailToModelNodeDetail : Change nodeDetail of proto type to model
-func PbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.NodeDetail {
+func PbNodeDetailToModelNodeDetail(nodeDetail *pb.NodeDetail, hccGrpcErrStack *[]*pb.HccError) *model.NodeDetail {
 	modelNodeDetail := &model.NodeDetail{
 		NodeUUID:      nodeDetail.NodeUUID,
 		CPUModel:      nodeDetail.CPUModel,
@@ -67,9 +67,9 @@ func PbNodeDetailToModelNodeDetail(nodeDetail *rpcflute.NodeDetail, hccGrpcErrSt
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelNodeDetail.Errors = *hccErrStack.ConvertReportForm()
+		modelNodeDetail.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 		if len(modelNodeDetail.Errors) != 0 && modelNodeDetail.Errors[0].ErrCode == 0 {
-			modelNodeDetail.Errors = errors.ReturnHccEmptyErrorPiccolo()
+			modelNodeDetail.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 		}
 	}
 

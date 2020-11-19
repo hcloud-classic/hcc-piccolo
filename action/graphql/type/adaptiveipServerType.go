@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-package graphqlType
-=======
 package graphqltype
->>>>>>> eebb5a0417798d0031b913a3fa3db7ac18f22d33
 
 import "github.com/graphql-go/graphql"
 
@@ -11,12 +7,6 @@ var AdaptiveIPServerType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "AdaptiveIPServer",
 		Fields: graphql.Fields{
-<<<<<<< HEAD
-			"adaptiveip_uuid": &graphql.Field{
-				Type: graphql.String,
-			},
-=======
->>>>>>> eebb5a0417798d0031b913a3fa3db7ac18f22d33
 			"server_uuid": &graphql.Field{
 				Type: graphql.String,
 			},
@@ -29,8 +19,6 @@ var AdaptiveIPServerType = graphql.NewObject(
 			"private_gateway": &graphql.Field{
 				Type: graphql.String,
 			},
-<<<<<<< HEAD
-=======
 			"created_at": &graphql.Field{
 				Type: graphql.String,
 			},
@@ -52,7 +40,6 @@ var AdaptiveIPServerListType = graphql.NewObject(
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},
->>>>>>> eebb5a0417798d0031b913a3fa3db7ac18f22d33
 		},
 	},
 )

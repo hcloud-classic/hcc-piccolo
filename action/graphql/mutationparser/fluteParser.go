@@ -1,20 +1,21 @@
 package mutationparser
 
 import (
+	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
-	"hcc/piccolo/action/grpc/pb/rpcflute"
-	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/timpani"
 	"hcc/piccolo/model"
+
+	"github.com/hcloud-classic/hcc_errors"
 )
 
 // OnNode : Turn on the node
 func OnNode(args map[string]interface{}) (interface{}, error) {
 	UUIDs, UUIDsOk := args["uuids"].([]interface{})
 	if !UUIDsOk {
-		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuids argument")}, nil
+		return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuids argument")}, nil
 	}
 
 	var strUUIDs []string
@@ -24,13 +25,13 @@ func OnNode(args map[string]interface{}) (interface{}, error) {
 
 	resNodePowerControl, err := client.RC.OnNode(strUUIDs)
 	if err != nil {
-		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
-	Errors := *hccErrStack.ConvertReportForm()
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
-		Errors = errors.ReturnHccEmptyErrorPiccolo()
+		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
 	return model.PowerControlNode{Results: resNodePowerControl.Result, Errors: Errors}, nil
@@ -40,7 +41,7 @@ func OnNode(args map[string]interface{}) (interface{}, error) {
 func OffNode(args map[string]interface{}) (interface{}, error) {
 	UUIDs, UUIDsOk := args["uuids"].([]interface{})
 	if !UUIDsOk {
-		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+		return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
 	var forceOff bool
@@ -56,13 +57,13 @@ func OffNode(args map[string]interface{}) (interface{}, error) {
 
 	resNodePowerControl, err := client.RC.OffNode(strUUIDs, forceOff)
 	if err != nil {
-		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
-	Errors := *hccErrStack.ConvertReportForm()
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
-		Errors = errors.ReturnHccEmptyErrorPiccolo()
+		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
 	return model.PowerControlNode{Results: resNodePowerControl.Result, Errors: Errors}, nil
@@ -72,14 +73,14 @@ func OffNode(args map[string]interface{}) (interface{}, error) {
 func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 	UUIDs, UUIDsOk := args["uuids"].([]interface{})
 	if !UUIDsOk {
-		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+		return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
 	var strUUIDs []string
 	for _, UUID := range UUIDs {
 		_, err := timpani.NormalRebootNotification(UUID.(string))
 		if err != nil {
-			return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+			return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 		}
 
 		strUUIDs = append(strUUIDs, UUID.(string))
@@ -87,13 +88,13 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 
 	resNodePowerControl, err := client.RC.ForceRestartNode(strUUIDs)
 	if err != nil {
-		return model.PowerControlNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
-	Errors := *hccErrStack.ConvertReportForm()
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
-		Errors = errors.ReturnHccEmptyErrorPiccolo()
+		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
 	return model.PowerControlNode{Results: resNodePowerControl.Result, Errors: Errors}, nil
@@ -104,12 +105,12 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
 	description, descriptionOk := args["description"].(string)
 
-	var reqCreateNode rpcflute.ReqCreateNode
-	var reqNode rpcflute.Node
+	var reqCreateNode pb.ReqCreateNode
+	var reqNode pb.Node
 	reqCreateNode.Node = &reqNode
 
 	if !bmcIPOk || !descriptionOk {
-		return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need bmc_ip and description arguments")}, nil
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need bmc_ip and description arguments")}, nil
 	}
 
 	reqCreateNode.Node.BmcIP = bmcIP
@@ -117,7 +118,7 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 
 	resCreateNode, err := client.RC.CreateNode(&reqCreateNode)
 	if err != nil {
-		return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelNode := pbtomodel.PbNodeToModelNode(resCreateNode.Node, &resCreateNode.HccErrorStack)
@@ -129,7 +130,7 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
-		return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
 	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
@@ -143,8 +144,8 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	active, activeOk := args["active"].(int)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 
-	var reqUpdateNode rpcflute.ReqUpdateNode
-	var reqNode rpcflute.Node
+	var reqUpdateNode pb.ReqUpdateNode
+	var reqNode pb.Node
 	reqUpdateNode.Node = &reqNode
 
 	reqUpdateNode.Node.UUID = requestedUUID
@@ -181,7 +182,7 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 
 	resUpdateNode, err := client.RC.UpdateNode(&reqUpdateNode)
 	if err != nil {
-		return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelNode := pbtomodel.PbNodeToModelNode(resUpdateNode.Node, &resUpdateNode.HccErrorStack)
@@ -193,12 +194,12 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 func DeleteNode(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
-		return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
 	resDeleteNode, err := client.RC.DeleteNode(requestedUUID)
 	if err != nil {
-		return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelNode := pbtomodel.PbNodeToModelNode(resDeleteNode.Node, &resDeleteNode.HccErrorStack)
@@ -213,8 +214,8 @@ func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 	cpuProcessors, cpuProcessorsOk := args["cpu_processors"].(int)
 	cpuThreads, cpuThreadsOk := args["cpu_threads"].(int)
 
-	var reqCreateNodeDetail rpcflute.ReqCreateNodeDetail
-	var nodeDetail rpcflute.NodeDetail
+	var reqCreateNodeDetail pb.ReqCreateNodeDetail
+	var nodeDetail pb.NodeDetail
 	reqCreateNodeDetail.NodeDetail = &nodeDetail
 
 	if nodeUUIDOk {
@@ -232,7 +233,7 @@ func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 
 	resCreateNodeDetail, err := client.RC.CreateNodeDetail(&reqCreateNodeDetail)
 	if err != nil {
-		return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resCreateNodeDetail.NodeDetail, &resCreateNodeDetail.HccErrorStack)
@@ -244,12 +245,12 @@ func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 func DeleteNodeDetail(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["node_uuid"].(string)
 	if !requestedUUIDOk {
-		return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a node_uuid argument")}, nil
+		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a node_uuid argument")}, nil
 	}
 
 	resDeleteNodeDetail, err := client.RC.DeleteNodeDetail(requestedUUID)
 	if err != nil {
-		return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resDeleteNodeDetail.NodeDetail, &resDeleteNodeDetail.HccErrorStack)

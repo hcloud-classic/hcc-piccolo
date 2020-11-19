@@ -3,12 +3,14 @@ package mutationparser
 import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
-	"hcc/piccolo/action/grpc/pb/rpccello"
-	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/model"
 	"strconv"
+
+	"github.com/hcloud-classic/hcc_errors"
+	"github.com/hcloud-classic/pb"
 )
 
 // VolumeHandle : oboe to cello
@@ -27,8 +29,8 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 	pool, poolOk := args["pool"].(string)
 	action, actionOk := args["action"].(string)
 	var modelVolume *model.Volume
-	var reqVolumeHandle rpccello.ReqVolumeHandler
-	var reqVolume rpccello.Volume
+	var reqVolumeHandle pb.ReqVolumeHandler
+	var reqVolume pb.Volume
 	reqVolumeHandle.Volume = &reqVolume
 
 	if UUIDOk {
@@ -83,7 +85,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 				logger.Logger.Println("WriteServerAction(): " + err2.Error())
 			}
 
-			return model.Volume{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+			return model.Volume{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 		}
 		modelVolume = pbtomodel.PbVolumeToModelVolume(resVolumeHandle.Volume, &resVolumeHandle.HccErrorStack)
 
@@ -98,7 +100,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 			logger.Logger.Println("WriteServerAction(): " + err2.Error())
 		}
 
-		return model.Volume{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, "None Action")}, nil
+		return model.Volume{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "None Action")}, nil
 	}
 
 	var success = true

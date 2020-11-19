@@ -2,8 +2,8 @@ package client
 
 import (
 	"context"
+	"github.com/hcloud-classic/pb"
 	"google.golang.org/grpc"
-	"hcc/piccolo/action/grpc/pb/rpcpiano"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"strconv"
@@ -21,7 +21,7 @@ func initPiano() error {
 		return err
 	}
 
-	RC.piano = rpcpiano.NewPianoClient(pianoConn)
+	RC.piano = pb.NewPianoClient(pianoConn)
 	logger.Logger.Println("gRPC piano client ready")
 
 	return nil
@@ -32,7 +32,7 @@ func closePiano() {
 }
 
 // Telegraph : Get the metric data from influxDB
-func (rc *RPCClient) Telegraph(in *rpcpiano.ReqMetricInfo) (*rpcpiano.ResMonitoringData, error) {
+func (rc *RPCClient) Telegraph(in *pb.ReqMetricInfo) (*pb.ResMonitoringData, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Piano.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()

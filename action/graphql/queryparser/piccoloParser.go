@@ -3,8 +3,7 @@ package queryparser
 import (
 	dbsql "database/sql"
 	"hcc/piccolo/action/grpc/client"
-	"hcc/piccolo/action/grpc/pb/rpcflute"
-	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/lib/usertool"
@@ -12,6 +11,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hcloud-classic/hcc_errors"
+	"github.com/hcloud-classic/pb"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -43,7 +45,7 @@ func Login(args map[string]interface{}) (interface{}, error) {
 	password, passwordOk := args["password"].(string)
 
 	if !idOk || !passwordOk {
-		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need id and password arguments")}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and password arguments")}, nil
 	}
 
 	var dbPassword string
@@ -54,13 +56,13 @@ func Login(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		logger.Logger.Println(err)
 
-		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
 	}
 
 	// Given password is hashed password with bcrypt
 	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(dbPassword))
 	if err != nil {
-		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
 	}
 
 	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
@@ -71,15 +73,15 @@ func Login(args map[string]interface{}) (interface{}, error) {
 
 	err = updateUserLoginAt(id)
 	if err != nil {
-		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
 	token, err := usertool.GenerateToken(id, password)
 	if err != nil {
-		return model.Token{Token: "", Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTokenGenerationError, err.Error())}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTokenGenerationError, err.Error())}, nil
 	}
 
-	return model.Token{Token: token, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+	return model.Token{Token: token, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // User : Get the user info
@@ -107,16 +109,16 @@ func User(args map[string]interface{}) (interface{}, error) {
 		sql += " uuid = ? order by created_at"
 		row = mysql.Db.QueryRow(sql, uuid)
 	} else {
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "please insert uuid or id arguments")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert uuid or id arguments")}, nil
 	}
 
 	err = mysql.QueryRowScan(row, &uuid, &id, &name, &email, &loginAt, &createdAt)
 	if err != nil {
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
 	user := model.User{UUID: uuid, ID: id, Name: name, Email: email, LoginAt: loginAt, CreatedAt: createdAt}
-	user.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	user.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 
 	return user, nil
 }
@@ -140,7 +142,7 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	} else if rowOk && pageOk {
 		noLimit = false
 	} else {
-		return model.UserList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
+		return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
 	}
 
 	sql := "select uuid, id, name, email, login_at, created_at from user where 1=1"
@@ -185,7 +187,7 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 		users = append(users, user)
 	}
 
-	return model.UserList{Users: users, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+	return model.UserList{Users: users, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // NumUser : Get number of users
@@ -196,32 +198,32 @@ func NumUser() (interface{}, error) {
 	row := mysql.Db.QueryRow(sql)
 	err := mysql.QueryRowScan(row, &userNum)
 	if err != nil {
-		return model.UserNum{Number: userNum, Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		return model.UserNum{Number: userNum, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
-	return model.UserNum{Number: userNum, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+	return model.UserNum{Number: userNum, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // CheckToken : Do token validation check process
 func CheckToken(args map[string]interface{}) (interface{}, error) {
 	_, tokenOk := args["token"].(string)
 	if !tokenOk {
-		return model.IsValid{IsValid: false, Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
+		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
 	}
 
 	err := usertool.ValidateToken(args)
 	if err != nil {
-		return model.IsValid{IsValid: false, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 	}
 
-	return model.IsValid{IsValid: true, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+	return model.IsValid{IsValid: true, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // ResourceUsage : Get usage of resources
 func ResourceUsage() (interface{}, error) {
-	resGetNodeList, err := client.RC.GetNodeList(&rpcflute.ReqGetNodeList{Node: &rpcflute.Node{}})
+	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{Node: &pb.Node{}})
 	if err != nil {
-		return model.ResourceUsage{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, "failed to get nodes")}, nil
+		return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "failed to get nodes")}, nil
 	}
 
 	var total model.Resource
@@ -268,5 +270,5 @@ func ResourceUsage() (interface{}, error) {
 		total.Node++
 	}
 
-	return model.ResourceUsage{Total: total, InUse: inUse, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+	return model.ResourceUsage{Total: total, InUse: inUse, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
