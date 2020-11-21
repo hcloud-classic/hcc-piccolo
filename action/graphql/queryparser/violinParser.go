@@ -23,7 +23,7 @@ func Server(args map[string]interface{}) (interface{}, error) {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return *pbtomodel.PbServerToModelServer(resGetServer.Server, &resGetServer.HccErrorStack), nil
+	return *pbtomodel.PbServerToModelServer(resGetServer.Server, resGetServer.HccErrorStack), nil
 }
 
 // ListServer : Get server list with provided options
@@ -93,7 +93,7 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 		serverList = append(serverList, *modelServer)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resListServer.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resListServer.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -117,7 +117,7 @@ func NumServer() (interface{}, error) {
 	var modelServerNum model.ServerNum
 	modelServerNum.Number = int(resGetServerNum.Num)
 
-	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNum.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetServerNum.HccErrorStack)
 	modelServerNum.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(modelServerNum.Errors) != 0 && modelServerNum.Errors[0].ErrCode == 0 {
 		modelServerNum.Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -150,7 +150,7 @@ func ServerNode(args map[string]interface{}) (interface{}, error) {
 	}
 
 	return *pbtomodel.PbServerNodeToModelServerNode(resGetServerNode.ServerNode, resGetNode.Node, resGetNodeDetail.NodeDetail,
-		&resGetServerNode.HccErrorStack), nil
+		resGetServerNode.HccErrorStack), nil
 }
 
 // ListServerNode : Get serverNode list with provided options
@@ -184,7 +184,7 @@ func ListServerNode(args map[string]interface{}) (interface{}, error) {
 		serverNodeList = append(serverNodeList, *modelServerNode)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resListServerNode.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resListServerNode.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -212,7 +212,7 @@ func NumServerNode(args map[string]interface{}) (interface{}, error) {
 
 	var modelServerNodeNum model.ServerNodeNum
 	modelServerNodeNum.Number = int(resGetServerNodeNum.Num)
-	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNodeNum.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetServerNodeNum.HccErrorStack)
 	modelServerNodeNum.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(modelServerNodeNum.Errors) != 0 && modelServerNodeNum.Errors[0].ErrCode == 0 {
 		modelServerNodeNum.Errors = errconv.ReturnHccEmptyErrorPiccolo()

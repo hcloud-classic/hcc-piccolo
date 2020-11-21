@@ -35,7 +35,7 @@ func PoolHandler(args map[string]interface{}) (interface{}, error) {
 		return model.Pool{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelPool := pbtomodel.PbPoolToModelPool(resPoolHandler.Pool, &resPoolHandler.HccErrorStack)
+	modelPool := pbtomodel.PbPoolToModelPool(resPoolHandler.Pool, resPoolHandler.HccErrorStack)
 	return *modelPool, nil
 }
 
@@ -66,11 +66,11 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 		return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 	for _, args := range resPoolList.Pool {
-		tempPool := pbtomodel.PbPoolToModelPool(args, &resPoolList.HccErrorStack)
+		tempPool := pbtomodel.PbPoolToModelPool(args, resPoolList.HccErrorStack)
 		modelPoolList = append(modelPoolList, *tempPool)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resPoolList.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resPoolList.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 
 	return model.PoolList{Pools: modelPoolList, Errors: Errors}, nil
@@ -122,12 +122,12 @@ func GetVolumeList(args map[string]interface{}) (interface{}, error) {
 	}
 	fmt.Println(resGetVolumeList.Volume)
 	for _, args := range resGetVolumeList.Volume {
-		tempVol := pbtomodel.PbVolumeToModelVolume(args, &resGetVolumeList.HccErrorStack)
+		tempVol := pbtomodel.PbVolumeToModelVolume(args, resGetVolumeList.HccErrorStack)
 		modelVolumeList = append(modelVolumeList, *tempVol)
 	}
 	fmt.Println("modelVolumeList", modelVolumeList)
 
-	hccErrStack := errconv.GrpcStackToHcc(&resGetVolumeList.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetVolumeList.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()

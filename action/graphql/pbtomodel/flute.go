@@ -12,7 +12,7 @@ import (
 )
 
 // PbNodeToModelNode : Change node of proto type to model
-func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *[]*pb.HccError) *model.Node {
+func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.Node {
 	var createdAt time.Time
 	if node.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
@@ -57,7 +57,7 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *[]*pb.HccError) *model.No
 }
 
 // PbNodeDetailToModelNodeDetail : Change nodeDetail of proto type to model
-func PbNodeDetailToModelNodeDetail(nodeDetail *pb.NodeDetail, hccGrpcErrStack *[]*pb.HccError) *model.NodeDetail {
+func PbNodeDetailToModelNodeDetail(nodeDetail *pb.NodeDetail, hccGrpcErrStack *pb.HccErrorStack) *model.NodeDetail {
 	modelNodeDetail := &model.NodeDetail{
 		NodeUUID:      nodeDetail.NodeUUID,
 		CPUModel:      nodeDetail.CPUModel,

@@ -87,7 +87,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 
 			return model.Volume{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 		}
-		modelVolume = pbtomodel.PbVolumeToModelVolume(resVolumeHandle.Volume, &resVolumeHandle.HccErrorStack)
+		modelVolume = pbtomodel.PbVolumeToModelVolume(resVolumeHandle.Volume, resVolumeHandle.HccErrorStack)
 
 	} else {
 		err2 := dao.WriteServerAction(

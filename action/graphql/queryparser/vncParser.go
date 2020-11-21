@@ -37,7 +37,7 @@ func ControlVnc(args map[string]interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resControlVNC.HccErrorStack.ErrStack)
+	hccErrStack := errconv.GrpcStackToHcc(resControlVNC.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()

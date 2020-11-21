@@ -12,7 +12,7 @@ import (
 )
 
 // PbSubnetToModelSubnet : Change subnet of proto type to model
-func PbSubnetToModelSubnet(subnet *pb.Subnet, hccGrpcErrStack *[]*pb.HccError) *model.Subnet {
+func PbSubnetToModelSubnet(subnet *pb.Subnet, hccGrpcErrStack *pb.HccErrorStack) *model.Subnet {
 	var createdAt time.Time
 	if subnet.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{

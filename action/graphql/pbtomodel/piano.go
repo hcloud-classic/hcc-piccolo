@@ -8,7 +8,7 @@ import (
 )
 
 // PbMonitoringDataToModelTelegraf : Change monitoringData of proto type to telegraf model
-func PbMonitoringDataToModelTelegraf(monitoringData *pb.MonitoringData, hccGrpcErrStack *[]*pb.HccError) *model.Telegraf {
+func PbMonitoringDataToModelTelegraf(monitoringData *pb.MonitoringData, hccGrpcErrStack *pb.HccErrorStack) *model.Telegraf {
 
 	modelTelegraf := &model.Telegraf{
 		UUID:   monitoringData.Uuid,

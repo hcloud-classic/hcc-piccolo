@@ -24,7 +24,7 @@ func Subnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resGetSubnet.Subnet, &resGetSubnet.HccErrorStack)
+	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resGetSubnet.Subnet, resGetSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
@@ -100,7 +100,7 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 		subnetList = append(subnetList, *modelSubnet)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resListSubnet.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resListSubnet.HccErrorStack)
 
 	return model.SubnetList{Subnets: subnetList, Errors: errconv.HccErrorToPiccoloHccErr(*hccErrStack)}, nil
 }
@@ -123,7 +123,7 @@ func AvailableSubnetList() (interface{}, error) {
 		subnetList = append(subnetList, *modelSubnet)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resListSubnet.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resListSubnet.HccErrorStack)
 
 	return model.SubnetList{Subnets: subnetList, Errors: errconv.HccErrorToPiccoloHccErr(*hccErrStack)}, nil
 }
@@ -138,7 +138,7 @@ func NumSubnet() (interface{}, error) {
 	var modelSubnetNum model.SubnetNum
 	modelSubnetNum.Number = int(resGetSubnetNum.Num)
 
-	hccErrStack := errconv.GrpcStackToHcc(&resGetSubnetNum.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetSubnetNum.HccErrorStack)
 	modelSubnetNum.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(modelSubnetNum.Errors) != 0 && modelSubnetNum.Errors[0].ErrCode == 0 {
 		modelSubnetNum.Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -160,7 +160,7 @@ func GetAdaptiveIPAvailableIPList() (interface{}, error) {
 		adaptiveIPAvailableIPList = append(adaptiveIPAvailableIPList, availableIP)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resGetAdaptiveIPAvailableIPList.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetAdaptiveIPAvailableIPList.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -180,7 +180,7 @@ func GetAdaptiveIPSetting() (interface{}, error) {
 	}
 
 	adaptiveipSetting := resGetAdaptiveIPSetting.AdaptiveipSetting
-	hccErrStack := errconv.GrpcStackToHcc(&resGetAdaptiveIPSetting.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetAdaptiveIPSetting.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -208,7 +208,7 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return model.AdaptiveIPSetting{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resGetAdaptiveIPServer.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetAdaptiveIPServer.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -273,7 +273,7 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		})
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resAdaptiveIPServerList.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resAdaptiveIPServerList.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -294,7 +294,7 @@ func NumAdaptiveIPServer() (interface{}, error) {
 		return model.AdaptiveIPServerNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resGetAdaptiveIPServerNum.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetAdaptiveIPServerNum.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()

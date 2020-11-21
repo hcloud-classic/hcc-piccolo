@@ -69,7 +69,7 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServer := pbtomodel.PbServerToModelServer(resCreateServer.Server, &resCreateServer.HccErrorStack)
+	modelServer := pbtomodel.PbServerToModelServer(resCreateServer.Server, resCreateServer.HccErrorStack)
 
 	err = dao.WriteServerAction(
 		resCreateServer.Server.UUID,
@@ -139,7 +139,7 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServer := pbtomodel.PbServerToModelServer(resUpdateServer.Server, &resUpdateServer.HccErrorStack)
+	modelServer := pbtomodel.PbServerToModelServer(resUpdateServer.Server, resUpdateServer.HccErrorStack)
 
 	return *modelServer, nil
 }
@@ -156,7 +156,7 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServer := pbtomodel.PbServerToModelServer(resDeleteServer.Server, &resDeleteServer.HccErrorStack)
+	modelServer := pbtomodel.PbServerToModelServer(resDeleteServer.Server, resDeleteServer.HccErrorStack)
 
 	// *** We are using ARCHIVE engine for server_actions table ***
 	//err = dao.DeleteServerAction(requestedUUID)
@@ -185,7 +185,7 @@ func CreateServerNode(args map[string]interface{}) (interface{}, error) {
 		return model.ServerNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServerNode := pbtomodel.PbServerNodeToModelServerNode(resCreateServerNode.ServerNode, nil, nil, &resCreateServerNode.HccErrorStack)
+	modelServerNode := pbtomodel.PbServerNodeToModelServerNode(resCreateServerNode.ServerNode, nil, nil, resCreateServerNode.HccErrorStack)
 
 	return *modelServerNode, nil
 }
@@ -202,7 +202,7 @@ func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
 		return model.ServerNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServerNode := pbtomodel.PbServerNodeToModelServerNode(resDeleteServerNode.ServerNode, nil, nil, &resDeleteServerNode.HccErrorStack)
+	modelServerNode := pbtomodel.PbServerNodeToModelServerNode(resDeleteServerNode.ServerNode, nil, nil, resDeleteServerNode.HccErrorStack)
 
 	return *modelServerNode, nil
 }
