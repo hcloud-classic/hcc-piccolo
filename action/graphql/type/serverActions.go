@@ -1,8 +1,7 @@
-package serveractions
+package graphqltype
 
 import (
 	"github.com/graphql-go/graphql"
-	graphqltype "hcc/piccolo/action/graphql/type"
 )
 
 // ServerActionType : Graphql object type of ServerAction
@@ -38,7 +37,7 @@ var ServerActionsType = graphql.NewObject(
 				Type: graphql.NewList(ServerActionType),
 			},
 			"errors": &graphql.Field{
-				Type: graphql.NewList(graphqltype.Errors),
+				Type: graphql.NewList(Errors),
 			},
 		},
 	},
@@ -53,7 +52,7 @@ var ServerActionsNumType = graphql.NewObject(
 				Type: graphql.Int,
 			},
 			"errors": &graphql.Field{
-				Type: graphql.NewList(graphqltype.Errors),
+				Type: graphql.NewList(Errors),
 			},
 		},
 	},

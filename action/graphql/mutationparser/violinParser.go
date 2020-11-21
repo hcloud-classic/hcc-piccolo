@@ -4,8 +4,8 @@ import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
-	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/model"
 
 	"github.com/hcloud-classic/hcc_errors"
@@ -71,7 +71,7 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 
 	modelServer := pbtomodel.PbServerToModelServer(resCreateServer.Server, &resCreateServer.HccErrorStack)
 
-	err = serveractions.WriteServerAction(
+	err = dao.WriteServerAction(
 		resCreateServer.Server.UUID,
 		"violin / create_server",
 		"Success",
@@ -158,10 +158,11 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 
 	modelServer := pbtomodel.PbServerToModelServer(resDeleteServer.Server, &resDeleteServer.HccErrorStack)
 
-	err = serveractions.DeleteServerAction(requestedUUID)
-	if err != nil {
-		logger.Logger.Println(err)
-	}
+	// *** We are using ARCHIVE engine for server_actions table ***
+	//err = dao.DeleteServerAction(requestedUUID)
+	//if err != nil {
+	//	logger.Logger.Println(err)
+	//}
 
 	return *modelServer, nil
 }

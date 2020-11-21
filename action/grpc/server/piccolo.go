@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/hcloud-classic/pb"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
-	"hcc/piccolo/lib/sqlite/serveractions"
 )
 
 type piccoloServer struct {
@@ -28,7 +28,7 @@ func (s *piccoloServer) WriteServerAction(_ context.Context, in *pb.ReqWriteServ
 	errStr := in.ServerAction.GetErrStr()
 	token := in.ServerAction.GetToken()
 
-	err := serveractions.WriteServerAction(in.GetServerUUID(), action, result, errStr, token)
+	err := dao.WriteServerAction(in.GetServerUUID(), action, result, errStr, token)
 	if err != nil {
 		return nil, err
 	}

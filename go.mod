@@ -12,7 +12,6 @@ require (
 	github.com/graphql-go/handler v0.2.3
 	github.com/hcloud-classic/hcc_errors v1.1.3
 	github.com/hcloud-classic/pb v0.0.0
-	github.com/mattn/go-sqlite3 v1.14.4
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect

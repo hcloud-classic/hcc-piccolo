@@ -4,8 +4,8 @@ import (
 	"hcc/piccolo/action/graphql/queryparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
-	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
 
@@ -138,7 +138,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"server_log": &graphql.Field{
-				Type:        serveractions.ServerActionsType,
+				Type:        graphqlType.ServerActionsType,
 				Description: "Get the server's log",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
@@ -157,14 +157,14 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return serveractions.ServerActions{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ServerActions{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piccolo / server_log")
-					return serveractions.ShowServerActions(params.Args)
+					return dao.ShowServerActions(params.Args)
 				},
 			},
 			"num_server_log": &graphql.Field{
-				Type:        serveractions.ServerActionsNumType,
+				Type:        graphqlType.ServerActionsNumType,
 				Description: "Get the number of server's log",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
@@ -177,10 +177,10 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return serveractions.ServerActionsNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ServerActionsNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piccolo / num_server_log")
-					return serveractions.ShowServerActionsNum(params.Args)
+					return dao.ShowServerActionsNum(params.Args)
 				},
 			},
 			// violin
