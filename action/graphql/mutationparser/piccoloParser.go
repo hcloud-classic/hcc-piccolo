@@ -1,8 +1,6 @@
 package mutationparser
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	uuid "github.com/nu7hatch/gouuid"
 	"hcc/piccolo/action/graphql/queryparser"
 	"hcc/piccolo/lib/errors"
@@ -41,10 +39,6 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	}
 	UUID := out.String()
 
-	hash := sha256.New()
-	hash.Write([]byte(password))
-	hashPassword := hex.EncodeToString(hash.Sum(nil))
-
 	user := model.User{
 		UUID:  UUID,
 		ID:    id,
@@ -60,7 +54,7 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	defer func() {
 		_ = stmt.Close()
 	}()
-	_, err = stmt.Exec(user.UUID, user.ID, hashPassword, user.Name, user.Email)
+	_, err = stmt.Exec(user.UUID, user.ID, password, user.Name, user.Email)
 	if err != nil {
 		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
