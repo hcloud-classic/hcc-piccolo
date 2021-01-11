@@ -1,12 +1,14 @@
 package graphql
 
 import (
-	"github.com/graphql-go/graphql"
 	graphqlType "hcc/piccolo/action/graphql/type"
-	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
+
+	"github.com/graphql-go/graphql"
+	"github.com/hcloud-classic/hcc_errors"
 )
 
 var subscriptionTypes = graphql.NewObject(
@@ -25,7 +27,7 @@ var subscriptionTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.Telegraf{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.Telegraf{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Subscription: piano / telegraf")
 					return model.Telegraf{}, nil

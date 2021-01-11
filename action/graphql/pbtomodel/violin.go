@@ -1,19 +1,18 @@
 package pbtomodel
 
 import (
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"hcc/piccolo/action/grpc/errconv"
-	"hcc/piccolo/action/grpc/pb/rpcflute"
-	"hcc/piccolo/action/grpc/pb/rpcmsgType"
-	"hcc/piccolo/action/grpc/pb/rpcviolin"
-	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
 	"time"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/hcloud-classic/hcc_errors"
+	"github.com/hcloud-classic/pb"
 )
 
 // PbServerToModelServer : Change server of proto type to model
-func PbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Server {
+func PbServerToModelServer(server *pb.Server, hccGrpcErrStack *[]*pb.HccError) *model.Server {
 	var createdAt time.Time
 	if server.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
@@ -25,7 +24,7 @@ func PbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgT
 
 		createdAt, err = ptypes.Timestamp(server.CreatedAt)
 		if err != nil {
-			return &model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+			return &model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
 		}
 	}
 
@@ -45,9 +44,9 @@ func PbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgT
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelServer.Errors = *hccErrStack.ConvertReportForm()
+		modelServer.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 		if len(modelServer.Errors) != 0 && modelServer.Errors[0].ErrCode == 0 {
-			modelServer.Errors = errors.ReturnHccEmptyErrorPiccolo()
+			modelServer.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 		}
 	}
 
@@ -55,8 +54,8 @@ func PbServerToModelServer(server *rpcviolin.Server, hccGrpcErrStack *[]*rpcmsgT
 }
 
 // PbServerNodeToModelServerNode : Change serverNode of proto type to model
-func PbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, node *rpcflute.Node,
-	nodeDetail *rpcflute.NodeDetail, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.ServerNode {
+func PbServerNodeToModelServerNode(serverNode *pb.ServerNode, node *pb.Node,
+	nodeDetail *pb.NodeDetail, hccGrpcErrStack *[]*pb.HccError) *model.ServerNode {
 	var createdAt time.Time
 	if serverNode.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
@@ -68,7 +67,7 @@ func PbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, node *rpcfl
 
 		createdAt, err = ptypes.Timestamp(serverNode.CreatedAt)
 		if err != nil {
-			return &model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+			return &model.ServerNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
 		}
 	}
 
@@ -78,7 +77,7 @@ func PbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, node *rpcfl
 		NodeUUID:   serverNode.NodeUUID,
 		CPUModel:   nodeDetail.CPUModel,
 		CreatedAt:  createdAt,
-		Errors:     *errors.NewHccErrorStack(),
+		Errors:     errconv.HccErrorToPiccoloHccErr(*hcc_errors.NewHccErrorStack()),
 	}
 
 	if node != nil {
@@ -94,9 +93,9 @@ func PbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode, node *rpcfl
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelServerNode.Errors = *hccErrStack.ConvertReportForm()
+		modelServerNode.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 		if len(modelServerNode.Errors) != 0 && modelServerNode.Errors[0].ErrCode == 0 {
-			modelServerNode.Errors = errors.ReturnHccEmptyErrorPiccolo()
+			modelServerNode.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 		}
 	}
 

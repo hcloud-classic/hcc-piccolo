@@ -1,8 +1,8 @@
 package mysql
 
 import (
+	"github.com/hcloud-classic/hcc_errors"
 	"hcc/piccolo/lib/config"
-	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
 	"testing"
 )
@@ -10,10 +10,10 @@ import (
 func Test_DB_Prepare(t *testing.T) {
 	err := logger.Init()
 	if err != nil {
-		errors.SetErrLogger(logger.Logger)
-		errors.NewHccError(errors.PiccoloInternalInitFail, "logger.Init(): "+err.Error()).Fatal()
+		hcc_errors.SetErrLogger(logger.Logger)
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "logger.Init(): "+err.Error()).Fatal()
 	}
-	errors.SetErrLogger(logger.Logger)
+	hcc_errors.SetErrLogger(logger.Logger)
 
 	defer func() {
 		logger.End()

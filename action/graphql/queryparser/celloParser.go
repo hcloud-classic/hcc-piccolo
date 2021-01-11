@@ -5,9 +5,10 @@ import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
-	"hcc/piccolo/action/grpc/pb/rpccello"
-	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
+
+	"github.com/hcloud-classic/hcc_errors"
+	"github.com/hcloud-classic/pb"
 )
 
 // PoolHandler : Handler of zfs pool
@@ -21,8 +22,8 @@ func PoolHandler(args map[string]interface{}) (interface{}, error) {
 	// Name, NameOk := args["name"].(string)
 	Action, ActionOk := args["action"].(string)
 
-	var reqPoolHandler rpccello.ReqPoolHandler
-	var reqPool rpccello.Pool
+	var reqPoolHandler pb.ReqPoolHandler
+	var reqPool pb.Pool
 	reqPoolHandler.Pool = &reqPool
 
 	if ActionOk {
@@ -31,7 +32,7 @@ func PoolHandler(args map[string]interface{}) (interface{}, error) {
 
 	resPoolHandler, err := client.RC.PoolHandler(&reqPoolHandler)
 	if err != nil {
-		return model.Pool{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.Pool{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelPool := pbtomodel.PbPoolToModelPool(resPoolHandler.Pool, &resPoolHandler.HccErrorStack)
@@ -50,8 +51,8 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 	Action, ActionOk := args["action"].(string)
 
 	var modelPoolList []model.Pool
-	var reqGetPoolList rpccello.ReqGetPoolList
-	var reqPool rpccello.Pool
+	var reqGetPoolList pb.ReqGetPoolList
+	var reqPool pb.Pool
 	reqGetPoolList.Pool = &reqPool
 
 	if ActionOk {
@@ -62,7 +63,7 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 
 	resPoolList, err := client.RC.GetPoolList(&reqGetPoolList)
 	if err != nil {
-		return model.PoolList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 	for _, args := range resPoolList.Pool {
 		tempPool := pbtomodel.PbPoolToModelPool(args, &resPoolList.HccErrorStack)
@@ -70,7 +71,7 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(&resPoolList.HccErrorStack)
-	Errors := *hccErrStack.ConvertReportForm()
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 
 	return model.PoolList{Pools: modelPoolList, Errors: Errors}, nil
 }
@@ -87,8 +88,8 @@ func GetVolumeList(args map[string]interface{}) (interface{}, error) {
 	Action, ActionOk := args["action"].(string)
 	Row, RowOk := args["row"].(int)
 	Page, PageOk := args["page"].(int)
-	var reqVolumeListHandler rpccello.ReqGetVolumeList
-	var reqVolumeList rpccello.Volume
+	var reqVolumeListHandler pb.ReqGetVolumeList
+	var reqVolumeList pb.Volume
 	var modelVolumeList []model.Volume
 	reqVolumeListHandler.Volume = &reqVolumeList
 
@@ -117,7 +118,7 @@ func GetVolumeList(args map[string]interface{}) (interface{}, error) {
 
 	resGetVolumeList, err := client.RC.GetVolumeList(&reqVolumeListHandler)
 	if err != nil {
-		return model.VolumeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.VolumeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 	fmt.Println(resGetVolumeList.Volume)
 	for _, args := range resGetVolumeList.Volume {
@@ -127,9 +128,9 @@ func GetVolumeList(args map[string]interface{}) (interface{}, error) {
 	fmt.Println("modelVolumeList", modelVolumeList)
 
 	hccErrStack := errconv.GrpcStackToHcc(&resGetVolumeList.HccErrorStack)
-	Errors := *hccErrStack.ConvertReportForm()
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
-		Errors = errors.ReturnHccEmptyErrorPiccolo()
+		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 	return model.VolumeList{Volumes: modelVolumeList, Errors: Errors}, nil
 }

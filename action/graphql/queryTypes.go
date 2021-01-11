@@ -3,11 +3,13 @@ package graphql
 import (
 	"hcc/piccolo/action/graphql/queryparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
-	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
+
+	"github.com/hcloud-classic/hcc_errors"
 
 	"github.com/graphql-go/graphql"
 )
@@ -50,7 +52,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piccolo / user")
 					return queryparser.User(params.Args)
@@ -82,7 +84,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.UserList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piccolo / list_user")
 					return queryparser.UserList(params.Args)
@@ -99,7 +101,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.UserNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.UserNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piccolo / num_user")
 					return queryparser.NumUser()
@@ -129,7 +131,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.ResourceUsage{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piccolo / resource_usage")
 					return queryparser.ResourceUsage()
@@ -155,7 +157,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return serveractions.ServerActions{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return serveractions.ServerActions{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piccolo / server_log")
 					return serveractions.ShowServerActions(params.Args)
@@ -175,7 +177,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return serveractions.ServerActionsNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return serveractions.ServerActionsNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piccolo / num_server_log")
 					return serveractions.ShowServerActionsNum(params.Args)
@@ -196,7 +198,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: violin / server")
 					return queryparser.Server(params.Args)
@@ -249,7 +251,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.ServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: violin / list_server")
 					return queryparser.ListServer(params.Args)
@@ -272,7 +274,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.ServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: violin / all_server")
 					return queryparser.AllServer(params.Args)
@@ -289,7 +291,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.ServerNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ServerNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: violin / num_server")
 					return queryparser.NumServer()
@@ -309,7 +311,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ServerNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: violin / server_node")
 					return queryparser.ServerNode(params.Args)
@@ -329,7 +331,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ServerNodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: violin / list_server_node")
 					return queryparser.ListServerNode(params.Args)
@@ -349,7 +351,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ServerNodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: violin / all_server_node")
 					return queryparser.AllServerNode(params.Args)
@@ -369,7 +371,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.ServerNodeNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.ServerNodeNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: violin / num_nodes_server")
 					return queryparser.NumServerNode(params.Args)
@@ -393,7 +395,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.VncPort{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.VncPort{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: violin-novnc: control_vnc")
 					return queryparser.ControlVnc(params.Args)
@@ -414,7 +416,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / subnet")
 					return queryparser.Subnet(params.Args)
@@ -470,7 +472,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / list_subnet")
 					return queryparser.ListSubnet(params.Args)
@@ -493,7 +495,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / all_subnet")
 					return queryparser.AllSubnet(params.Args)
@@ -510,7 +512,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / available_subnet")
 					return queryparser.AvailableSubnetList()
@@ -527,7 +529,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.SubnetNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.SubnetNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / num_subnet")
 					return queryparser.NumSubnet()
@@ -544,7 +546,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.AdaptiveIPAvailableIPList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.AdaptiveIPAvailableIPList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / adaptiveip_available_ip_list")
 					return queryparser.GetAdaptiveIPAvailableIPList()
@@ -561,7 +563,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.AdaptiveIPSetting{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.AdaptiveIPSetting{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / adaptiveip_setting")
 					return queryparser.GetAdaptiveIPSetting()
@@ -581,7 +583,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / adaptiveip_server")
 					return queryparser.AdaptiveIPServer(params.Args)
@@ -610,7 +612,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.AdaptiveIPServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / list_adaptiveip_server")
 					return queryparser.ListAdaptiveIPServer(params.Args)
@@ -633,7 +635,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.AdaptiveIPServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / all_adaptiveip_server")
 					return queryparser.AllAdaptiveIPServer(params.Args)
@@ -650,7 +652,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.AdaptiveIPServerNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.AdaptiveIPServerNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: harp / num_adaptiveip_server")
 					return queryparser.NumAdaptiveIPServer()
@@ -671,7 +673,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.PowerStateNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.PowerStateNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: power_state_node")
 					return queryparser.PowerStateNode(params.Args)
@@ -691,7 +693,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: flute / node")
 					return queryparser.Node(params.Args)
@@ -747,7 +749,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.NodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: flute / list_node")
 					return queryparser.ListNode(params.Args)
@@ -773,7 +775,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.NodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: flute / all_node")
 					return queryparser.AllNode(params.Args)
@@ -790,7 +792,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.NodeNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.NodeNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: flute / num_node")
 					return queryparser.NumNode()
@@ -810,7 +812,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: flute / node_detail")
 					return queryparser.NodeDetail(params.Args)
@@ -858,7 +860,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.Telegraf{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.Telegraf{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: piano / telegraf")
 					telegraf, err := queryparser.Telegraf(params.Args)
@@ -892,7 +894,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: cello / volume_list")
 					return queryparser.GetVolumeList(params.Args)
@@ -922,7 +924,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
-						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					logger.Logger.Println("Resolving: cello / pool_list")
 					return queryparser.GetPoolList(params.Args)

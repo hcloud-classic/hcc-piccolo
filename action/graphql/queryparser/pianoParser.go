@@ -3,9 +3,11 @@ package queryparser
 import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
-	"hcc/piccolo/action/grpc/pb/rpcpiano"
-	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
+
+	"github.com/hcloud-classic/hcc_errors"
+	"github.com/hcloud-classic/pb"
 )
 
 func checkTelegrafArgsAll(args map[string]interface{}) bool {
@@ -32,8 +34,8 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 	orderBy, _ := args["orderBy"].(string)
 	limit, _ := args["limit"].(string)
 
-	resMonitoringData, err := client.RC.Telegraph(&rpcpiano.ReqMetricInfo{
-		MetricInfo: &rpcpiano.MetricInfo{
+	resMonitoringData, err := client.RC.Telegraph(&pb.ReqMetricInfo{
+		MetricInfo: &pb.MetricInfo{
 			Uuid:        uuid,
 			Metric:      metric,
 			SubMetric:   subMetric,
@@ -47,7 +49,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 		},
 	})
 	if err != nil {
-		return model.Telegraf{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		return model.Telegraf{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	modelTelegraf := pbtomodel.PbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData, &resMonitoringData.HccErrorStack)

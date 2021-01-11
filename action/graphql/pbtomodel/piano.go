@@ -2,14 +2,13 @@ package pbtomodel
 
 import (
 	"hcc/piccolo/action/grpc/errconv"
-	"hcc/piccolo/action/grpc/pb/rpcmsgType"
-	"hcc/piccolo/action/grpc/pb/rpcpiano"
-	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
+
+	"github.com/hcloud-classic/pb"
 )
 
 // PbMonitoringDataToModelTelegraf : Change monitoringData of proto type to telegraf model
-func PbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData, hccGrpcErrStack *[]*rpcmsgType.HccError) *model.Telegraf {
+func PbMonitoringDataToModelTelegraf(monitoringData *pb.MonitoringData, hccGrpcErrStack *[]*pb.HccError) *model.Telegraf {
 
 	modelTelegraf := &model.Telegraf{
 		UUID:   monitoringData.Uuid,
@@ -18,12 +17,12 @@ func PbMonitoringDataToModelTelegraf(monitoringData *rpcpiano.MonitoringData, hc
 
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)
-		modelTelegraf.Errors = *hccErrStack.ConvertReportForm()
+		modelTelegraf.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 		if len(modelTelegraf.Errors) != 0 && modelTelegraf.Errors[0].ErrCode == 0 {
-			modelTelegraf.Errors = errors.ReturnHccEmptyErrorPiccolo()
+			modelTelegraf.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 		}
 	} else {
-		modelTelegraf.Errors = errors.ReturnHccEmptyErrorPiccolo()
+		modelTelegraf.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
 	return modelTelegraf

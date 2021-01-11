@@ -1,13 +1,15 @@
 package mutationparser
 
 import (
-	uuid "github.com/nu7hatch/gouuid"
 	"hcc/piccolo/action/graphql/queryparser"
-	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
 	"strings"
+
+	"github.com/hcloud-classic/hcc_errors"
+	uuid "github.com/nu7hatch/gouuid"
 )
 
 // SignUp : Do user sign up process
@@ -18,24 +20,24 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	email, emailOk := args["email"].(string)
 
 	if !idOk || !passwordOk || !nameOk || !emailOk {
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need id and password, name, email arguments")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and password, name, email arguments")}, nil
 	}
 
 	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
 		logger.Logger.Println("SignUp(): Someone tried to sign up with one of administrative ID.")
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLUserExist, "Hey, hey you! Yeah, you.")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLUserExist, "Hey, hey you! Yeah, you.")}, nil
 	}
 
 	sql := "select id from user where id = ?"
 	row := mysql.Db.QueryRow(sql, id)
 	err := mysql.QueryRowScan(row, &id)
 	if err == nil {
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLUserExist, "Provided ID is in use")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLUserExist, "Provided ID is in use")}, nil
 	}
 
 	out, err := uuid.NewV4()
 	if err != nil {
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloInternalUUIDGenerationError, err.Error())}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloInternalUUIDGenerationError, err.Error())}, nil
 	}
 	UUID := out.String()
 
@@ -49,17 +51,17 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	sql = "insert into user(uuid, id, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, now(), now())"
 	stmt, err := mysql.Prepare(sql)
 	if err != nil {
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLPrepareError, err.Error())}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, err.Error())}, nil
 	}
 	defer func() {
 		_ = stmt.Close()
 	}()
 	_, err = stmt.Exec(user.UUID, user.ID, password, user.Name, user.Email)
 	if err != nil {
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
-	user.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	user.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 
 	return &user, nil
 }
@@ -69,17 +71,17 @@ func Unregister(args map[string]interface{}) (interface{}, error) {
 	id, idOk := args["id"].(string)
 
 	if !idOk {
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a id argument")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a id argument")}, nil
 	}
 
 	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
 		logger.Logger.Println("Unregister(): Someone tried to unregister one of administrative ID.")
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLUserExist, "You can't delete administrative IDs")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLUserExist, "You can't delete administrative IDs")}, nil
 	}
 
 	user, _ := queryparser.User(args)
 	if len(user.(model.User).Errors) != 0 && user.(model.User).Errors[0].ErrCode != 0 {
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, "user not found")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "user not found")}, nil
 	}
 
 	sql := "delete from user where id = ?"
@@ -87,7 +89,7 @@ func Unregister(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		errStr := "Unregister(): " + err.Error()
 		logger.Logger.Println(errStr)
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, errStr)}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, errStr)}, nil
 	}
 	defer func() {
 		_ = stmt.Close()
@@ -96,8 +98,8 @@ func Unregister(args map[string]interface{}) (interface{}, error) {
 	if err2 != nil {
 		errStr := "Unregister(): " + err2.Error()
 		logger.Logger.Println(errStr)
-		return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloMySQLExecuteError, errStr)}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, errStr)}, nil
 	}
 
-	return model.User{ID: id, Errors: errors.ReturnHccEmptyErrorPiccolo()}, nil
+	return model.User{ID: id, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }

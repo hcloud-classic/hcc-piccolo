@@ -1,7 +1,7 @@
 package model
 
 import (
-	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/action/grpc/errconv"
 )
 
 // Resource : Contain infos of resources
@@ -14,7 +14,7 @@ type Resource struct {
 
 // ResourceUsage : Contain usage info of resources
 type ResourceUsage struct {
-	Total  Resource          `json:"total"`
-	InUse  Resource          `json:"in_use"`
-	Errors []errors.HccError `json:"errors"`
+	Total  Resource              `json:"total"`
+	InUse  Resource              `json:"in_use"`
+	Errors []errconv.PiccoloHccError `json:"errors"`
 }

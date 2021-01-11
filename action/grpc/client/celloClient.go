@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"hcc/piccolo/action/grpc/pb/rpccello"
+	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"strconv"
@@ -22,7 +22,7 @@ func initCello() error {
 		return err
 	}
 
-	RC.cello = rpccello.NewCelloClient(celloConn)
+	RC.cello = pb.NewCelloClient(celloConn)
 	logger.Logger.Println("gRPC violin client ready")
 
 	return nil
@@ -33,7 +33,7 @@ func closeCello() {
 }
 
 // VolumeHandler : VolumeHandler
-func (rc *RPCClient) VolumeHandler(in *rpccello.ReqVolumeHandler) (*rpccello.ResVolumeHandler, error) {
+func (rc *RPCClient) VolumeHandler(in *pb.ReqVolumeHandler) (*pb.ResVolumeHandler, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
@@ -46,7 +46,7 @@ func (rc *RPCClient) VolumeHandler(in *rpccello.ReqVolumeHandler) (*rpccello.Res
 }
 
 // PoolHandler : PoolHandler
-func (rc *RPCClient) PoolHandler(in *rpccello.ReqPoolHandler) (*rpccello.ResPoolHandler, error) {
+func (rc *RPCClient) PoolHandler(in *pb.ReqPoolHandler) (*pb.ResPoolHandler, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
@@ -59,7 +59,7 @@ func (rc *RPCClient) PoolHandler(in *rpccello.ReqPoolHandler) (*rpccello.ResPool
 }
 
 // GetPoolList : GetPoolList
-func (rc *RPCClient) GetPoolList(in *rpccello.ReqGetPoolList) (*rpccello.ResGetPoolList, error) {
+func (rc *RPCClient) GetPoolList(in *pb.ReqGetPoolList) (*pb.ResGetPoolList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
@@ -72,7 +72,7 @@ func (rc *RPCClient) GetPoolList(in *rpccello.ReqGetPoolList) (*rpccello.ResGetP
 }
 
 // GetVolumeList : GetVolumeList
-func (rc *RPCClient) GetVolumeList(in *rpccello.ReqGetVolumeList) (*rpccello.ResGetVolumeList, error) {
+func (rc *RPCClient) GetVolumeList(in *pb.ReqGetVolumeList) (*pb.ResGetVolumeList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()

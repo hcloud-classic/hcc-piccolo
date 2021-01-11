@@ -3,13 +3,15 @@ package serveractions
 import (
 	"database/sql"
 	"errors"
-	_ "github.com/mattn/go-sqlite3" // Needed for use sqlite3
-	hccerr "hcc/piccolo/lib/errors"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/usertool"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/hcloud-classic/hcc_errors"
+	_ "github.com/mattn/go-sqlite3" // Needed for use sqlite3
 )
 
 func dbPath() string {
@@ -99,7 +101,7 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
-		return ServerActions{ServerActions: actions, Errors: hccerr.ReturnHccErrorPiccolo(hccerr.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
+		return ServerActions{ServerActions: actions, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
 	var isLimit bool
@@ -110,7 +112,7 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 	} else if rowOk && pageOk {
 		isLimit = true
 	} else {
-		return ServerActions{ServerActions: actions, Errors: hccerr.ReturnHccErrorPiccolo(hccerr.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
+		return ServerActions{ServerActions: actions, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
 	}
 
 	var action string
@@ -163,16 +165,16 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 	_ = rows.Close()
 
 	serverActions.ServerActions = actions
-	serverActions.Errors = hccerr.ReturnHccEmptyErrorPiccolo()
+	serverActions.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 
 	return serverActions, nil
 
 ERROR:
 	serverActions.ServerActions = actions
 	if err != nil {
-		serverActions.Errors = hccerr.ReturnHccErrorPiccolo(hccerr.PiccoloInternalInitFail, err.Error())
+		serverActions.Errors = errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloInternalInitFail, err.Error())
 	} else {
-		serverActions.Errors = hccerr.ReturnHccEmptyErrorPiccolo()
+		serverActions.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
 	return serverActions, nil
@@ -186,7 +188,7 @@ func ShowServerActionsNum(args map[string]interface{}) (interface{}, error) {
 
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
-		return ServerActionsNum{Number: 0, Errors: hccerr.ReturnHccErrorPiccolo(hccerr.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
+		return ServerActionsNum{Number: 0, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
 	var db *sql.DB
@@ -211,16 +213,16 @@ func ShowServerActionsNum(args map[string]interface{}) (interface{}, error) {
 	}
 
 	serverActionsNum.Number = int(serverActionsNr)
-	serverActionsNum.Errors = hccerr.ReturnHccEmptyErrorPiccolo()
+	serverActionsNum.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 
 	return serverActionsNum, nil
 
 ERROR:
 	serverActionsNum.Number = 0
 	if err != nil {
-		serverActionsNum.Errors = hccerr.ReturnHccErrorPiccolo(hccerr.PiccoloInternalInitFail, err.Error())
+		serverActionsNum.Errors = errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloInternalInitFail, err.Error())
 	} else {
-		serverActionsNum.Errors = hccerr.ReturnHccEmptyErrorPiccolo()
+		serverActionsNum.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
 	return serverActionsNum, nil

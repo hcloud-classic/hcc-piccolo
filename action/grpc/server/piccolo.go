@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"errors"
-	pb "hcc/piccolo/action/grpc/pb/rpcpiccolo"
+	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/sqlite/serveractions"
 )
