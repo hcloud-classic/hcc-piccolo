@@ -14,7 +14,7 @@ type Resource struct {
 
 // ResourceUsage : Contain usage info of resources
 type ResourceUsage struct {
-	Total  Resource              `json:"total"`
-	InUse  Resource              `json:"in_use"`
+	Total  Resource                  `json:"total"`
+	InUse  Resource                  `json:"in_use"`
 	Errors []errconv.PiccoloHccError `json:"errors"`
 }
