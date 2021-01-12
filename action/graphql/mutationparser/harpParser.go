@@ -4,8 +4,8 @@ import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
-	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/model"
 
 	"github.com/hcloud-classic/hcc_errors"
@@ -216,7 +216,7 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		result = "Failed"
 	}
 
-	err = serveractions.WriteServerAction(
+	err = dao.WriteServerAction(
 		serverUUID,
 		"harp / create_adaptiveip_server",
 		result,
@@ -269,7 +269,7 @@ func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		result = "Failed"
 	}
 
-	err = serveractions.WriteServerAction(
+	err = dao.WriteServerAction(
 		requestedUUID,
 		"harp / delete_adaptiveip_server",
 		result,

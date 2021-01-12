@@ -4,8 +4,8 @@ import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
-	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/model"
 	"strconv"
 
@@ -75,7 +75,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 	if reqVolumeHandle.Volume.Action != "" {
 		resVolumeHandle, err := client.RC.VolumeHandler(&reqVolumeHandle)
 		if err != nil {
-			err2 := serveractions.WriteServerAction(
+			err2 := dao.WriteServerAction(
 				serverUUID,
 				"cello / volume_handle (action: "+action+")",
 				"Failed",
@@ -90,7 +90,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 		modelVolume = pbtomodel.PbVolumeToModelVolume(resVolumeHandle.Volume, &resVolumeHandle.HccErrorStack)
 
 	} else {
-		err2 := serveractions.WriteServerAction(
+		err2 := dao.WriteServerAction(
 			serverUUID,
 			"cello / volume_handle (action: "+action+")",
 			"Failed",
@@ -117,7 +117,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 		result = "Failed"
 	}
 
-	err := serveractions.WriteServerAction(
+	err := dao.WriteServerAction(
 		serverUUID,
 		"cello / volume_handle (action: "+action+")",
 		result,
