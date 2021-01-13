@@ -56,7 +56,7 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resCreateSubnet.Subnet, &resCreateSubnet.HccErrorStack)
+	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resCreateSubnet.Subnet, resCreateSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
@@ -119,7 +119,7 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resUpdateSubnet.Subnet, &resUpdateSubnet.HccErrorStack)
+	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resUpdateSubnet.Subnet, resUpdateSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
@@ -136,7 +136,7 @@ func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resDeleteSubnet.Subnet, &resDeleteSubnet.HccErrorStack)
+	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resDeleteSubnet.Subnet, resDeleteSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
@@ -154,7 +154,7 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 		return model.CreateDHCPConfResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resCreateDHCPDConfig.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resCreateDHCPDConfig.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -183,7 +183,7 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resCreateadAptiveIPServer.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resCreateadAptiveIPServer.HccErrorStack)
 
 	resAdaptiveIPServer := resCreateadAptiveIPServer.AdaptiveipServer
 	adaptiveIPServer := model.AdaptiveIPServer{
@@ -248,7 +248,7 @@ func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	var success bool
 	var errStr = ""
 
-	hccErrStack := errconv.GrpcStackToHcc(&resDeleteAdaptiveIPServer.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resDeleteAdaptiveIPServer.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 {
 		if Errors[0].ErrCode == 0 {
@@ -318,7 +318,7 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 
 	adaptiveipSetting := resCreateAdaptiveIPSetting.AdaptiveipSetting
 
-	hccErrStack := errconv.GrpcStackToHcc(&resCreateAdaptiveIPSetting.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resCreateAdaptiveIPSetting.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()

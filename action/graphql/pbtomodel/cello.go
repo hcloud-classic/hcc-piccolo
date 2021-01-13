@@ -15,7 +15,7 @@ import (
 )
 
 // PbVolumeToModelVolume : Change volume of proto type to model
-func PbVolumeToModelVolume(volume *pb.Volume, hccGrpcErrStack *[]*pb.HccError) *model.Volume {
+func PbVolumeToModelVolume(volume *pb.Volume, hccGrpcErrStack *pb.HccErrorStack) *model.Volume {
 	var createdAt time.Time
 	if volume.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
@@ -57,7 +57,7 @@ func PbVolumeToModelVolume(volume *pb.Volume, hccGrpcErrStack *[]*pb.HccError) *
 }
 
 // PbPoolToModelPool : Change volume of proto type to model
-func PbPoolToModelPool(pool *pb.Pool, hccGrpcErrStack *[]*pb.HccError) *model.Pool {
+func PbPoolToModelPool(pool *pb.Pool, hccGrpcErrStack *pb.HccErrorStack) *model.Pool {
 
 	modelPool := &model.Pool{
 		UUID:          pool.UUID,

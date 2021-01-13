@@ -52,7 +52,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 		return model.Telegraf{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelTelegraf := pbtomodel.PbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData, &resMonitoringData.HccErrorStack)
+	modelTelegraf := pbtomodel.PbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData, resMonitoringData.HccErrorStack)
 
 	return *modelTelegraf, nil
 }

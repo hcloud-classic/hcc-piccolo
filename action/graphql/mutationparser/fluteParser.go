@@ -28,7 +28,7 @@ func OnNode(args map[string]interface{}) (interface{}, error) {
 		return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resNodePowerControl.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -60,7 +60,7 @@ func OffNode(args map[string]interface{}) (interface{}, error) {
 		return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resNodePowerControl.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -91,7 +91,7 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 		return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerControl.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resNodePowerControl.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -121,7 +121,7 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelNode := pbtomodel.PbNodeToModelNode(resCreateNode.Node, &resCreateNode.HccErrorStack)
+	modelNode := pbtomodel.PbNodeToModelNode(resCreateNode.Node, resCreateNode.HccErrorStack)
 
 	return *modelNode, nil
 }
@@ -185,7 +185,7 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelNode := pbtomodel.PbNodeToModelNode(resUpdateNode.Node, &resUpdateNode.HccErrorStack)
+	modelNode := pbtomodel.PbNodeToModelNode(resUpdateNode.Node, resUpdateNode.HccErrorStack)
 
 	return *modelNode, nil
 }
@@ -202,7 +202,7 @@ func DeleteNode(args map[string]interface{}) (interface{}, error) {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelNode := pbtomodel.PbNodeToModelNode(resDeleteNode.Node, &resDeleteNode.HccErrorStack)
+	modelNode := pbtomodel.PbNodeToModelNode(resDeleteNode.Node, resDeleteNode.HccErrorStack)
 
 	return *modelNode, nil
 }
@@ -236,7 +236,7 @@ func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resCreateNodeDetail.NodeDetail, &resCreateNodeDetail.HccErrorStack)
+	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resCreateNodeDetail.NodeDetail, resCreateNodeDetail.HccErrorStack)
 
 	return *modelNodeDetail, nil
 }
@@ -253,7 +253,7 @@ func DeleteNodeDetail(args map[string]interface{}) (interface{}, error) {
 		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resDeleteNodeDetail.NodeDetail, &resDeleteNodeDetail.HccErrorStack)
+	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resDeleteNodeDetail.NodeDetail, resDeleteNodeDetail.HccErrorStack)
 
 	return *modelNodeDetail, nil
 }

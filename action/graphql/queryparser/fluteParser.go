@@ -23,7 +23,7 @@ func PowerStateNode(args map[string]interface{}) (interface{}, error) {
 		return model.PowerStateNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resNodePowerState.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resNodePowerState.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -44,7 +44,7 @@ func Node(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
-	modelNode := pbtomodel.PbNodeToModelNode(resGetNode.Node, &resGetNode.HccErrorStack)
+	modelNode := pbtomodel.PbNodeToModelNode(resGetNode.Node, resGetNode.HccErrorStack)
 
 	return *modelNode, nil
 }
@@ -119,7 +119,7 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 		nodeList = append(nodeList, *modelNode)
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeList.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetNodeList.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -143,7 +143,7 @@ func NumNode() (interface{}, error) {
 	var modelNodeNum model.NodeNum
 	modelNodeNum.Number = int(resGetNodeNum.Num)
 
-	hccErrStack := errconv.GrpcStackToHcc(&resGetNodeNum.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetNodeNum.HccErrorStack)
 	modelNodeNum.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(modelNodeNum.Errors) != 0 && modelNodeNum.Errors[0].ErrCode == 0 {
 		modelNodeNum.Errors = errconv.ReturnHccEmptyErrorPiccolo()
@@ -164,7 +164,7 @@ func NodeDetail(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resGetNodeDetail.NodeDetail, &resGetNodeDetail.HccErrorStack)
+	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resGetNodeDetail.NodeDetail, resGetNodeDetail.HccErrorStack)
 
 	return *modelNodeDetail, nil
 }

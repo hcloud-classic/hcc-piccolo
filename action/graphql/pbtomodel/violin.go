@@ -12,7 +12,7 @@ import (
 )
 
 // PbServerToModelServer : Change server of proto type to model
-func PbServerToModelServer(server *pb.Server, hccGrpcErrStack *[]*pb.HccError) *model.Server {
+func PbServerToModelServer(server *pb.Server, hccGrpcErrStack *pb.HccErrorStack) *model.Server {
 	var createdAt time.Time
 	if server.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
@@ -55,7 +55,7 @@ func PbServerToModelServer(server *pb.Server, hccGrpcErrStack *[]*pb.HccError) *
 
 // PbServerNodeToModelServerNode : Change serverNode of proto type to model
 func PbServerNodeToModelServerNode(serverNode *pb.ServerNode, node *pb.Node,
-	nodeDetail *pb.NodeDetail, hccGrpcErrStack *[]*pb.HccError) *model.ServerNode {
+	nodeDetail *pb.NodeDetail, hccGrpcErrStack *pb.HccErrorStack) *model.ServerNode {
 	var createdAt time.Time
 	if serverNode.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
