@@ -1,0 +1,45 @@
+#!/bin/bash
+
+INITD_PATH="/etc/init.d/"
+ARGS="status"
+
+STORAGE_NODE_IP_ADDRESS="172.19.0.1"
+CELLO_PORT="7200"
+
+if [ $EUID != 0 ]; then
+  echo "[*] Please run as root"
+  exit
+fi
+
+echo "[*] Checking HCC modules..."
+echo ""
+$INITD_PATH/flute $ARGS
+$INITD_PATH/harp $ARGS
+$INITD_PATH/violin $ARGS
+$INITD_PATH/violin_scheduler $ARGS
+$INITD_PATH/violin_novnc $ARGS
+$INITD_PATH/piano $ARGS
+echo ""
+
+echo ""
+echo "[*] Checking piccolo module..."
+echo ""
+$INITD_PATH/piccolo $ARGS
+
+echo ""
+echo "[*] Pinging Storage Node..."
+if ping $STORAGE_NODE_IP_ADDRESS -c 1 -w 1 | grep -qw "100% packet loss"; then
+  echo "> Storage node seems dead"
+else
+  echo "> Storage node is alive"
+
+  echo ""
+  echo "[*] Checking cello is alive..."
+  if nmap -p $CELLO_PORT $STORAGE_NODE_IP_ADDRESS --host-timeout 1 | grep $CELLO_PORT/tcp | grep -qw open ; then
+    echo "> cello is alive"
+  else
+    echo "> cello seems dead"
+  fi
+fi
+
+exit 0
