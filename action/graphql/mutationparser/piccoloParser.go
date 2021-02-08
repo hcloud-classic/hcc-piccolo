@@ -25,14 +25,14 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 
 	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
 		logger.Logger.Println("SignUp(): Someone tried to sign up with one of administrative ID.")
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLUserExist, "Hey, hey you! Yeah, you.")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Hey, you can't be the administrator!")}, nil
 	}
 
 	sql := "select id from user where id = ?"
 	row := mysql.Db.QueryRow(sql, id)
 	err := mysql.QueryRowScan(row, &id)
 	if err == nil {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLUserExist, "Provided ID is in use")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided ID is in use")}, nil
 	}
 
 	out, err := uuid.NewV4()
@@ -76,7 +76,7 @@ func Unregister(args map[string]interface{}) (interface{}, error) {
 
 	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
 		logger.Logger.Println("Unregister(): Someone tried to unregister one of administrative ID.")
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLUserExist, "You can't delete administrative IDs")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "You can't delete administrative IDs")}, nil
 	}
 
 	user, _ := queryparser.User(args)

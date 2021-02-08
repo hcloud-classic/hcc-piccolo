@@ -41,6 +41,8 @@ github.com/graphql-go/handler v0.2.3 h1:CANh8WPnl5M9uA25c2GBhPqJhE53Fg0Iue/fRNla
 github.com/graphql-go/handler v0.2.3/go.mod h1:leLF6RpV5uZMN1CdImAxuiayrYYhOk33bZciaUGaXeU=
 github.com/hcloud-classic/hcc_errors v1.1.1-pre1 h1:1dzX4Z5VO/XFhwJKFYBufGyUk5rb+9L8o7l+a/VOPO8=
 github.com/hcloud-classic/hcc_errors v1.1.1-pre1/go.mod h1:C3s9vUbHj0vZ+CSJMbSHGo05ZoJmik4t9z/NK4ECanU=
+github.com/hcloud-classic/hcc_errors v1.1.2 h1:11UtUdFgj142yf9+fCcGIz7UrJ99rVnnUQVlztnlRZA=
+github.com/hcloud-classic/hcc_errors v1.1.2/go.mod h1:C3s9vUbHj0vZ+CSJMbSHGo05ZoJmik4t9z/NK4ECanU=
 github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d h1:VhgPp6v9qf9Agr/56bj7Y/xa04UccTW04VP0Qed4vnQ=
 github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d/go.mod h1:YUTz3bUH2ZwIWBy3CJBeOBEugqcmXREj14T+iG/4k4U=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
