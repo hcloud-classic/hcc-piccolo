@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
+	"net"
 	"strconv"
 	"time"
 )
@@ -24,11 +25,55 @@ func initHarp() error {
 	RC.harp = pb.NewHarpClient(harpConn)
 	logger.Logger.Println("gRPC harp client ready")
 
+	checkHarp()
+
 	return nil
 }
 
 func closeHarp() {
 	_ = harpConn.Close()
+}
+
+func pingHarp() bool {
+	conn, err := net.DialTimeout("tcp", net.JoinHostPort(config.Harp.ServerAddress,
+		strconv.FormatInt(config.Harp.ServerPort, 10)),
+		time.Duration(config.Grpc.ClientPingTimeoutMs)*time.Millisecond)
+	if err != nil {
+		return false
+	}
+	if conn != nil {
+		defer func() {
+			_ = conn.Close()
+		}()
+		return true
+	}
+
+	return false
+}
+
+func checkHarp() {
+	ticker := time.NewTicker(time.Duration(config.Grpc.ClientPingIntervalMs) * time.Millisecond)
+	go func() {
+		connOk := true
+		for range ticker.C {
+			pingOk := pingHarp()
+			if pingOk {
+				if !connOk {
+					logger.Logger.Println("checkHarp(): Ping Ok! Resetting connection...")
+					closeHarp()
+					err := initHarp()
+					if err != nil {
+						logger.Logger.Println("checkHarp(): " + err.Error())
+						continue
+					}
+					connOk = true
+				}
+			} else {
+				connOk = false
+				logger.Logger.Println("checkHarp(): Harp module seems dead. Pinging...")
+			}
+		}
+	}()
 }
 
 // CreateSubnet : Create a subnet
