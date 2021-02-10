@@ -26,8 +26,6 @@ func initCello() error {
 	RC.cello = pb.NewCelloClient(celloConn)
 	logger.Logger.Println("gRPC Cello client ready")
 
-	checkCello()
-
 	return nil
 }
 

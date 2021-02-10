@@ -25,8 +25,6 @@ func initHarp() error {
 	RC.harp = pb.NewHarpClient(harpConn)
 	logger.Logger.Println("gRPC harp client ready")
 
-	checkHarp()
-
 	return nil
 }
 

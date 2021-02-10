@@ -23,30 +23,37 @@ func Init() error {
 	if err != nil {
 		return err
 	}
+	checkFlute()
 
 	err = initHarp()
 	if err != nil {
 		return err
 	}
+	checkHarp()
 
 	err = initViolin()
 	if err != nil {
 		return err
 	}
+	checkViolin()
 
 	err = initNovnc()
 	if err != nil {
 		return err
 	}
+	checkNovnc()
 
 	err = initPiano()
 	if err != nil {
 		return err
 	}
+	checkPiano()
+
 	err = initCello()
 	if err != nil {
 		return err
 	}
+	checkCello()
 
 	return nil
 }

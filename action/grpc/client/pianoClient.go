@@ -25,8 +25,6 @@ func initPiano() error {
 	RC.piano = pb.NewPianoClient(pianoConn)
 	logger.Logger.Println("gRPC piano client ready")
 
-	checkPiano()
-
 	return nil
 }
 

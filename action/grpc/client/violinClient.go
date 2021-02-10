@@ -26,8 +26,6 @@ func initViolin() error {
 	RC.violin = pb.NewViolinClient(violinConn)
 	logger.Logger.Println("gRPC violin client ready")
 
-	checkViolin()
-
 	return nil
 }
 

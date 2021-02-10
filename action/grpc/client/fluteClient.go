@@ -25,8 +25,6 @@ func initFlute() error {
 	RC.flute = pb.NewFluteClient(fluteConn)
 	logger.Logger.Println("gRPC flute client ready")
 
-	checkFlute()
-
 	return nil
 }
 

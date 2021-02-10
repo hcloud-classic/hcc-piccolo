@@ -28,8 +28,6 @@ func initNovnc() error {
 	RC.novnc = pb.NewNovncClient(novncConn)
 	logger.Logger.Println("gRPC novnc client ready")
 
-	checkNovnc()
-
 	return nil
 }
 
