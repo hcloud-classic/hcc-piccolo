@@ -27,9 +27,9 @@ var subscriptionTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
 					if err != nil {
+						logger.Logger.Println("piano / telegraf (Subscription): " + err.Error())
 						return model.Telegraf{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
-					logger.Logger.Println("Subscription: piano / telegraf")
 					return model.Telegraf{}, nil
 				},
 			},

@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
+	"net"
 	"strconv"
 	"time"
 )
@@ -29,6 +30,50 @@ func initFlute() error {
 
 func closeFlute() {
 	_ = fluteConn.Close()
+}
+
+func pingFlute() bool {
+	conn, err := net.DialTimeout("tcp", net.JoinHostPort(config.Flute.ServerAddress,
+		strconv.FormatInt(config.Flute.ServerPort, 10)),
+		time.Duration(config.Grpc.ClientPingTimeoutMs)*time.Millisecond)
+	if err != nil {
+		return false
+	}
+	if conn != nil {
+		defer func() {
+			_ = conn.Close()
+		}()
+		return true
+	}
+
+	return false
+}
+
+func checkFlute() {
+	ticker := time.NewTicker(time.Duration(config.Grpc.ClientPingIntervalMs) * time.Millisecond)
+	go func() {
+		connOk := true
+		for range ticker.C {
+			pingOk := pingFlute()
+			if pingOk {
+				if !connOk {
+					logger.Logger.Println("checkFlute(): Ping Ok! Resetting connection...")
+					closeFlute()
+					err := initFlute()
+					if err != nil {
+						logger.Logger.Println("checkFlute(): " + err.Error())
+						continue
+					}
+					connOk = true
+				}
+			} else {
+				if connOk {
+					logger.Logger.Println("checkFlute(): Flute module seems dead. Pinging...")
+				}
+				connOk = false
+			}
+		}
+	}()
 }
 
 // OnNode : Turn on selected node

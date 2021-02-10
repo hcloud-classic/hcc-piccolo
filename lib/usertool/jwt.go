@@ -99,13 +99,6 @@ func ValidateToken(args map[string]interface{}) error {
 			return errLoginMismatch
 		}
 
-		id := claims["ID"].(string)
-		if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
-			logger.Logger.Println("TOKEN VALIDATED FOR ADMIN")
-		} else {
-			logger.Logger.Println("Token validated for user [" + claims["ID"].(string) + "]")
-		}
-
 		return nil
 	}
 
@@ -165,8 +158,6 @@ func ValidateTokenForAdmin(args map[string]interface{}) error {
 		if err != nil {
 			return errLoginMismatch
 		}
-
-		logger.Logger.Println("TOKEN VALIDATED FOR ADMIN")
 
 		return nil
 	}

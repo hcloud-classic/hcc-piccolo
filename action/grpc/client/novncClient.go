@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net"
 	"strconv"
 	"time"
 
@@ -32,6 +33,50 @@ func initNovnc() error {
 
 func closeNovnc() {
 	_ = novncConn.Close()
+}
+
+func pingNovnc() bool {
+	conn, err := net.DialTimeout("tcp", net.JoinHostPort(config.ViolinNoVnc.ServerAddress,
+		strconv.FormatInt(config.ViolinNoVnc.ServerPort, 10)),
+		time.Duration(config.Grpc.ClientPingTimeoutMs)*time.Millisecond)
+	if err != nil {
+		return false
+	}
+	if conn != nil {
+		defer func() {
+			_ = conn.Close()
+		}()
+		return true
+	}
+
+	return false
+}
+
+func checkNovnc() {
+	ticker := time.NewTicker(time.Duration(config.Grpc.ClientPingIntervalMs) * time.Millisecond)
+	go func() {
+		connOk := true
+		for range ticker.C {
+			pingOk := pingNovnc()
+			if pingOk {
+				if !connOk {
+					logger.Logger.Println("checkNovnc(): Ping Ok! Resetting connection...")
+					closeNovnc()
+					err := initNovnc()
+					if err != nil {
+						logger.Logger.Println("checkNovnc(): " + err.Error())
+						continue
+					}
+					connOk = true
+				}
+			} else {
+				if connOk {
+					logger.Logger.Println("checkNovnc(): Novnc module seems dead. Pinging...")
+				}
+				connOk = false
+			}
+		}
+	}()
 }
 
 // ControlVNC : Set VNC with provided options

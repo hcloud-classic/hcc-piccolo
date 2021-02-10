@@ -5,6 +5,7 @@ import (
 	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
+	"net"
 	"strconv"
 	"time"
 
@@ -30,6 +31,50 @@ func initViolin() error {
 
 func closeViolin() {
 	_ = violinConn.Close()
+}
+
+func pingViolin() bool {
+	conn, err := net.DialTimeout("tcp", net.JoinHostPort(config.Violin.ServerAddress,
+		strconv.FormatInt(config.Violin.ServerPort, 10)),
+		time.Duration(config.Grpc.ClientPingTimeoutMs)*time.Millisecond)
+	if err != nil {
+		return false
+	}
+	if conn != nil {
+		defer func() {
+			_ = conn.Close()
+		}()
+		return true
+	}
+
+	return false
+}
+
+func checkViolin() {
+	ticker := time.NewTicker(time.Duration(config.Grpc.ClientPingIntervalMs) * time.Millisecond)
+	go func() {
+		connOk := true
+		for range ticker.C {
+			pingOk := pingViolin()
+			if pingOk {
+				if !connOk {
+					logger.Logger.Println("checkViolin(): Ping Ok! Resetting connection...")
+					closeViolin()
+					err := initViolin()
+					if err != nil {
+						logger.Logger.Println("checkViolin(): " + err.Error())
+						continue
+					}
+					connOk = true
+				}
+			} else {
+				if connOk {
+					logger.Logger.Println("checkViolin(): violin module seems dead. Pinging...")
+				}
+				connOk = false
+			}
+		}
+	}()
 }
 
 // CreateServer : Create a server

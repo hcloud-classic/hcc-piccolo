@@ -62,6 +62,16 @@ func parseGrpc() {
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
+
+	Grpc.ClientPingIntervalMs, err = config.GrpcConfig.Int("client_ping_interval_ms")
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
+	Grpc.ClientPingTimeoutMs, err = config.GrpcConfig.Int("client_ping_timeout_ms")
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
 }
 
 func parseHTTP() {

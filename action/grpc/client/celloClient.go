@@ -5,6 +5,7 @@ import (
 	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
+	"net"
 	"strconv"
 	"time"
 
@@ -23,13 +24,57 @@ func initCello() error {
 	}
 
 	RC.cello = pb.NewCelloClient(celloConn)
-	logger.Logger.Println("gRPC violin client ready")
+	logger.Logger.Println("gRPC Cello client ready")
 
 	return nil
 }
 
 func closeCello() {
 	_ = celloConn.Close()
+}
+
+func pingCello() bool {
+	conn, err := net.DialTimeout("tcp", net.JoinHostPort(config.Cello.ServerAddress,
+		strconv.FormatInt(config.Cello.ServerPort, 10)),
+		time.Duration(config.Grpc.ClientPingTimeoutMs)*time.Millisecond)
+	if err != nil {
+		return false
+	}
+	if conn != nil {
+		defer func() {
+			_ = conn.Close()
+		}()
+		return true
+	}
+
+	return false
+}
+
+func checkCello() {
+	ticker := time.NewTicker(time.Duration(config.Grpc.ClientPingIntervalMs) * time.Millisecond)
+	go func() {
+		connOk := true
+		for range ticker.C {
+			pingOk := pingCello()
+			if pingOk {
+				if !connOk {
+					logger.Logger.Println("checkCello(): Ping Ok! Resetting connection...")
+					closeCello()
+					err := initCello()
+					if err != nil {
+						logger.Logger.Println("checkCello(): " + err.Error())
+						continue
+					}
+					connOk = true
+				}
+			} else {
+				if connOk {
+					logger.Logger.Println("checkCello(): Cello module seems dead. Pinging...")
+				}
+				connOk = false
+			}
+		}
+	}()
 }
 
 // VolumeHandler : VolumeHandler
