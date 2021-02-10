@@ -72,8 +72,10 @@ func checkNovnc() {
 					connOk = true
 				}
 			} else {
+				if connOk {
+					logger.Logger.Println("checkNovnc(): Novnc module seems dead. Pinging...")
+				}
 				connOk = false
-				logger.Logger.Println("checkNovnc(): Novnc module seems dead. Pinging...")
 			}
 		}
 	}()

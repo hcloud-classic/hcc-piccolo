@@ -70,8 +70,10 @@ func checkViolin() {
 					connOk = true
 				}
 			} else {
+				if connOk {
+					logger.Logger.Println("checkViolin(): violin module seems dead. Pinging...")
+				}
 				connOk = false
-				logger.Logger.Println("checkViolin(): violin module seems dead. Pinging...")
 			}
 		}
 	}()

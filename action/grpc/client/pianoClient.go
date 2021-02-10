@@ -69,8 +69,10 @@ func checkPiano() {
 					connOk = true
 				}
 			} else {
+				if connOk {
+					logger.Logger.Println("checkPiano(): Piano module seems dead. Pinging...")
+				}
 				connOk = false
-				logger.Logger.Println("checkPiano(): Piano module seems dead. Pinging...")
 			}
 		}
 	}()

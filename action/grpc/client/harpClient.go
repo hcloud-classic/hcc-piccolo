@@ -69,8 +69,10 @@ func checkHarp() {
 					connOk = true
 				}
 			} else {
+				if connOk {
+					logger.Logger.Println("checkHarp(): Harp module seems dead. Pinging...")
+				}
 				connOk = false
-				logger.Logger.Println("checkHarp(): Harp module seems dead. Pinging...")
 			}
 		}
 	}()

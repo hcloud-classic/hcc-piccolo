@@ -69,8 +69,10 @@ func checkFlute() {
 					connOk = true
 				}
 			} else {
+				if connOk {
+					logger.Logger.Println("checkFlute(): Flute module seems dead. Pinging...")
+				}
 				connOk = false
-				logger.Logger.Println("checkFlute(): Flute module seems dead. Pinging...")
 			}
 		}
 	}()

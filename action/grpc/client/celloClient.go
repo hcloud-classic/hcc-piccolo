@@ -70,8 +70,10 @@ func checkCello() {
 					connOk = true
 				}
 			} else {
+				if connOk {
+					logger.Logger.Println("checkCello(): Cello module seems dead. Pinging...")
+				}
 				connOk = false
-				logger.Logger.Println("checkCello(): Cello module seems dead. Pinging...")
 			}
 		}
 	}()
