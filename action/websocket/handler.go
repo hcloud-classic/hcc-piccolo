@@ -68,7 +68,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			var msg connectionACKMessage
 			if err := json.Unmarshal(p, &msg); err != nil {
 				logger.Logger.Printf("websocket.Handler(): failed to unmarshal: %v", err)
-				return
+				continue
 			}
 
 			if msg.Type == "start" {
