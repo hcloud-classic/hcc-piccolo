@@ -59,11 +59,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			_, p, err := conn.ReadMessage()
 
 			if websocket.IsCloseError(err, websocket.CloseGoingAway) {
-				continue
+				return
 			}
 			if err != nil {
 				logger.Logger.Printf("websocket.Handler(): failed to read websocket message: %v", err)
-				continue
+				return
 			}
 			var msg connectionACKMessage
 			if err := json.Unmarshal(p, &msg); err != nil {
