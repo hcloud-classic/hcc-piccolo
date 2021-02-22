@@ -20,7 +20,37 @@ var subscriptionTypes = graphql.NewObject(
 				Type:        graphqlType.TelegrafType,
 				Description: "telegraf subscription",
 				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"metric": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"subMetric": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"period": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"aggregateFn": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"duration": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"time": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"groupBy": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"orderBy": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"limit": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 				},
