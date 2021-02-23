@@ -969,8 +969,6 @@ var queryTypes = graphql.NewObject(
 						logger.Logger.Println("piano / telegraf: " + err.Error())
 					}
 
-					Publisher()
-
 					return data, err
 				},
 			},
