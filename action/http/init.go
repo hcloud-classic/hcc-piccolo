@@ -21,6 +21,9 @@ func telegrafSubscriptionQueryTimeChange(query string, newTime string) string {
 	querySlice := strings.Split(query, ",")
 	for i := range querySlice {
 		if strings.Contains(querySlice[i], "time") {
+			if strings.Contains(querySlice[i], "$time") {
+				continue
+			}
 			querySlice[i] = strings.Replace(querySlice[i], " ", "", -1)
 			querySlice[i] = strings.Replace(querySlice[i], "\t", "", -1)
 			querySlice[i] = strings.Replace(querySlice[i], "\n", "", -1)
@@ -31,6 +34,8 @@ func telegrafSubscriptionQueryTimeChange(query string, newTime string) string {
 		}
 		newQuery += querySlice[i] + ","
 	}
+
+	logger.Logger.Println("newQuery", newQuery)
 
 	return newQuery
 }
@@ -57,6 +62,8 @@ func telegrafSubscriptionGetNewTime(dataStr string) string {
 			}
 		}
 	}
+
+	logger.Logger.Println("newTime", newTime)
 
 	return newTime
 }
@@ -124,6 +131,7 @@ func Init() {
 						Errors: graphqlws.ErrorsFromGraphQLErrors(result.Errors),
 					}
 					subscription.SendData(&data)
+					logger.Logger.Println(data.Errors)
 				}
 			}
 			time.Sleep(time.Millisecond * time.Duration(config.GraphQL.SubscriptionInterval))
