@@ -74,19 +74,24 @@ func parseGrpc() {
 	}
 }
 
-func parseHTTP() {
-	config.HTTPConfig = conf.Get("http")
-	if config.HTTPConfig == nil {
-		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "no http section").Fatal()
+func parseGraphQL() {
+	config.GraphQLConfig = conf.Get("graphql")
+	if config.GraphQLConfig == nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "no graphql section").Fatal()
 	}
 
-	HTTP = http{}
-	HTTP.Port, err = config.HTTPConfig.Int("port")
+	GraphQL = graphql{}
+	GraphQL.Port, err = config.GraphQLConfig.Int("port")
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
 
-	HTTP.UsePlayground, err = config.HTTPConfig.Bool("use_playground")
+	GraphQL.UsePlayground, err = config.GraphQLConfig.Bool("use_playground")
+
+	GraphQL.SubscriptionInterval, err = config.GraphQLConfig.Int("subscription_interval_ms")
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
 }
 
 func parseFlute() {
@@ -276,7 +281,7 @@ func Init() {
 
 	parseMysql()
 	parseGrpc()
-	parseHTTP()
+	parseGraphQL()
 	parseFlute()
 	parseCello()
 	parseHarp()
