@@ -42,7 +42,7 @@ func telegrafSubscriptionQueryTimeChange(query string, newTime string) string {
 		newQuery = strings.Replace(newQuery, "uuid: $uuid", "time: $time, uuid: $uuid", -1)
 	}
 
-	logger.Logger.Println("newQuery", newQuery)
+	//logger.Logger.Println("newQuery", newQuery)
 
 	return newQuery
 }
@@ -70,7 +70,7 @@ func telegrafSubscriptionGetNewTime(dataStr string) string {
 		}
 	}
 
-	logger.Logger.Println("newTime", newTime)
+	//logger.Logger.Println("newTime", newTime)
 
 	return newTime
 }
@@ -148,8 +148,8 @@ func newSubscriptionHandler(config graphqlws.HandlerConfig) http.Handler {
 										OperationName:  goroutineData.OperationName,
 										Context:        ctx,
 									}
-									logger.Logger.Println("query", query)
-									logger.Logger.Println("goroutineData.Variables", goroutineData.Variables)
+									//logger.Logger.Println("query", query)
+									//logger.Logger.Println("goroutineData.Variables", goroutineData.Variables)
 									result := graphqlgo.Do(params)
 
 									dataStr := fmt.Sprintf("%v", result.Data)
@@ -160,7 +160,9 @@ func newSubscriptionHandler(config graphqlws.HandlerConfig) http.Handler {
 										Errors: graphqlws.ErrorsFromGraphQLErrors(result.Errors),
 									}
 									goroutineConn.SendData(goroutineOpID, &graphqlData)
-									logger.Logger.Println("subscription websocket Error: ", graphqlData.Errors)
+									if graphqlData.Errors != nil {
+										logger.Logger.Println("subscription websocket Error: ", graphqlData.Errors)
+									}
 
 									for _, connID := range cancelList {
 										if connID == goroutineConn.ID() {
