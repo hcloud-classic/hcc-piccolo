@@ -23,6 +23,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.Token,
 				Description: "Execute login process for piccolo",
 				Args: graphql.FieldConfigArgument{
+					"group_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"id": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
