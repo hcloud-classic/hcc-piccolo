@@ -1,16 +1,14 @@
 package http
 
 import (
-	"github.com/functionalfoundry/graphqlws"
 	"github.com/graphql-go/handler"
 	"hcc/piccolo/action/graphql"
+	"hcc/piccolo/action/http/subscription"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"net/http"
 	"strconv"
 )
-
-
 
 // Init : Initialize GraphQL server
 func Init() {
@@ -25,11 +23,7 @@ func Init() {
 	http.Handle("/graphql", graphqlHandler)
 	logger.Logger.Println("Serving GraphQL requests on /graphql")
 
-	subscriptionManager := graphqlws.NewSubscriptionManager(&graphql.Schema)
-	graphqlWSHandler := newSubscriptionHandler(graphqlws.HandlerConfig{
-		SubscriptionManager: subscriptionManager,
-	})
-	http.Handle("/subscriptions", graphqlWSHandler)
+	http.Handle("/subscriptions", subscription.NewSubscriptionHandler())
 	logger.Logger.Println("Serving GraphQL's subscription websocket requests on /subscriptions")
 
 	err := http.ListenAndServe(":"+strconv.Itoa(int(config.GraphQL.Port)), nil)
