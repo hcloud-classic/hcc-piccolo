@@ -57,7 +57,7 @@ func telegrafSubscriptionGetNewTime(dataStr string) string {
 		for i := range slices {
 			if strings.Contains(slices[i], "values") && length >= i+2 {
 				s := strings.Split(slices[i+1], ",")
-				newTime = s[0]
+				newTime = s[0] + "000000"
 				break
 			}
 		}
