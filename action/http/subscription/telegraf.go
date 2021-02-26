@@ -75,11 +75,15 @@ func telegrafSubscription(conn graphqlws.Connection,
 	opID string,
 	data *graphqlws.StartMessagePayload,
 	newTime *string) {
-	for true {
-		ctx := context.Background()
+	ctx := context.Background()
 
-		query := telegrafSubscriptionQueryTimeChange(data.Query, *newTime)
-		data.Variables["time"] = *newTime
+	for true {
+		query := data.Query
+
+		if *newTime != "" {
+			query = telegrafSubscriptionQueryTimeChange(data.Query, *newTime)
+			data.Variables["time"] = *newTime
+		}
 
 		params := graphqlgo.Params{
 			Schema:         graphql.Schema,
@@ -89,7 +93,7 @@ func telegrafSubscription(conn graphqlws.Connection,
 			Context:        ctx,
 		}
 		//logger.Logger.Println("query", query)
-		//logger.Logger.Println("goroutineData.Variables", goroutineData.Variables)
+		//logger.Logger.Println("goroutineData.Variables", data.Variables)
 		result := graphqlgo.Do(params)
 
 		dataStr := fmt.Sprintf("%v", result.Data)
