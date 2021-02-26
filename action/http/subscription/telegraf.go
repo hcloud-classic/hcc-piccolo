@@ -7,6 +7,7 @@ import (
 	graphqlgo "github.com/graphql-go/graphql"
 	"hcc/piccolo/action/graphql"
 	piccoloConfig "hcc/piccolo/lib/config"
+	"hcc/piccolo/lib/logger"
 	"strings"
 	"time"
 )
@@ -104,7 +105,7 @@ func telegrafSubscription(conn graphqlws.Connection,
 		}
 		conn.SendData(opID, &graphqlData)
 		if graphqlData.Errors != nil {
-			//logger.Logger.Println("subscription websocket Error: ", graphqlData.Errors)
+			logger.Logger.Println("subscription websocket Error: ", graphqlData.Errors)
 		}
 
 		if isConnectionClosed(conn.ID()) {
