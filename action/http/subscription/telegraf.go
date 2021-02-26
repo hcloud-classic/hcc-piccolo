@@ -78,8 +78,12 @@ func telegrafSubscription(conn graphqlws.Connection,
 	ctx := context.Background()
 
 	for true {
-		query := telegrafSubscriptionQueryTimeChange(data.Query, *newTime)
-		data.Variables["time"] = *newTime
+		query := data.Query
+
+		if *newTime != "" {
+			query = telegrafSubscriptionQueryTimeChange(data.Query, *newTime)
+			data.Variables["time"] = *newTime
+		}
 
 		params := graphqlgo.Params{
 			Schema:         graphql.Schema,
