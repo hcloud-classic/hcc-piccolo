@@ -75,9 +75,9 @@ func telegrafSubscription(conn graphqlws.Connection,
 	opID string,
 	data *graphqlws.StartMessagePayload,
 	newTime *string) {
-	for true {
-		ctx := context.Background()
+	ctx := context.Background()
 
+	for true {
 		query := telegrafSubscriptionQueryTimeChange(data.Query, *newTime)
 		data.Variables["time"] = *newTime
 
