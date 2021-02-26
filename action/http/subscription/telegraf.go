@@ -60,7 +60,7 @@ func telegrafSubscriptionGetNewTime(dataStr string) string {
 		for i := range slices {
 			if strings.Contains(slices[i], "values") && length >= i+2 {
 				s := strings.Split(slices[i+1], ",")
-				newTime = s[0] + "000000"
+				newTime = s[0]
 				break
 			}
 		}
@@ -93,7 +93,7 @@ func telegrafSubscription(conn graphqlws.Connection,
 			Context:        ctx,
 		}
 		//logger.Logger.Println("query", query)
-		//logger.Logger.Println("goroutineData.Variables", data.Variables)
+		//logger.Logger.Println("data.Variables", data.Variables)
 		result := graphqlgo.Do(params)
 
 		dataStr := fmt.Sprintf("%v", result.Data)

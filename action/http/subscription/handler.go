@@ -63,6 +63,9 @@ func NewSubscriptionHandler() http.Handler {
 						connLock.Lock()
 						delete(connections, conn)
 						connLock.Unlock()
+						cancelLock.Lock()
+						cancelList[conn.ID()] = conn.ID()
+						cancelLock.Unlock()
 					},
 					StartOperation: func(
 						conn graphqlws.Connection,
@@ -79,12 +82,7 @@ func NewSubscriptionHandler() http.Handler {
 						if strings.HasPrefix(data.Query, "subscription") {
 							if strings.Contains(data.Query, "telegraf") {
 								newTime := ""
-								go func(goroutineConn graphqlws.Connection,
-									goroutineOpID string,
-									goroutineData *graphqlws.StartMessagePayload,
-									goroutineNewTime *string) {
-									telegrafSubscription(goroutineConn, goroutineOpID, goroutineData, goroutineNewTime)
-								}(conn, opID, data, &newTime)
+								go telegrafSubscription(conn, opID, data, &newTime)
 							} // else if strings.Contains(data.Query, "XXX") {} <-- TODO: Add more subscriptions here
 						}
 

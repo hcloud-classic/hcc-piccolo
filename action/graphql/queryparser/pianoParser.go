@@ -29,10 +29,14 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 	period, _ := args["period"].(string)
 	aggregateFn, _ := args["aggregateFn"].(string)
 	duration, _ := args["duration"].(string)
-	time, _ := args["time"].(string)
+	time, timeOk := args["time"].(string)
 	groupBy, _ := args["groupBy"].(string)
 	orderBy, _ := args["orderBy"].(string)
 	limit, _ := args["limit"].(string)
+
+	if timeOk {
+		time = time + "000000"
+	}
 
 	resMonitoringData, err := client.RC.Telegraph(&pb.ReqMetricInfo{
 		MetricInfo: &pb.MetricInfo{
