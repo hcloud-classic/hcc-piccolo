@@ -63,6 +63,9 @@ func NewSubscriptionHandler() http.Handler {
 						connLock.Lock()
 						delete(connections, conn)
 						connLock.Unlock()
+						cancelLock.Lock()
+						cancelList[conn.ID()] = conn.ID()
+						cancelLock.Unlock()
 					},
 					StartOperation: func(
 						conn graphqlws.Connection,
