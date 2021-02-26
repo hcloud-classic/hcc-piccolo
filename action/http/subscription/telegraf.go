@@ -89,7 +89,7 @@ func telegrafSubscription(conn graphqlws.Connection,
 			Context:        ctx,
 		}
 		//logger.Logger.Println("query", query)
-		//logger.Logger.Println("goroutineData.Variables", goroutineData.Variables)
+		//logger.Logger.Println("goroutineData.Variables", data.Variables)
 		result := graphqlgo.Do(params)
 
 		dataStr := fmt.Sprintf("%v", result.Data)
