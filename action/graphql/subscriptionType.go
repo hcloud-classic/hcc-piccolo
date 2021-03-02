@@ -43,6 +43,33 @@ var subscriptionTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			// harp
+			"all_subnet": &graphql.Field{
+				Type:        graphqlType.SubnetListType,
+				Description: "Get all subnet list",
+				Args: graphql.FieldConfigArgument{
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.AllSubnet(params.Args)
+					if err != nil {
+						logger.Logger.Println("harp / all_subnet (Subscription): " + err.Error())
+					}
+					return data, err
+				},
+			},
 			// piano
 			"telegraf": &graphql.Field{
 				Type:        graphqlType.TelegrafType,

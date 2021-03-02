@@ -83,7 +83,8 @@ func NewSubscriptionHandler() http.Handler {
 							if strings.Contains(data.Query, "telegraf") {
 								newTime := ""
 								go telegrafSubscription(conn, opID, data, &newTime)
-							} else if strings.Contains(data.Query, "all_server") {
+							} else if strings.Contains(data.Query, "all_server") ||
+								strings.Contains(data.Query, "all_subnet") {
 								go graphqlCommonSubscription(conn, opID, data)
 							}
 						}
