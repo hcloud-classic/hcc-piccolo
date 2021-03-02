@@ -106,7 +106,19 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
-	return model.SubnetList{Subnets: subnetList, Errors: Errors}, nil
+	numSubnet, err := NumSubnet()
+	if err != nil {
+		return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+	modelSubnetNum := numSubnet.(model.SubnetNum)
+	if len(modelSubnetNum.Errors) != 0 {
+		for _, numError := range modelSubnetNum.Errors {
+			Errors = append(Errors, numError)
+		}
+		modelSubnetNum.Number = 0
+	}
+
+	return model.SubnetList{Subnets: subnetList, TotalNum: modelSubnetNum.Number, Errors: Errors}, nil
 }
 
 // AllSubnet : Get subnet list with provided options (Just call ListSubnet())

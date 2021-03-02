@@ -24,8 +24,9 @@ type Subnet struct {
 
 // SubnetList : Contain list of subnets
 type SubnetList struct {
-	Subnets []Subnet                  `json:"subnet_list"`
-	Errors  []errconv.PiccoloHccError `json:"errors"`
+	Subnets  []Subnet                  `json:"subnet_list"`
+	TotalNum int                       `json:"total_num"`
+	Errors   []errconv.PiccoloHccError `json:"errors"`
 }
 
 // SubnetNum : Contain the number of subnets
