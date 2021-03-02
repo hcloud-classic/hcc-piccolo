@@ -101,8 +101,12 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(resListSubnet.HccErrorStack)
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errconv.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.SubnetList{Subnets: subnetList, Errors: errconv.HccErrorToPiccoloHccErr(*hccErrStack)}, nil
+	return model.SubnetList{Subnets: subnetList, Errors: Errors}, nil
 }
 
 // AllSubnet : Get subnet list with provided options (Just call ListSubnet())
@@ -124,8 +128,12 @@ func AvailableSubnetList() (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(resListSubnet.HccErrorStack)
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errconv.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.SubnetList{Subnets: subnetList, Errors: errconv.HccErrorToPiccoloHccErr(*hccErrStack)}, nil
+	return model.SubnetList{Subnets: subnetList, Errors: Errors}, nil
 }
 
 // NumSubnet : Get number of subnets
