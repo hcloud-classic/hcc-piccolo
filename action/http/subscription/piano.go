@@ -108,7 +108,7 @@ func telegrafSubscription(conn graphqlws.Connection,
 			logger.Logger.Println("telegrafSubscription(): ", graphqlData.Errors)
 		}
 
-		if isConnectionClosed(conn.ID()) {
+		if isOpStopped(conn.ID(), opID) {
 			return
 		}
 

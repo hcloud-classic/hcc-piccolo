@@ -9,15 +9,26 @@ import (
 	"sync"
 )
 
-var cancelLock = sync.Mutex{}
-var cancelList = make(map[string]string)
+var opCancelLock = sync.Mutex{}
+var opCancelList = make(map[string]string)
 
-func isConnectionClosed(connID string) bool {
-	for _, cancelID := range cancelList {
-		if cancelID == connID {
-			cancelLock.Lock()
-			delete(cancelList, cancelID)
-			cancelLock.Unlock()
+var piccoloOpIDSplitMagic = "!@#$PicC0Lo"
+var piccoloOpStopAllMagic = "!@#$PizC0Lo"
+
+func isOpStopped(connID string, opID string) bool {
+	if opCancelList[connID] == piccoloOpStopAllMagic {
+		opCancelLock.Lock()
+		delete(opCancelList, connID)
+		opCancelLock.Unlock()
+		return true
+	}
+
+	cancelOpIDs := strings.Split(opCancelList[connID], piccoloOpIDSplitMagic)
+	for _, cancelOpID := range cancelOpIDs {
+		if cancelOpID == opID {
+			opCancelLock.Lock()
+			opCancelList[connID] = strings.Replace(opCancelList[connID], opID+piccoloOpIDSplitMagic, "", -1)
+			opCancelLock.Unlock()
 			return true
 		}
 	}
@@ -60,12 +71,12 @@ func NewSubscriptionHandler() http.Handler {
 							"user": conn.User(),
 						}).Debug("Closing connection")
 
+						opCancelLock.Lock()
+						opCancelList[conn.ID()] = piccoloOpStopAllMagic
+						opCancelLock.Unlock()
 						connLock.Lock()
 						delete(connections, conn)
 						connLock.Unlock()
-						cancelLock.Lock()
-						cancelList[conn.ID()] = conn.ID()
-						cancelLock.Unlock()
 					},
 					StartOperation: func(
 						conn graphqlws.Connection,
@@ -93,9 +104,9 @@ func NewSubscriptionHandler() http.Handler {
 						return nil
 					},
 					StopOperation: func(conn graphqlws.Connection, opID string) {
-						cancelLock.Lock()
-						cancelList[conn.ID()] = conn.ID()
-						cancelLock.Unlock()
+						opCancelLock.Lock()
+						opCancelList[conn.ID()] += opID + piccoloOpIDSplitMagic
+						opCancelLock.Unlock()
 					},
 				},
 			})
