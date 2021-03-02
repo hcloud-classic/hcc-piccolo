@@ -105,7 +105,7 @@ func telegrafSubscription(conn graphqlws.Connection,
 		}
 		conn.SendData(opID, &graphqlData)
 		if graphqlData.Errors != nil {
-			logger.Logger.Println("subscription websocket Error: ", graphqlData.Errors)
+			logger.Logger.Println("telegrafSubscription(): ", graphqlData.Errors)
 		}
 
 		if isConnectionClosed(conn.ID()) {
