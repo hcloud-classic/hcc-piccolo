@@ -16,6 +16,27 @@ var subscriptionTypes = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Subscription",
 		Fields: graphql.Fields{
+			// piccolo
+			"resource_usage": &graphql.Field{
+				Type:        graphqlType.ResourceUsageType,
+				Description: "Get resource usage",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.ResourceUsage()
+					if err != nil {
+						logger.Logger.Println("piccolo / resource_usage (Subscription): " + err.Error())
+					}
+					return data, err
+				},
+			},
 			// violin
 			"all_server": &graphql.Field{
 				Type:        graphqlType.ServerListType,
