@@ -31,6 +31,9 @@ var ServerType = graphql.NewObject(
 			"disk_size": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"nodes": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"status": &graphql.Field{
 				Type: graphql.String,
 			},
@@ -54,6 +57,9 @@ var ServerListType = graphql.NewObject(
 		Fields: graphql.Fields{
 			"server_list": &graphql.Field{
 				Type: graphql.NewList(ServerType),
+			},
+			"total_num": &graphql.Field{
+				Type: graphql.Int,
 			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),

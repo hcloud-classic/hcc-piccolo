@@ -16,6 +16,33 @@ var subscriptionTypes = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Subscription",
 		Fields: graphql.Fields{
+			// violin
+			"all_server": &graphql.Field{
+				Type:        graphqlType.ServerListType,
+				Description: "Get all server list",
+				Args: graphql.FieldConfigArgument{
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.AllServer(params.Args)
+					if err != nil {
+						logger.Logger.Println("violin / all_server (Subscription): " + err.Error())
+					}
+					return data, err
+				},
+			},
 			// piano
 			"telegraf": &graphql.Field{
 				Type:        graphqlType.TelegrafType,
