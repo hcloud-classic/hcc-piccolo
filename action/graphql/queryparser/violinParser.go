@@ -23,7 +23,15 @@ func Server(args map[string]interface{}) (interface{}, error) {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return *pbtomodel.PbServerToModelServer(resGetServer.Server, resGetServer.HccErrorStack), nil
+	modelServer := *pbtomodel.PbServerToModelServer(resGetServer.Server, resGetServer.HccErrorStack)
+
+	queryArgs := make(map[string]interface{})
+	queryArgs["server_uuid"] = modelServer.UUID
+	numServerNode, _ := NumServerNode(queryArgs)
+	modelServerNodeNum := numServerNode.(model.ServerNodeNum)
+	modelServer.Nodes = modelServerNodeNum.Number
+
+	return modelServer, nil
 }
 
 // ListServer : Get server list with provided options
@@ -90,6 +98,13 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 	var serverList []model.Server
 	for _, pServer := range resListServer.Server {
 		modelServer := pbtomodel.PbServerToModelServer(pServer, nil)
+
+		queryArgs := make(map[string]interface{})
+		queryArgs["server_uuid"] = modelServer.UUID
+		numServerNode, _ := NumServerNode(queryArgs)
+		modelServerNodeNum := numServerNode.(model.ServerNodeNum)
+		modelServer.Nodes = modelServerNodeNum.Number
+
 		serverList = append(serverList, *modelServer)
 	}
 
@@ -99,7 +114,19 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
-	return model.ServerList{Servers: serverList, Errors: Errors}, nil
+	numServer, err := NumServer()
+	if err != nil {
+		return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+	modelServerNum := numServer.(model.ServerNum)
+	if len(modelServerNum.Errors) != 0 {
+		for _, numError := range modelServerNum.Errors {
+			Errors = append(Errors, numError)
+		}
+		modelServerNum.Number = 0
+	}
+
+	return model.ServerList{Servers: serverList, TotalNum: modelServerNum.Number, Errors: Errors}, nil
 }
 
 // AllServer : Get server list with provided options (Just call ListServer())

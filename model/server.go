@@ -15,6 +15,7 @@ type Server struct {
 	CPU        int                       `json:"cpu"`
 	Memory     int                       `json:"memory"`
 	DiskSize   int                       `json:"disk_size"`
+	Nodes      int                       `json:"nodes"`
 	Status     string                    `json:"status"`
 	UserUUID   string                    `json:"user_uuid"`
 	CreatedAt  time.Time                 `json:"created_at"`
@@ -23,8 +24,9 @@ type Server struct {
 
 // ServerList : Contain list of servers
 type ServerList struct {
-	Servers []Server                  `json:"server_list"`
-	Errors  []errconv.PiccoloHccError `json:"errors"`
+	Servers  []Server                  `json:"server_list"`
+	TotalNum int                       `json:"total_num"`
+	Errors   []errconv.PiccoloHccError `json:"errors"`
 }
 
 // ServerNum : Contain the number of servers
