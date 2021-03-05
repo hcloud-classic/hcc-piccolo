@@ -232,6 +232,19 @@ func parsePiano() {
 	}
 }
 
+func parseTuba() {
+	config.TubaConfig = conf.Get("tuba")
+	if config.TubaConfig == nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "no tuba section").Fatal()
+	}
+
+	Tuba = tuba{}
+	Tuba.RequestTimeoutMs, err = config.TubaConfig.Int("tuba_request_timeout_ms")
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+}
+
 func parseTimpani() {
 	config.TimpaniConfig = conf.Get("timpani")
 	if config.TimpaniConfig == nil {
@@ -288,5 +301,6 @@ func Init() {
 	parseViolin()
 	parseViolinNoVnc()
 	parsePiano()
+	parseTuba()
 	parseUser()
 }
