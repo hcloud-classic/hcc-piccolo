@@ -33,17 +33,17 @@ func CloseTuba(conn *grpc.ClientConn) {
 }
 
 // GetTaskList : Get the list of tasks
-func GetTaskList(tubaClient pb.TubaClient, in *pb.ReqGetTaskList) (*pb.ResGetTaskList, error) {
+func GetTaskList(tubaClient pb.TubaClient) (*pb.ResGetTaskList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Tuba.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	if tubaClient == nil {
 		return nil, errors.New("tubaClient is nil")
 	}
-	taskList, err := tubaClient.GetTaskList(ctx, in)
+	taskListResult, err := tubaClient.GetTaskList(ctx, &pb.Empty{})
 	if err != nil {
 		return nil, err
 	}
 
-	return taskList, nil
+	return taskListResult, nil
 }
