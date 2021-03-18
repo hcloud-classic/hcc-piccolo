@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/hcloud-classic/hcc_errors"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/server"
 	"hcc/piccolo/action/http"
@@ -12,6 +11,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
 func init() {

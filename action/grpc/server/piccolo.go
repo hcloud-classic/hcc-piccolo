@@ -3,9 +3,10 @@ package server
 import (
 	"context"
 	"errors"
-	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
+
+	"innogrid.com/hcloud-classic/pb"
 )
 
 type piccoloServer struct {

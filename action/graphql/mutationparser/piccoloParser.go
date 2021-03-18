@@ -8,8 +8,8 @@ import (
 	"hcc/piccolo/model"
 	"strings"
 
-	"github.com/hcloud-classic/hcc_errors"
 	uuid "github.com/nu7hatch/gouuid"
+	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
 // SignUp : Do user sign up process

@@ -58,6 +58,9 @@ var SubnetListType = graphql.NewObject(
 			"subnet_list": &graphql.Field{
 				Type: graphql.NewList(SubnetType),
 			},
+			"total_num": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},

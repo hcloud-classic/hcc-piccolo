@@ -2,13 +2,14 @@ package client
 
 import (
 	"context"
-	"github.com/hcloud-classic/pb"
-	"google.golang.org/grpc"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"net"
 	"strconv"
 	"time"
+
+	"google.golang.org/grpc"
+	"innogrid.com/hcloud-classic/pb"
 )
 
 var pianoConn *grpc.ClientConn

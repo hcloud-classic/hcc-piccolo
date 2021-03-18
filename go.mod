@@ -11,8 +11,6 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/graphql-go/graphql v0.7.8
 	github.com/graphql-go/handler v0.2.3
-	github.com/hcloud-classic/hcc_errors v1.1.2
-	github.com/hcloud-classic/pb v0.0.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
@@ -25,6 +23,11 @@ require (
 	google.golang.org/genproto v0.0.0-20210111234610-22ae2b108f89 // indirect
 	google.golang.org/grpc v1.34.1
 	google.golang.org/protobuf v1.25.0 // indirect
+	innogrid.com/hcloud-classic/hcc_errors v0.0.0
+	innogrid.com/hcloud-classic/pb v0.0.0
 )
 
-replace github.com/hcloud-classic/pb => ../pb
+replace (
+	innogrid.com/hcloud-classic/hcc_errors => ../hcc_errors
+	innogrid.com/hcloud-classic/pb => ../pb
+)

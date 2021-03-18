@@ -6,8 +6,8 @@ import (
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
 
-	"github.com/hcloud-classic/hcc_errors"
-	"github.com/hcloud-classic/pb"
+	"innogrid.com/hcloud-classic/hcc_errors"
+	"innogrid.com/hcloud-classic/pb"
 )
 
 // PowerStateNode : Get power state of the node

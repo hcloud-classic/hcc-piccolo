@@ -9,7 +9,7 @@ import (
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
 
-	"github.com/hcloud-classic/hcc_errors"
+	"innogrid.com/hcloud-classic/hcc_errors"
 
 	"github.com/graphql-go/graphql"
 )
@@ -1038,6 +1038,34 @@ var queryTypes = graphql.NewObject(
 					if err != nil {
 						logger.Logger.Println("cello / pool_list: " + err.Error())
 					}
+					return data, err
+				},
+			},
+			// tuba
+			"all_task": &graphql.Field{
+				Type:        graphqlType.TaskListResultType,
+				Description: "all_task",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_address": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_port": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.AllTask(params.Args)
+					if err != nil {
+						logger.Logger.Println("tuba / all_task: " + err.Error())
+					}
+
 					return data, err
 				},
 			},

@@ -43,10 +43,8 @@ github.com/graphql-go/graphql v0.7.8 h1:769CR/2JNAhLG9+aa8pfLkKdR0H+r5lsQqling5W
 github.com/graphql-go/graphql v0.7.8/go.mod h1:k6yrAYQaSP59DC5UVxbgxESlmVyojThKdORUqGDGmrI=
 github.com/graphql-go/handler v0.2.3 h1:CANh8WPnl5M9uA25c2GBhPqJhE53Fg0Iue/fRNla71E=
 github.com/graphql-go/handler v0.2.3/go.mod h1:leLF6RpV5uZMN1CdImAxuiayrYYhOk33bZciaUGaXeU=
-github.com/hcloud-classic/hcc_errors v1.1.1-pre1 h1:1dzX4Z5VO/XFhwJKFYBufGyUk5rb+9L8o7l+a/VOPO8=
-github.com/hcloud-classic/hcc_errors v1.1.1-pre1/go.mod h1:C3s9vUbHj0vZ+CSJMbSHGo05ZoJmik4t9z/NK4ECanU=
-github.com/hcloud-classic/hcc_errors v1.1.2 h1:11UtUdFgj142yf9+fCcGIz7UrJ99rVnnUQVlztnlRZA=
-github.com/hcloud-classic/hcc_errors v1.1.2/go.mod h1:C3s9vUbHj0vZ+CSJMbSHGo05ZoJmik4t9z/NK4ECanU=
+innogrid.com/hcloud-classic/hcc_errors v1.1.2 h1:11UtUdFgj142yf9+fCcGIz7UrJ99rVnnUQVlztnlRZA=
+innogrid.com/hcloud-classic/hcc_errors v1.1.2/go.mod h1:C3s9vUbHj0vZ+CSJMbSHGo05ZoJmik4t9z/NK4ECanU=
 github.com/magefile/mage v1.10.0 h1:3HiXzCUY12kh9bIuyXShaVe529fJfyqoVM42o/uom2g=
 github.com/magefile/mage v1.10.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
 github.com/mattn/go-colorable v0.1.8 h1:c1ghPdyEDarC70ftn0y+A/Ee++9zz8ljHG1b13eJ0s8=
@@ -112,6 +110,7 @@ google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZi
 google.golang.org/grpc v1.23.0/go.mod h1:Y5yQAOtifL1yxbo5wqy6BxZv8vAUGQwXBOALyacEbxg=
 google.golang.org/grpc v1.25.1/go.mod h1:c3i+UQWmh7LiEpx4sFZnkU36qjEYZ0imhYfXVyQciAY=
 google.golang.org/grpc v1.27.0/go.mod h1:qbnxyOmOxrQa7FizSgH+ReBfzJrCY1pSN7KXBS8abTk=
+google.golang.org/grpc v1.34.0/go.mod h1:WotjhfgOW/POjDeRt8vscBtXq+2VjORFy659qA51WJ8=
 google.golang.org/grpc v1.34.1 h1:ugq+9++ZQPFzM2pKUMCIK8gj9M0pFyuUWO9Q8kwEDQw=
 google.golang.org/grpc v1.34.1/go.mod h1:WotjhfgOW/POjDeRt8vscBtXq+2VjORFy659qA51WJ8=
 google.golang.org/protobuf v0.0.0-20200109180630-ec00e32a8dfd/go.mod h1:DFci5gLYBciE7Vtevhsrf46CRTquxDuWsQurQQe4oz8=

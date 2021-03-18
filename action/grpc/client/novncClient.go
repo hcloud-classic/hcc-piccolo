@@ -9,9 +9,10 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
+
+	"innogrid.com/hcloud-classic/pb"
 )
 
 var novncConn *grpc.ClientConn

@@ -7,8 +7,8 @@ import (
 	"hcc/piccolo/model"
 
 	"github.com/golang/protobuf/ptypes"
-	"github.com/hcloud-classic/hcc_errors"
-	"github.com/hcloud-classic/pb"
+	"innogrid.com/hcloud-classic/hcc_errors"
+	"innogrid.com/hcloud-classic/pb"
 )
 
 // Subnet : Get infos of the subnet
@@ -101,8 +101,24 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(resListSubnet.HccErrorStack)
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errconv.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.SubnetList{Subnets: subnetList, Errors: errconv.HccErrorToPiccoloHccErr(*hccErrStack)}, nil
+	numSubnet, err := NumSubnet()
+	if err != nil {
+		return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+	modelSubnetNum := numSubnet.(model.SubnetNum)
+	if len(modelSubnetNum.Errors) != 0 {
+		for _, numError := range modelSubnetNum.Errors {
+			Errors = append(Errors, numError)
+		}
+		modelSubnetNum.Number = 0
+	}
+
+	return model.SubnetList{Subnets: subnetList, TotalNum: modelSubnetNum.Number, Errors: Errors}, nil
 }
 
 // AllSubnet : Get subnet list with provided options (Just call ListSubnet())
@@ -124,8 +140,12 @@ func AvailableSubnetList() (interface{}, error) {
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(resListSubnet.HccErrorStack)
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errconv.ReturnHccEmptyErrorPiccolo()
+	}
 
-	return model.SubnetList{Subnets: subnetList, Errors: errconv.HccErrorToPiccoloHccErr(*hccErrStack)}, nil
+	return model.SubnetList{Subnets: subnetList, Errors: Errors}, nil
 }
 
 // NumSubnet : Get number of subnets

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hcloud-classic/hcc_errors"
+	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
 // WriteServerAction : Write a server action to the database

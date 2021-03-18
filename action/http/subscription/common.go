@@ -36,7 +36,7 @@ func graphqlCommonSubscription(conn graphqlws.Connection,
 			logger.Logger.Println("graphqlCommonSubscription(): Query: ", data.Query, " Errors: ", graphqlData.Errors)
 		}
 
-		if isConnectionClosed(conn.ID()) {
+		if isOpStopped(conn.ID(), opID) {
 			return
 		}
 

@@ -1,7 +1,7 @@
 package errconv
 
 import (
-	errh "github.com/hcloud-classic/hcc_errors"
+	errh "innogrid.com/hcloud-classic/hcc_errors"
 )
 
 // PiccoloHccError : HccErrorType for Piccolo

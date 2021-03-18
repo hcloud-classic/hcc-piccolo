@@ -4,7 +4,7 @@ import (
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
 
-	"github.com/hcloud-classic/pb"
+	"innogrid.com/hcloud-classic/pb"
 )
 
 // PbMonitoringDataToModelTelegraf : Change monitoringData of proto type to telegraf model

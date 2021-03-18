@@ -1,8 +1,9 @@
 package logger
 
 import (
-	"github.com/hcloud-classic/hcc_errors"
 	"testing"
+
+	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
 func Test_CreateDirIfNotExist(t *testing.T) {

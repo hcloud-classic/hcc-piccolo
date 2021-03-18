@@ -2,12 +2,13 @@ package client
 
 import (
 	"context"
-	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"net"
 	"strconv"
 	"time"
+
+	"innogrid.com/hcloud-classic/pb"
 
 	"google.golang.org/grpc"
 )

@@ -8,8 +8,8 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/model"
 
-	"github.com/hcloud-classic/hcc_errors"
-	"github.com/hcloud-classic/pb"
+	"innogrid.com/hcloud-classic/hcc_errors"
+	"innogrid.com/hcloud-classic/pb"
 )
 
 // CreateServer : Create a server
