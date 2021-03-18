@@ -89,3 +89,16 @@ func (rc *RPCClient) Telegraph(in *pb.ReqMetricInfo) (*pb.ResMonitoringData, err
 
 	return resMonitoringData, nil
 }
+
+// GetBillingData : Get billing data of the group
+func (rc *RPCClient) GetBillingData(in *pb.ReqBillingData) (*pb.ResBillingData, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Piano.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resGetBillingData, err := rc.piano.GetBillingData(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resGetBillingData, nil
+}

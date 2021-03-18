@@ -975,6 +975,39 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"billing_data": &graphql.Field{
+				Type:        graphqlType.TelegrafType,
+				Description: "Get the billing data",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"billing_type": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"date_start": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"date_end": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.GetBillingData(params.Args)
+					if err != nil {
+						logger.Logger.Println("piano / billing_data: " + err.Error())
+					}
+
+					return data, err
+				},
+			},
 			// volume_list
 			"volume_list": &graphql.Field{
 				Type:        graphqlType.VolumeListType,
