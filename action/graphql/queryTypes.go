@@ -9,7 +9,7 @@ import (
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
 
-	"github.com/hcloud-classic/hcc_errors"
+	"innogrid.com/hcloud-classic/hcc_errors"
 
 	"github.com/graphql-go/graphql"
 )

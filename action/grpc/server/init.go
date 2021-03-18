@@ -1,13 +1,14 @@
 package server
 
 import (
-	"github.com/hcloud-classic/pb"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"net"
 	"strconv"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+	"innogrid.com/hcloud-classic/pb"
 )
 
 // Init : Initialize gRPC server

@@ -1,13 +1,14 @@
 package queryparser
 
 import (
-	"google.golang.org/grpc"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/iputil"
 	"hcc/piccolo/model"
 
-	"github.com/hcloud-classic/hcc_errors"
+	"google.golang.org/grpc"
+
+	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
 // AllTask : Get task list with provided options (Just call ListTask())

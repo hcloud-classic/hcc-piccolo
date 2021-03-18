@@ -3,11 +3,12 @@ package client
 import (
 	"context"
 	"errors"
-	"github.com/hcloud-classic/pb"
-	"google.golang.org/grpc"
 	"hcc/piccolo/lib/config"
 	"strconv"
 	"time"
+
+	"google.golang.org/grpc"
+	"innogrid.com/hcloud-classic/pb"
 )
 
 // InitTuba : Initialize a gRPC connection to tuba module

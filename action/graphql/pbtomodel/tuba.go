@@ -1,8 +1,9 @@
 package pbtomodel
 
 import (
-	"github.com/hcloud-classic/pb"
 	"hcc/piccolo/model"
+
+	"innogrid.com/hcloud-classic/pb"
 )
 
 // PbTaskToModelTask : Change task of proto type to model

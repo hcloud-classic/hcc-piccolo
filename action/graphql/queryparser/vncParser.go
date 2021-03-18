@@ -5,8 +5,8 @@ import (
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
 
-	"github.com/hcloud-classic/hcc_errors"
-	"github.com/hcloud-classic/pb"
+	"innogrid.com/hcloud-classic/hcc_errors"
+	"innogrid.com/hcloud-classic/pb"
 )
 
 func checkVncArgsAll(args map[string]interface{}) bool {

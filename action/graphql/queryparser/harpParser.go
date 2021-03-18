@@ -7,8 +7,8 @@ import (
 	"hcc/piccolo/model"
 
 	"github.com/golang/protobuf/ptypes"
-	"github.com/hcloud-classic/hcc_errors"
-	"github.com/hcloud-classic/pb"
+	"innogrid.com/hcloud-classic/hcc_errors"
+	"innogrid.com/hcloud-classic/pb"
 )
 
 // Subnet : Get infos of the subnet

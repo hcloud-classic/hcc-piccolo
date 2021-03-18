@@ -9,7 +9,7 @@ import (
 	"hcc/piccolo/model"
 
 	"github.com/graphql-go/graphql"
-	"github.com/hcloud-classic/hcc_errors"
+	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
 var subscriptionTypes = graphql.NewObject(

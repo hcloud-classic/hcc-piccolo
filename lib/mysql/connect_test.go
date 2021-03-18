@@ -1,10 +1,11 @@
 package mysql
 
 import (
-	"github.com/hcloud-classic/hcc_errors"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"testing"
+
+	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
 func Test_DB_Prepare(t *testing.T) {
