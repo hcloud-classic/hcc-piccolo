@@ -817,6 +817,9 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -838,10 +841,22 @@ var queryTypes = graphql.NewObject(
 					"memory": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"nic_speed_mbps": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"description": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 					"rack_number": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"charge_cpu": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"charge_memory": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"charge_nic": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
 					"active": &graphql.ArgumentConfig{
@@ -873,6 +888,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.NodeListType,
 				Description: "Get all node list",
 				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"active": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
