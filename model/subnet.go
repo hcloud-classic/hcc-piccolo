@@ -8,6 +8,7 @@ import (
 // Subnet : Contain infos of the subnet
 type Subnet struct {
 	UUID           string                    `json:"uuid"`
+	GroupID        int64                     `json:"group_id"`
 	NetworkIP      string                    `json:"network_ip"`
 	Netmask        string                    `json:"netmask"`
 	Gateway        string                    `json:"gateway"`

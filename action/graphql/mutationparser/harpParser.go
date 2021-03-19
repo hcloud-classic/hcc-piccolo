@@ -14,6 +14,7 @@ import (
 
 // CreateSubnet : Create a subnet
 func CreateSubnet(args map[string]interface{}) (interface{}, error) {
+	groupID, groupIDOk := args["group_id"].(int)
 	networkIP, networkIPOk := args["network_ip"].(string)
 	netmask, netmaskOk := args["netmask"].(string)
 	gateway, gatewayOk := args["gateway"].(string)
@@ -24,6 +25,9 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 	subnetName, subnetNameOk := args["subnet_name"].(string)
 
 	var subnet pb.Subnet
+	if groupIDOk {
+		subnet.GroupID = int64(groupID)
+	}
 	if networkIPOk {
 		subnet.NetworkIP = networkIP
 	}
@@ -68,6 +72,7 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
+	groupID, groupIDOk := args["group_id"].(int)
 	networkIP, networkIPOk := args["network_ip"].(string)
 	netmask, netmaskOk := args["netmask"].(string)
 	gateway, gatewayOk := args["gateway"].(string)
@@ -81,6 +86,9 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 
 	var subnet pb.Subnet
 	subnet.UUID = requestedUUID
+	if groupIDOk {
+		subnet.GroupID = int64(groupID)
+	}
 	if networkIPOk {
 		subnet.NetworkIP = networkIP
 	}
@@ -167,10 +175,14 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	tokenString, _ := args["token"].(string)
 
+	groupID, groupIDOk := args["group_id"].(int)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	publicIP, publicIPOk := args["public_ip"].(string)
 
 	var reqCreateAdaptiveIPServer pb.ReqCreateAdaptiveIPServer
+	if groupIDOk {
+		reqCreateAdaptiveIPServer.GroupID = int64(groupID)
+	}
 	if serverUUIDOk {
 		reqCreateAdaptiveIPServer.ServerUUID = serverUUID
 	}
@@ -188,6 +200,7 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	resAdaptiveIPServer := resCreateadAptiveIPServer.AdaptiveipServer
 	adaptiveIPServer := model.AdaptiveIPServer{
 		ServerUUID:     resAdaptiveIPServer.ServerUUID,
+		GroupID:        resAdaptiveIPServer.GroupID,
 		PublicIP:       resAdaptiveIPServer.PublicIP,
 		PrivateIP:      resAdaptiveIPServer.PrivateIP,
 		PrivateGateway: resAdaptiveIPServer.PrivateGateway,

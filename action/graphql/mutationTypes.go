@@ -240,6 +240,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphqlType.SubnetType,
 			Description: "Create new subnet",
 			Args: graphql.FieldConfigArgument{
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
 				"network_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -286,6 +289,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Args: graphql.FieldConfigArgument{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
+				},
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
 				},
 				"network_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
@@ -423,6 +429,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Args: graphql.FieldConfigArgument{
 				"server_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
+				},
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
 				},
 				"public_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,

@@ -30,6 +30,7 @@ func PbSubnetToModelSubnet(subnet *pb.Subnet, hccGrpcErrStack *pb.HccErrorStack)
 
 	modelSubnet := &model.Subnet{
 		UUID:           subnet.UUID,
+		GroupID:        subnet.GroupID,
 		NetworkIP:      subnet.NetworkIP,
 		Netmask:        subnet.Netmask,
 		Gateway:        subnet.Gateway,

@@ -32,6 +32,7 @@ func Subnet(args map[string]interface{}) (interface{}, error) {
 // ListSubnet : Get subnet list with provided options
 func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
+	groupID, groupIDOk := args["group_id"].(int)
 	networkIP, networkIPOk := args["network_ip"].(string)
 	netmask, netmaskOk := args["netmask"].(string)
 	gateway, gatewayOk := args["gateway"].(string)
@@ -51,6 +52,9 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 
 	if uuidOk {
 		reqListSubnet.Subnet.UUID = uuid
+	}
+	if groupIDOk {
+		reqListSubnet.Subnet.GroupID = int64(groupID)
 	}
 	if networkIPOk {
 		reqListSubnet.Subnet.NetworkIP = networkIP
@@ -236,6 +240,7 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 	return model.AdaptiveIPServer{
 		ServerUUID:     resGetAdaptiveIPServer.AdaptiveipServer.ServerUUID,
+		GroupID:     resGetAdaptiveIPServer.AdaptiveipServer.GroupID,
 		PublicIP:       resGetAdaptiveIPServer.AdaptiveipServer.PublicIP,
 		PrivateIP:      resGetAdaptiveIPServer.AdaptiveipServer.PrivateIP,
 		PrivateGateway: resGetAdaptiveIPServer.AdaptiveipServer.PrivateGateway,
@@ -246,6 +251,7 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 // ListAdaptiveIPServer : Get adaptiveIP server list with provided options
 func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	groupID, groupIDOk := args["group_id"].(int)
 	publicIP, publicIPOk := args["public_ip"].(string)
 	privateIP, privateIPOk := args["private_ip"].(string)
 	privateGateway, privateGatewayOk := args["private_gateway"].(string)
@@ -255,6 +261,9 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	var reqGetAdaptiveIPServerList pb.ReqGetAdaptiveIPServerList
 	if serverUUIDOk {
 		reqGetAdaptiveIPServerList.AdaptiveipServer.ServerUUID = serverUUID
+	}
+	if groupIDOk {
+		reqGetAdaptiveIPServerList.AdaptiveipServer.GroupID = int64(groupID)
 	}
 	if publicIPOk {
 		reqGetAdaptiveIPServerList.AdaptiveipServer.PublicIP = publicIP
@@ -286,6 +295,7 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 		adaptiveIPServerList = append(adaptiveIPServerList, model.AdaptiveIPServer{
 			ServerUUID:     adaptiveIPServer.ServerUUID,
+			GroupID: adaptiveIPServer.GroupID,
 			PublicIP:       adaptiveIPServer.PublicIP,
 			PrivateIP:      adaptiveIPServer.PrivateIP,
 			PrivateGateway: adaptiveIPServer.PrivateGateway,
