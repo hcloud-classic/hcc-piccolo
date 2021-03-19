@@ -103,19 +103,30 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 
 // CreateNode : Create a node
 func CreateNode(args map[string]interface{}) (interface{}, error) {
+	groupID, groupIDOk := args["group_id"].(int)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
+	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
+	chargeCPU, chargeCPUOk := args["charge_cpu"].(int)
+	chargeMemory, chargeMemoryOk := args["charge_memory"].(int)
+	chargeNIC, chargeNICOk := args["charge_nic"].(int)
 
 	var reqCreateNode pb.ReqCreateNode
 	var reqNode pb.Node
 	reqCreateNode.Node = &reqNode
 
-	if !bmcIPOk || !descriptionOk {
-		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need bmc_ip and description arguments")}, nil
+	if !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !chargeCPUOk || !chargeMemoryOk || !chargeNICOk {
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"need group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic arguments")}, nil
 	}
 
+	reqCreateNode.Node.GroupID = int64(groupID)
 	reqCreateNode.Node.BmcIP = bmcIP
+	reqCreateNode.Node.NicSpeedMbps = int32(nicSpeedMbps)
 	reqCreateNode.Node.Description = description
+	reqCreateNode.Node.ChargeCPU = int32(chargeCPU)
+	reqCreateNode.Node.ChargeMemory = int32(chargeMemory)
+	reqCreateNode.Node.ChargeNIC = int32(chargeNIC)
 
 	resCreateNode, err := client.RC.CreateNode(&reqCreateNode)
 	if err != nil {
