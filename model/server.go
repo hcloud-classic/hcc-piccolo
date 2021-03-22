@@ -8,6 +8,7 @@ import (
 // Server : Contain infos of the server
 type Server struct {
 	UUID       string                    `json:"uuid"`
+	GroupID    int64                     `json:"group_id"`
 	SubnetUUID string                    `json:"subnet_uuid"`
 	OS         string                    `json:"os"`
 	ServerName string                    `json:"server_name"`

@@ -241,6 +241,9 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"subnet_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -294,6 +297,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.ServerListType,
 				Description: "Get all server list",
 				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"row": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
