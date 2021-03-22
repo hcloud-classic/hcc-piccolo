@@ -3,8 +3,10 @@ package server
 import (
 	"context"
 	"errors"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
+	"innogrid.com/hcloud-classic/hcc_errors"
 
 	"innogrid.com/hcloud-classic/pb"
 )
@@ -35,4 +37,16 @@ func (s *piccoloServer) WriteServerAction(_ context.Context, in *pb.ReqWriteServ
 	}
 
 	return &pb.ResWriteServerAction{Result: "Success"}, nil
+}
+
+func (s *piccoloServer) GetGroupList(_ context.Context, in *pb.ResGetGroupList) (*pb.ResGetGroupList, error) {
+	// logger.Logger.Println("Request received: GetGroupList()")
+
+	groupList, errCode, errStr := dao.ReadGroupList()
+	if errCode != 0 {
+		errStack := hcc_errors.NewHccErrorStack(hcc_errors.NewHccError(errCode, errStr))
+		return &pb.ResGetGroupList{Group: []*pb.Group{}, HccErrorStack: errconv.HccStackToGrpc(errStack)}, nil
+	}
+
+	return groupList, nil
 }
