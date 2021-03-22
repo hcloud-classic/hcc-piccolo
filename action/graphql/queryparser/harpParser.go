@@ -240,7 +240,7 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 	return model.AdaptiveIPServer{
 		ServerUUID:     resGetAdaptiveIPServer.AdaptiveipServer.ServerUUID,
-		GroupID:     resGetAdaptiveIPServer.AdaptiveipServer.GroupID,
+		GroupID:        resGetAdaptiveIPServer.AdaptiveipServer.GroupID,
 		PublicIP:       resGetAdaptiveIPServer.AdaptiveipServer.PublicIP,
 		PrivateIP:      resGetAdaptiveIPServer.AdaptiveipServer.PrivateIP,
 		PrivateGateway: resGetAdaptiveIPServer.AdaptiveipServer.PrivateGateway,
@@ -295,7 +295,7 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 		adaptiveIPServerList = append(adaptiveIPServerList, model.AdaptiveIPServer{
 			ServerUUID:     adaptiveIPServer.ServerUUID,
-			GroupID: adaptiveIPServer.GroupID,
+			GroupID:        adaptiveIPServer.GroupID,
 			PublicIP:       adaptiveIPServer.PublicIP,
 			PrivateIP:      adaptiveIPServer.PrivateIP,
 			PrivateGateway: adaptiveIPServer.PrivateGateway,
