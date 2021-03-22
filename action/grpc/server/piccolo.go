@@ -39,7 +39,7 @@ func (s *piccoloServer) WriteServerAction(_ context.Context, in *pb.ReqWriteServ
 	return &pb.ResWriteServerAction{Result: "Success"}, nil
 }
 
-func (s *piccoloServer) GetGroupList(_ context.Context, in *pb.ResGetGroupList) (*pb.ResGetGroupList, error) {
+func (s *piccoloServer) GetGroupList(_ context.Context, _ *pb.Empty) (*pb.ResGetGroupList, error) {
 	// logger.Logger.Println("Request received: GetGroupList()")
 
 	groupList, errCode, errStr := dao.ReadGroupList()
