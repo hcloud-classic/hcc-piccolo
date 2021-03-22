@@ -463,9 +463,6 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"group_id": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -660,9 +657,6 @@ var queryTypes = graphql.NewObject(
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"group_id": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -793,9 +787,6 @@ var queryTypes = graphql.NewObject(
 				Args: graphql.FieldConfigArgument{
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
-					},
-					"group_id": &graphql.ArgumentConfig{
-						Type: graphql.Int,
 					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
