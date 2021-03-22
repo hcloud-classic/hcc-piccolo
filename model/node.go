@@ -17,7 +17,7 @@ type Node struct {
 	Status          string                    `json:"status"`
 	CPUCores        int                       `json:"cpu_cores"`
 	Memory          int                       `json:"memory"`
-	NICSpeedMbps    int                       `json:"nic_speed_mbps"`
+	NICSpeed        string                    `json:"nic_speed"`
 	Description     string                    `json:"description"`
 	RackNumber      int                       `json:"rack_number"`
 	ChargeCPU       int                       `json:"charge_cpu"`

@@ -37,8 +37,8 @@ var NodeType = graphql.NewObject(
 			"memory": &graphql.Field{
 				Type: graphql.Int,
 			},
-			"nic_speed_mbps": &graphql.Field{
-				Type: graphql.Int,
+			"nic_speed": &graphql.Field{
+				Type: graphql.String,
 			},
 			"description": &graphql.Field{
 				Type: graphql.String,

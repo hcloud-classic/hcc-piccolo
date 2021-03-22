@@ -14,6 +14,8 @@ import (
 // PbNodeToModelNode : Change node of proto type to model
 func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.Node {
 	var createdAt time.Time
+	var nicSpeed = "Unknown"
+
 	if node.CreatedAt == nil {
 		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
 			Seconds: 0,
@@ -28,6 +30,25 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 		}
 	}
 
+	switch node.NicSpeedMbps {
+	case 10:
+		nicSpeed = "10Mbps"
+	case 100:
+		nicSpeed = "100Mbps"
+	case 1000:
+		nicSpeed = "1Gbps"
+	case 2500:
+		nicSpeed = "2.5Gbps"
+	case 5000:
+		nicSpeed = "5Gbps"
+	case 10000:
+		nicSpeed = "10Gbps"
+	case 20000:
+		nicSpeed = "20Gbps"
+	case 40000:
+		nicSpeed = "40Gbps"
+	}
+
 	modelNode := &model.Node{
 		GroupID:         node.GroupID,
 		UUID:            node.UUID,
@@ -39,7 +60,7 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 		Status:          node.Status,
 		CPUCores:        int(node.CPUCores),
 		Memory:          int(node.Memory),
-		NICSpeedMbps:    int(node.NicSpeedMbps),
+		NICSpeed:        nicSpeed,
 		Description:     node.Description,
 		RackNumber:      int(node.RackNumber),
 		ChargeCPU:       int(node.ChargeCPU),
