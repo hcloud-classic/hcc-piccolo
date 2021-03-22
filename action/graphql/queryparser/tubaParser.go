@@ -51,7 +51,7 @@ func AllTask(args map[string]interface{}) (interface{}, error) {
 	}
 
 	return model.TaskListResult{
-		Result: resTaskListResult.Result,
+		Result: string(resTaskListResult.Result),
 		Errors: Errors,
 	}, nil
 }
