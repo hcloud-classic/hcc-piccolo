@@ -29,6 +29,7 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 	}
 
 	modelNode := &model.Node{
+		GroupID:         node.GroupID,
 		UUID:            node.UUID,
 		ServerUUID:      node.ServerUUID,
 		BmcMacAddr:      node.BmcMacAddr,
@@ -38,11 +39,16 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 		Status:          node.Status,
 		CPUCores:        int(node.CPUCores),
 		Memory:          int(node.Memory),
+		NICSpeedMbps:    int(node.NicSpeedMbps),
 		Description:     node.Description,
 		RackNumber:      int(node.RackNumber),
-		CreatedAt:       createdAt,
+		ChargeCPU:       int(node.ChargeCPU),
+		ChargeMemory:    int(node.ChargeMemory),
+		ChargeNIC:       int(node.ChargeNIC),
 		Active:          int(node.Active),
+		CreatedAt:       createdAt,
 		ForceOff:        node.ForceOff,
+		Errors:          nil,
 	}
 
 	if hccGrpcErrStack != nil {

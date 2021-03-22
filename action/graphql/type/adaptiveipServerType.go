@@ -10,6 +10,9 @@ var AdaptiveIPServerType = graphql.NewObject(
 			"server_uuid": &graphql.Field{
 				Type: graphql.String,
 			},
+			"group_id": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"public_ip": &graphql.Field{
 				Type: graphql.String,
 			},

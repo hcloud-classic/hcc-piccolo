@@ -27,3 +27,25 @@ func PbMonitoringDataToModelTelegraf(monitoringData *pb.MonitoringData, hccGrpcE
 
 	return modelTelegraf
 }
+
+// PbBillingDataToModelBillingData : Change billingData of proto type to billingData model
+func PbBillingDataToModelBillingData(billingData *pb.ResBillingData) *model.BillingData {
+
+	modelBillingData := &model.BillingData{
+		BillingType: billingData.BillingType,
+		GroupID:     billingData.GroupID,
+		Result:      string(billingData.Result),
+	}
+
+	if billingData.HccErrorStack != nil {
+		hccErrStack := errconv.GrpcStackToHcc(billingData.HccErrorStack)
+		modelBillingData.Errors = errconv.HccErrorToPiccoloHccErr(*hccErrStack)
+		if len(modelBillingData.Errors) != 0 && modelBillingData.Errors[0].ErrCode == 0 {
+			modelBillingData.Errors = errconv.ReturnHccEmptyErrorPiccolo()
+		}
+	} else {
+		modelBillingData.Errors = errconv.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return modelBillingData
+}

@@ -5,6 +5,8 @@ import (
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
+	"strconv"
+	"strings"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
 	"innogrid.com/hcloud-classic/pb"
@@ -59,4 +61,40 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 	modelTelegraf := pbtomodel.PbMonitoringDataToModelTelegraf(resMonitoringData.MonitoringData, resMonitoringData.HccErrorStack)
 
 	return *modelTelegraf, nil
+}
+
+// GetBillingData : Get billing data with provided options
+func GetBillingData(args map[string]interface{}) (interface{}, error) {
+	groupID, groupIDOk := args["group_id"].(string)
+	billingType, _ := args["billing_type"].(string)
+	dateStart, _ := args["date_start"].(int)
+	dateEnd, _ := args["date_end"].(int)
+
+	if !groupIDOk {
+		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"need a group_id argument")}, nil
+	}
+
+	var groupIDs []int32
+	groupIDsStr := strings.Split(groupID, ".")
+	for _, groupIDStr := range groupIDsStr {
+		gid, err := strconv.Atoi(groupIDStr)
+		if err == nil {
+			groupIDs = append(groupIDs, int32(gid))
+		}
+	}
+
+	resBillingData, err := client.RC.GetBillingData(&pb.ReqBillingData{
+		BillingType: billingType,
+		GroupID:     groupIDs,
+		DateStart:   int32(dateStart),
+		DateEnd:     int32(dateEnd),
+	})
+	if err != nil {
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	modelBillingData := pbtomodel.PbBillingDataToModelBillingData(resBillingData)
+
+	return modelBillingData, nil
 }

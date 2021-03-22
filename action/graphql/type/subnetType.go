@@ -10,6 +10,9 @@ var SubnetType = graphql.NewObject(
 			"uuid": &graphql.Field{
 				Type: graphql.String,
 			},
+			"group_id": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"network_ip": &graphql.Field{
 				Type: graphql.String,
 			},

@@ -8,6 +8,7 @@ import (
 // Node : Contain infos of the node
 type Node struct {
 	UUID            string                    `json:"uuid"`
+	GroupID         int64                     `json:"group_id"`
 	ServerUUID      string                    `json:"server_uuid"`
 	BmcMacAddr      string                    `json:"bmc_mac_addr"`
 	BmcIP           string                    `json:"bmc_ip"`
@@ -16,10 +17,14 @@ type Node struct {
 	Status          string                    `json:"status"`
 	CPUCores        int                       `json:"cpu_cores"`
 	Memory          int                       `json:"memory"`
+	NICSpeedMbps    int                       `json:"nic_speed_mbps"`
 	Description     string                    `json:"description"`
 	RackNumber      int                       `json:"rack_number"`
-	CreatedAt       time.Time                 `json:"created_at"`
+	ChargeCPU       int                       `json:"charge_cpu"`
+	ChargeMemory    int                       `json:"charge_memory"`
+	ChargeNIC       int                       `json:"charge_nic"`
 	Active          int                       `json:"active"`
+	CreatedAt       time.Time                 `json:"created_at"`
 	ForceOff        bool                      `json:"force_off"`
 	Errors          []errconv.PiccoloHccError `json:"errors"`
 }
