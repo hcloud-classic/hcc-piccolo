@@ -30,6 +30,7 @@ func PbServerToModelServer(server *pb.Server, hccGrpcErrStack *pb.HccErrorStack)
 
 	modelServer := &model.Server{
 		UUID:       server.UUID,
+		GroupID:    server.GroupID,
 		SubnetUUID: server.SubnetUUID,
 		OS:         server.OS,
 		ServerName: server.ServerName,

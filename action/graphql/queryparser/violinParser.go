@@ -37,6 +37,7 @@ func Server(args map[string]interface{}) (interface{}, error) {
 // ListServer : Get server list with provided options
 func ListServer(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
+	groupID, groupIDOk := args["group_id"].(int)
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
 	os, osOk := args["os"].(string)
 	serverName, serverNameOk := args["server_name"].(string)
@@ -55,6 +56,9 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 
 	if uuidOk {
 		reqListServer.Server.UUID = uuid
+	}
+	if groupIDOk {
+		reqListServer.Server.GroupID = int64(groupID)
 	}
 	if subnetUUIDOk {
 		reqListServer.Server.SubnetUUID = subnetUUID

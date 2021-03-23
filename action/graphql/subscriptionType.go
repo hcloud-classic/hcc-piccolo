@@ -157,6 +157,12 @@ var subscriptionTypes = graphql.NewObject(
 					"server_port": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"sort_by": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"reverse_sorting": &graphql.ArgumentConfig{
+						Type: graphql.Boolean,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)
