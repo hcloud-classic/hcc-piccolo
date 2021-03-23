@@ -15,7 +15,7 @@ type Task struct {
 	Priority   int    `json:"priority"`
 	Nice       int    `json:"nice"`
 	NumThreads int    `json:"num_threads"`
-	StartTime  string `json:"start_time"`
+	Time       string `json:"time"`
 	Children   []Task `json:"children"`
 	Threads    []Task `json:"threads"`
 	CPUUsage   string `json:"cpu_usage"`
@@ -24,6 +24,7 @@ type Task struct {
 	EPMSource  int    `json:"epm_source"`
 	EPMTarget  int    `json:"epm_target"`
 	CMDLine    string `json:"cmdline"`
+	IsThread   bool   `json:"is_thread"`
 }
 
 // TaskList : Array struct of tasks

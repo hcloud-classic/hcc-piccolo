@@ -5,6 +5,7 @@ import (
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/iputil"
 	"hcc/piccolo/model"
+	"innogrid.com/hcloud-classic/pb"
 
 	"google.golang.org/grpc"
 
@@ -15,6 +16,8 @@ import (
 func AllTask(args map[string]interface{}) (interface{}, error) {
 	serverAddress, serverAddressOk := args["server_address"].(string)
 	serverPort, serverPortOk := args["server_port"].(int)
+	sortBy, sortByOk := args["sort_by"].(string)
+	reverseSorting, reverseSortingOk := args["reverse_sorting"].(bool)
 
 	if !serverAddressOk || !serverPortOk {
 		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
@@ -39,19 +42,29 @@ func AllTask(args map[string]interface{}) (interface{}, error) {
 	}
 	defer client.CloseTuba(conn)
 
-	resTaskListResult, err := client.GetTaskList(tubaClient)
+	reqGetTaskList := &pb.ReqGetTaskList{
+		SortBy:         "",
+		ReverseSorting: false,
+	}
+	if sortByOk {
+		reqGetTaskList.SortBy = sortBy
+		if reverseSortingOk {
+			reqGetTaskList.ReverseSorting = reverseSorting
+		}
+	}
+	resGetTaskList, err := client.GetTaskList(tubaClient, reqGetTaskList)
 	if err != nil {
 		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	hccErrStack := errconv.GrpcStackToHcc(resTaskListResult.HccErrorStack)
+	hccErrStack := errconv.GrpcStackToHcc(resGetTaskList.HccErrorStack)
 	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
 	return model.TaskListResult{
-		Result: string(resTaskListResult.Result),
+		Result: string(resGetTaskList.Result),
 		Errors: Errors,
 	}, nil
 }
