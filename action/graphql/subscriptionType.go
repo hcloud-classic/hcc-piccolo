@@ -163,6 +163,9 @@ var subscriptionTypes = graphql.NewObject(
 					"reverse_sorting": &graphql.ArgumentConfig{
 						Type: graphql.Boolean,
 					},
+					"hide_threads": &graphql.ArgumentConfig{
+						Type: graphql.Boolean,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					err := usertool.ValidateToken(params.Args)

@@ -18,6 +18,7 @@ func AllTask(args map[string]interface{}) (interface{}, error) {
 	serverPort, serverPortOk := args["server_port"].(int)
 	sortBy, sortByOk := args["sort_by"].(string)
 	reverseSorting, reverseSortingOk := args["reverse_sorting"].(bool)
+	hideThreads, hideThreadsOk := args["hide_threads"].(bool)
 
 	if !serverAddressOk || !serverPortOk {
 		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
@@ -51,6 +52,9 @@ func AllTask(args map[string]interface{}) (interface{}, error) {
 		if reverseSortingOk {
 			reqGetTaskList.ReverseSorting = reverseSorting
 		}
+	}
+	if hideThreadsOk {
+		reqGetTaskList.HideThreads = hideThreads
 	}
 	resGetTaskList, err := client.GetTaskList(tubaClient, reqGetTaskList)
 	if err != nil {
