@@ -145,22 +145,41 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
+	groupID, groupIDOk := args["group_id"].(int)
+	nodeNum, nodeNumOk := args["node_num"].(int)
+	nodeIP, nodeIPOk := args["node_ip"].(string)
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
 	pxeMacAddr, pxeMacAddrOk := args["pxe_mac_addr"].(string)
 	status, statusOk := args["status"].(string)
 	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
 	memory, memoryOk := args["memory"].(int)
-	rackNumber, rackNumberOk := args["rack_number"].(int)
+	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
+	rackNumber, rackNumberOk := args["rack_number"].(int)
+	chargeCPU, chargeCPUOk := args["charge_cpu"].(int)
+	chargeMemory, chargeMemoryOk := args["charge_memory"].(int)
+	chargeNIC, chargeNICOk := args["charge_nic"].(int)
 	active, activeOk := args["active"].(int)
-	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 
 	var reqUpdateNode pb.ReqUpdateNode
 	var reqNode pb.Node
 	reqUpdateNode.Node = &reqNode
 
 	reqUpdateNode.Node.UUID = requestedUUID
+	if groupIDOk {
+		reqUpdateNode.Node.GroupID = int64(groupID)
+	}
+	if nodeNumOk {
+		reqUpdateNode.Node.NodeNum = int32(nodeNum)
+	}
+	if nodeIPOk {
+		reqUpdateNode.Node.NodeIP = nodeIP
+	}
+	if serverUUIDOk {
+		reqUpdateNode.Node.ServerUUID = serverUUID
+	}
 	if bmcMacAddrOk {
 		reqUpdateNode.Node.BmcMacAddr = bmcMacAddr
 	}
@@ -179,17 +198,26 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	if memoryOk {
 		reqUpdateNode.Node.Memory = int32(memory)
 	}
-	if rackNumberOk {
-		reqUpdateNode.Node.RackNumber = int32(rackNumber)
+	if nicSpeedMbpsOk {
+		reqUpdateNode.Node.NicSpeedMbps = int32(nicSpeedMbps)
 	}
 	if descriptionOk {
 		reqUpdateNode.Node.Description = description
 	}
+	if rackNumberOk {
+		reqUpdateNode.Node.RackNumber = int32(rackNumber)
+	}
+	if chargeCPUOk {
+		reqUpdateNode.Node.ChargeCPU = int32(chargeCPU)
+	}
+	if chargeMemoryOk {
+		reqUpdateNode.Node.ChargeMemory = int32(chargeMemory)
+	}
+	if chargeNICOk {
+		reqUpdateNode.Node.ChargeNIC = int32(chargeNIC)
+	}
 	if activeOk {
 		reqUpdateNode.Node.Active = int32(active)
-	}
-	if serverUUIDOk {
-		reqUpdateNode.Node.ServerUUID = serverUUID
 	}
 
 	resUpdateNode, err := client.RC.UpdateNode(&reqUpdateNode)

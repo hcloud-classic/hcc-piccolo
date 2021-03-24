@@ -52,6 +52,9 @@ func Node(args map[string]interface{}) (interface{}, error) {
 // ListNode : Get node list with provided options
 func ListNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
+	groupID, groupIDOk := args["group_id"].(int)
+	nodeNum, nodeNumOk := args["node_num"].(int)
+	nodeIP, nodeIPOk := args["node_ip"].(string)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
@@ -59,8 +62,12 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	status, statusOk := args["status"].(string)
 	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
 	memory, memoryOk := args["memory"].(int)
+	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
 	rackNumber, rackNumberOk := args["rack_number"].(int)
+	chargeCPU, chargeCPUOk := args["charge_cpu"].(int)
+	chargeMemory, chargeMemoryOk := args["charge_memory"].(int)
+	chargeNIC, chargeNICOk := args["charge_nic"].(int)
 	active, activeOk := args["active"].(int)
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
@@ -71,6 +78,15 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 
 	if uuidOk {
 		reqListNode.Node.UUID = uuid
+	}
+	if groupIDOk {
+		reqListNode.Node.GroupID = int64(groupID)
+	}
+	if nodeNumOk {
+		reqListNode.Node.NodeNum = int32(nodeNum)
+	}
+	if nodeIPOk {
+		reqListNode.Node.NodeIP = nodeIP
 	}
 	if serverUUIDOk {
 		reqListNode.Node.ServerUUID = serverUUID
@@ -93,11 +109,23 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	if memoryOk {
 		reqListNode.Node.Memory = int32(memory)
 	}
+	if nicSpeedMbpsOk {
+		reqListNode.Node.NicSpeedMbps = int32(nicSpeedMbps)
+	}
 	if descriptionOk {
 		reqListNode.Node.Description = description
 	}
 	if rackNumberOk {
 		reqListNode.Node.RackNumber = int32(rackNumber)
+	}
+	if chargeCPUOk {
+		reqListNode.Node.ChargeCPU = int32(chargeCPU)
+	}
+	if chargeMemoryOk {
+		reqListNode.Node.ChargeMemory = int32(chargeMemory)
+	}
+	if chargeNICOk {
+		reqListNode.Node.ChargeNIC = int32(chargeNIC)
 	}
 	if activeOk {
 		reqListNode.Node.Active = int32(active)
