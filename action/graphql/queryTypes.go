@@ -1124,10 +1124,10 @@ var queryTypes = graphql.NewObject(
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"server_address": &graphql.ArgumentConfig{
+					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"server_port": &graphql.ArgumentConfig{
+					"node_num": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
 					"sort_by": &graphql.ArgumentConfig{

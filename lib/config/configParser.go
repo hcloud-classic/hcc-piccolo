@@ -239,6 +239,11 @@ func parseTuba() {
 	}
 
 	Tuba = tuba{}
+	Tuba.ServerPort, err = config.TubaConfig.Int("tuba_server_port")
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
 	Tuba.RequestTimeoutMs, err = config.TubaConfig.Int("tuba_request_timeout_ms")
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
