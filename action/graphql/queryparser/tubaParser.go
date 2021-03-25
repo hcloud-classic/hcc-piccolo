@@ -3,7 +3,7 @@ package queryparser
 import (
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
-	"hcc/piccolo/lib/iputil"
+	"hcc/piccolo/lib/config"
 	"hcc/piccolo/model"
 	"innogrid.com/hcloud-classic/pb"
 
@@ -14,29 +14,31 @@ import (
 
 // AllTask : Get task list with provided options (Just call ListTask())
 func AllTask(args map[string]interface{}) (interface{}, error) {
-	serverAddress, serverAddressOk := args["server_address"].(string)
-	serverPort, serverPortOk := args["server_port"].(int)
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	sortBy, sortByOk := args["sort_by"].(string)
 	reverseSorting, reverseSortingOk := args["reverse_sorting"].(bool)
+	hideThreads, hideThreadsOk := args["hide_threads"].(bool)
 
-	if !serverAddressOk || !serverPortOk {
+	if !serverUUIDOk {
 		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need server_address and server_port arguments")}, nil
+			"need a server_uuid argument")}, nil
 	}
 
-	ipCheck := iputil.CheckValidIP(serverAddress)
-	if ipCheck == nil {
-		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"invalid server address")}, nil
+	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{
+		Node: &pb.Node{
+			ServerUUID: serverUUID,
+			NodeNum:    1,
+		},
+	})
+	if err != nil {
+		return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-
-	if serverPort < 1 || serverPort > 65535 {
-		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"out of port number range")}, nil
+	if len(resGetNodeList.Node) == 0 {
+		return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "node not found")}, nil
 	}
 
 	var conn *grpc.ClientConn
-	tubaClient, err := client.InitTuba(serverAddress, serverPort, conn)
+	tubaClient, err := client.InitTuba(resGetNodeList.Node[0].NodeIP, int(config.Tuba.ServerPort), conn)
 	if err != nil {
 		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -51,6 +53,9 @@ func AllTask(args map[string]interface{}) (interface{}, error) {
 		if reverseSortingOk {
 			reqGetTaskList.ReverseSorting = reverseSorting
 		}
+	}
+	if hideThreadsOk {
+		reqGetTaskList.HideThreads = hideThreads
 	}
 	resGetTaskList, err := client.GetTaskList(tubaClient, reqGetTaskList)
 	if err != nil {

@@ -820,6 +820,12 @@ var queryTypes = graphql.NewObject(
 					"group_id": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"node_num": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"node_ip": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -1118,16 +1124,16 @@ var queryTypes = graphql.NewObject(
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"server_address": &graphql.ArgumentConfig{
+					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
-					},
-					"server_port": &graphql.ArgumentConfig{
-						Type: graphql.Int,
 					},
 					"sort_by": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 					"reverse_sorting": &graphql.ArgumentConfig{
+						Type: graphql.Boolean,
+					},
+					"hide_threads": &graphql.ArgumentConfig{
 						Type: graphql.Boolean,
 					},
 				},
