@@ -12,7 +12,7 @@ import (
 	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
-// AllTask : Get task list with provided options (Just call ListTask())
+// AllTask : Get task list with provided options
 func AllTask(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	sortBy, sortByOk := args["sort_by"].(string)
