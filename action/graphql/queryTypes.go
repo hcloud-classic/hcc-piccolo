@@ -1127,9 +1127,6 @@ var queryTypes = graphql.NewObject(
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"node_num": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
 					"sort_by": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},

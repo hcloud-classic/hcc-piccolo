@@ -15,7 +15,6 @@ import (
 // AllTask : Get task list with provided options (Just call ListTask())
 func AllTask(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	_, nodeNumOk := args["node_num"].(int)
 	sortBy, sortByOk := args["sort_by"].(string)
 	reverseSorting, reverseSortingOk := args["reverse_sorting"].(bool)
 	hideThreads, hideThreadsOk := args["hide_threads"].(bool)
@@ -25,15 +24,10 @@ func AllTask(args map[string]interface{}) (interface{}, error) {
 			"need a server_uuid argument")}, nil
 	}
 
-	var nodeNum = 1
-	if nodeNumOk {
-		nodeNum, _ = args["node_num"].(int)
-	}
-
 	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{
 		Node: &pb.Node{
 			ServerUUID: serverUUID,
-			NodeNum:    int32(nodeNum),
+			NodeNum:    1,
 		},
 	})
 	if err != nil {
