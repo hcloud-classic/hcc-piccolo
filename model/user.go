@@ -5,11 +5,19 @@ import (
 	"time"
 )
 
-// User : Contain infos of a user
+// Group : Contain infos of the group
+type Group struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
+// User : Contain infos of the user
 type User struct {
 	UUID      string                    `json:"uuid"`
 	ID        string                    `json:"id"`
 	Name      string                    `json:"name"`
+	GroupID   int64                     `json:"group_id"`
+	GroupName string                    `json:"group_name"`
 	Email     string                    `json:"email"`
 	LoginAt   time.Time                 `json:"login_at"`
 	CreatedAt time.Time                 `json:"created_at"`

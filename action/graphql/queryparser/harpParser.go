@@ -1,6 +1,7 @@
 package queryparser
 
 import (
+	"fmt"
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
@@ -110,7 +111,7 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
-	numSubnet, err := NumSubnet()
+	numSubnet, err := NumSubnet(int64(groupID))
 	if err != nil {
 		return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -131,8 +132,8 @@ func AllSubnet(args map[string]interface{}) (interface{}, error) {
 }
 
 // AvailableSubnetList : Get available subnet list
-func AvailableSubnetList() (interface{}, error) {
-	resListSubnet, err := client.RC.GetAvailableSubnetList()
+func AvailableSubnetList(groupID int64) (interface{}, error) {
+	resListSubnet, err := client.RC.GetAvailableSubnetList(groupID)
 	if err != nil {
 		return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -153,8 +154,8 @@ func AvailableSubnetList() (interface{}, error) {
 }
 
 // NumSubnet : Get number of subnets
-func NumSubnet() (interface{}, error) {
-	resGetSubnetNum, err := client.RC.GetSubnetNum()
+func NumSubnet(groupID int64) (interface{}, error) {
+	resGetSubnetNum, err := client.RC.GetSubnetNum(groupID)
 	if err != nil {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -259,6 +260,9 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	page, pageOk := args["page"].(int)
 
 	var reqGetAdaptiveIPServerList pb.ReqGetAdaptiveIPServerList
+	var reqAdaptiveIPServerList pb.AdaptiveIPServer
+	reqGetAdaptiveIPServerList.AdaptiveipServer = &reqAdaptiveIPServerList
+
 	if serverUUIDOk {
 		reqGetAdaptiveIPServerList.AdaptiveipServer.ServerUUID = serverUUID
 	}
@@ -285,6 +289,8 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
+
+	fmt.Println(111111111)
 
 	var adaptiveIPServerList []model.AdaptiveIPServer
 	for _, adaptiveIPServer := range resAdaptiveIPServerList.AdaptiveipServer {
@@ -318,8 +324,8 @@ func AllAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 }
 
 // NumAdaptiveIPServer : Get number of adaptiveIP servers
-func NumAdaptiveIPServer() (interface{}, error) {
-	resGetAdaptiveIPServerNum, err := client.RC.GetAdaptiveIPServerNum()
+func NumAdaptiveIPServer(groupID int64) (interface{}, error) {
+	resGetAdaptiveIPServerNum, err := client.RC.GetAdaptiveIPServerNum(groupID)
 	if err != nil {
 		return model.AdaptiveIPServerNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}

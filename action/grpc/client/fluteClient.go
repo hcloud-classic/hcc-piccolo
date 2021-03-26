@@ -254,11 +254,13 @@ func (rc *RPCClient) GetNodeList(in *pb.ReqGetNodeList) (*pb.ResGetNodeList, err
 }
 
 // GetNodeNum : Get the number of nodes
-func (rc *RPCClient) GetNodeNum() (*pb.ResGetNodeNum, error) {
+func (rc *RPCClient) GetNodeNum(groupID int64) (*pb.ResGetNodeNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resGetNodeNum, err := rc.flute.GetNodeNum(ctx, &pb.Empty{})
+	resGetNodeNum, err := rc.flute.GetNodeNum(ctx, &pb.ReqGetNodeNum{
+		GroupID: groupID,
+	})
 	if err != nil {
 		return nil, err
 	}

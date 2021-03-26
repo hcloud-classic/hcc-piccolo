@@ -118,11 +118,13 @@ func (rc *RPCClient) GetServerList(in *pb.ReqGetServerList) (*pb.ResGetServerLis
 }
 
 // GetServerNum : Get the number of servers
-func (rc *RPCClient) GetServerNum() (*pb.ResGetServerNum, error) {
+func (rc *RPCClient) GetServerNum(groupID int64) (*pb.ResGetServerNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resGetServerNum, err := rc.violin.GetServerNum(ctx, &pb.Empty{})
+	resGetServerNum, err := rc.violin.GetServerNum(ctx, &pb.ReqGetServerNum{
+		GroupID: groupID,
+	})
 	if err != nil {
 		return nil, err
 	}

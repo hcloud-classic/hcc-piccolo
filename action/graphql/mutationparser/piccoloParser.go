@@ -14,13 +14,14 @@ import (
 
 // SignUp : Do user sign up process
 func SignUp(args map[string]interface{}) (interface{}, error) {
+	groupID, groupIDOk := args["group_id"].(int)
 	id, idOk := args["id"].(string)
 	password, passwordOk := args["password"].(string)
 	name, nameOk := args["name"].(string)
 	email, emailOk := args["email"].(string)
 
-	if !idOk || !passwordOk || !nameOk || !emailOk {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and password, name, email arguments")}, nil
+	if !groupIDOk || !idOk || !passwordOk || !nameOk || !emailOk {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and group_id, password, name, email arguments")}, nil
 	}
 
 	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
@@ -42,13 +43,14 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	UUID := out.String()
 
 	user := model.User{
-		UUID:  UUID,
-		ID:    id,
-		Name:  name,
-		Email: email,
+		UUID:    UUID,
+		GroupID: int64(groupID),
+		ID:      id,
+		Name:    name,
+		Email:   email,
 	}
 
-	sql = "insert into user(uuid, id, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, now(), now())"
+	sql = "insert into user(uuid, group_id, id, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, ?, now(), now())"
 	stmt, err := mysql.Prepare(sql)
 	if err != nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, err.Error())}, nil
@@ -56,7 +58,7 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	defer func() {
 		_ = stmt.Close()
 	}()
-	_, err = stmt.Exec(user.UUID, user.ID, password, user.Name, user.Email)
+	_, err = stmt.Exec(user.UUID, user.GroupID, user.ID, password, user.Name, user.Email)
 	if err != nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}

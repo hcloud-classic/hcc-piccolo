@@ -11,6 +11,8 @@ import (
 	"innogrid.com/hcloud-classic/pb"
 )
 
+// TODO: Need to handle group_id - ish
+
 // PoolHandler : Handler of zfs pool
 func PoolHandler(args map[string]interface{}) (interface{}, error) {
 
@@ -41,6 +43,7 @@ func PoolHandler(args map[string]interface{}) (interface{}, error) {
 
 // GetPoolList : pool list
 func GetPoolList(args map[string]interface{}) (interface{}, error) {
+	// TODO: Need to handle group_id - ish
 
 	// UUID, UUIDOk := args["uuid"].(string)
 	// Size, SizeOk := args["size"].(string)

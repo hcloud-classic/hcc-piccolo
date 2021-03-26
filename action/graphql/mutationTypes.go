@@ -24,6 +24,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"id": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
 				"password": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -54,7 +57,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateTokenForAdmin(params.Args)
+				err, _ := usertool.ValidateTokenForAdmin(params.Args)
 				if err != nil {
 					return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -70,9 +73,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphqlType.ServerType,
 			Description: "Create new server",
 			Args: graphql.FieldConfigArgument{
-				"group_id": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
 				"subnet_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -105,10 +105,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, groupID := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
+				params.Args["group_id"] = int(groupID)
 				data, err := mutationparser.CreateServer(params.Args)
 				if err != nil {
 					logger.Logger.Println("violin / create_server: " + err.Error())
@@ -122,9 +123,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Args: graphql.FieldConfigArgument{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
-				},
-				"group_id": &graphql.ArgumentConfig{
-					Type: graphql.Int,
 				},
 				"subnet_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
@@ -158,10 +156,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, groupID := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
+				params.Args["group_id"] = int(groupID)
 				data, err := mutationparser.UpdateServer(params.Args)
 				if err != nil {
 					logger.Logger.Println("violin / update_server: " + err.Error())
@@ -181,7 +180,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -207,7 +206,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.ServerNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -230,7 +229,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.ServerNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -246,9 +245,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphqlType.SubnetType,
 			Description: "Create new subnet",
 			Args: graphql.FieldConfigArgument{
-				"group_id": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
 				"network_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -278,10 +274,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, groupID := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
+				params.Args["group_id"] = int(groupID)
 				data, err := mutationparser.CreateSubnet(params.Args)
 				if err != nil {
 					logger.Logger.Println("harp / create_subnet: " + err.Error())
@@ -295,9 +292,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Args: graphql.FieldConfigArgument{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
-				},
-				"group_id": &graphql.ArgumentConfig{
-					Type: graphql.Int,
 				},
 				"network_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
@@ -334,10 +328,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, groupID := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
+				params.Args["group_id"] = int(groupID)
 				data, err := mutationparser.UpdateSubnet(params.Args)
 				if err != nil {
 					logger.Logger.Println("harp / update_subnet: " + err.Error())
@@ -357,7 +352,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -383,7 +378,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.CreateDHCPConfResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -418,7 +413,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.AdaptiveIPSetting{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -436,9 +431,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"server_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"group_id": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
 				"public_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -447,10 +439,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, groupID := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
+				params.Args["group_id"] = int(groupID)
 				data, err := mutationparser.CreateAdaptiveIPServer(params.Args)
 				if err != nil {
 					logger.Logger.Println("harp / create_adaptiveip_server: " + err.Error())
@@ -470,7 +463,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -494,7 +487,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -520,7 +513,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -543,7 +536,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.PowerControlNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -584,7 +577,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -655,7 +648,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -678,7 +671,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -711,7 +704,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -734,7 +727,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
@@ -790,7 +783,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err := usertool.ValidateToken(params.Args)
+				err, _ := usertool.ValidateToken(params.Args)
 				if err != nil {
 					return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
