@@ -1006,9 +1006,6 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.TelegrafType,
 				Description: "Get the billing data",
 				Args: graphql.FieldConfigArgument{
-					"token": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
 					"billing_type": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -1017,6 +1014,15 @@ var queryTypes = graphql.NewObject(
 					},
 					"date_end": &graphql.ArgumentConfig{
 						Type: graphql.Int,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
