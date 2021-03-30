@@ -201,6 +201,19 @@ func (rc *RPCClient) GetNodeDetail(uuid string) (*pb.ResGetNodeDetail, error) {
 	return resGetNodeDetail, nil
 }
 
+// UpdateNodeDetail : Update infos of the nodeDetail
+func (rc *RPCClient) UpdateNodeDetail(in *pb.ReqUpdateNodeDetail) (*pb.ResUpdateNodeDetail, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Flute.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resUpdateNodeDetail, err := rc.flute.UpdateNodeDetail(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resUpdateNodeDetail, nil
+}
+
 // DeleteNodeDetail : Delete of the nodeDetail
 func (rc *RPCClient) DeleteNodeDetail(uuid string) (*pb.ResDeleteNodeDetail, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),

@@ -10,14 +10,8 @@ var NodeDetailType = graphql.NewObject(
 			"node_uuid": &graphql.Field{
 				Type: graphql.String,
 			},
-			"cpu_model": &graphql.Field{
+			"node_detail_data": &graphql.Field{
 				Type: graphql.String,
-			},
-			"cpu_processors": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"cpu_threads": &graphql.Field{
-				Type: graphql.Int,
 			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),

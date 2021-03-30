@@ -250,9 +250,7 @@ func DeleteNode(args map[string]interface{}) (interface{}, error) {
 // CreateNodeDetail : Create detail infos of the node
 func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
-	cpuModel, cpuModelOk := args["cpu_model"].(string)
-	cpuProcessors, cpuProcessorsOk := args["cpu_processors"].(int)
-	cpuThreads, cpuThreadsOk := args["cpu_threads"].(int)
+	nodeDetailData, nodeDetailDataOk := args["node_detail_data"].(string)
 
 	var reqCreateNodeDetail pb.ReqCreateNodeDetail
 	var nodeDetail pb.NodeDetail
@@ -261,14 +259,8 @@ func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 	if nodeUUIDOk {
 		reqCreateNodeDetail.NodeDetail.NodeUUID = nodeUUID
 	}
-	if cpuModelOk {
-		reqCreateNodeDetail.NodeDetail.CPUModel = cpuModel
-	}
-	if cpuProcessorsOk {
-		reqCreateNodeDetail.NodeDetail.CPUProcessors = int32(cpuProcessors)
-	}
-	if cpuThreadsOk {
-		reqCreateNodeDetail.NodeDetail.CPUThreads = int32(cpuThreads)
+	if nodeDetailDataOk {
+		reqCreateNodeDetail.NodeDetail.NodeDetailData = nodeDetailData
 	}
 
 	resCreateNodeDetail, err := client.RC.CreateNodeDetail(&reqCreateNodeDetail)
@@ -277,6 +269,32 @@ func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resCreateNodeDetail.NodeDetail, resCreateNodeDetail.HccErrorStack)
+
+	return *modelNodeDetail, nil
+}
+
+// UpdateNodeDetail : Update detail infos of the node
+func UpdateNodeDetail(args map[string]interface{}) (interface{}, error) {
+	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
+	nodeDetailData, nodeDetailDataOk := args["node_detail_data"].(string)
+
+	var reqUpdateNodeDetail pb.ReqUpdateNodeDetail
+	var nodeDetail pb.NodeDetail
+	reqUpdateNodeDetail.NodeDetail = &nodeDetail
+
+	if nodeUUIDOk {
+		reqUpdateNodeDetail.NodeDetail.NodeUUID = nodeUUID
+	}
+	if nodeDetailDataOk {
+		reqUpdateNodeDetail.NodeDetail.NodeDetailData = nodeDetailData
+	}
+
+	resUpdateNodeDetail, err := client.RC.UpdateNodeDetail(&reqUpdateNodeDetail)
+	if err != nil {
+		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	modelNodeDetail := pbtomodel.PbNodeDetailToModelNodeDetail(resUpdateNodeDetail.NodeDetail, resUpdateNodeDetail.HccErrorStack)
 
 	return *modelNodeDetail, nil
 }

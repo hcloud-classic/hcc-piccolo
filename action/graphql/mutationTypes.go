@@ -690,14 +690,8 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"node_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"cpu_model": &graphql.ArgumentConfig{
+				"node_detail_data": &graphql.ArgumentConfig{
 					Type: graphql.String,
-				},
-				"cpu_processors": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
-				"cpu_threads": &graphql.ArgumentConfig{
-					Type: graphql.Int,
 				},
 				"token": &graphql.ArgumentConfig{
 					Type: graphql.String,
@@ -711,6 +705,32 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				data, err := mutationparser.CreateNodeDetail(params.Args)
 				if err != nil {
 					logger.Logger.Println("flute / create_node_detail: " + err.Error())
+				}
+				return data, err
+			},
+		},
+		"update_node_detail": &graphql.Field{
+			Type:        graphqlType.NodeDetailType,
+			Description: "Update node_detail by node_uuid",
+			Args: graphql.FieldConfigArgument{
+				"node_uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"node_detail_data": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				err, _ := usertool.ValidateToken(params.Args)
+				if err != nil {
+					return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				data, err := mutationparser.UpdateNodeDetail(params.Args)
+				if err != nil {
+					logger.Logger.Println("flute / update_node_detail: " + err.Error())
 				}
 				return data, err
 			},

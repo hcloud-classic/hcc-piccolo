@@ -87,9 +87,7 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 func PbNodeDetailToModelNodeDetail(nodeDetail *pb.NodeDetail, hccGrpcErrStack *pb.HccErrorStack) *model.NodeDetail {
 	modelNodeDetail := &model.NodeDetail{
 		NodeUUID:      nodeDetail.NodeUUID,
-		CPUModel:      nodeDetail.CPUModel,
-		CPUProcessors: int(nodeDetail.CPUProcessors),
-		CPUThreads:    int(nodeDetail.CPUThreads),
+		NodeDetailData: nodeDetail.NodeDetailData,
 	}
 
 	if hccGrpcErrStack != nil {
