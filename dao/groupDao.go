@@ -18,7 +18,7 @@ func ReadGroupList() (*pb.ResGetGroupList, uint64, string) {
 	var id int64
 	var name string
 
-	sql := "select * from group"
+	sql := "select * from piccolo.group"
 
 	var stmt *dbsql.Rows
 	var err error
