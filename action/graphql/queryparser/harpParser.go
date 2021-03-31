@@ -1,7 +1,6 @@
 package queryparser
 
 import (
-	"fmt"
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
@@ -289,8 +288,6 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	if err != nil {
 		return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-
-	fmt.Println(111111111)
 
 	var adaptiveIPServerList []model.AdaptiveIPServer
 	for _, adaptiveIPServer := range resAdaptiveIPServerList.AdaptiveipServer {
