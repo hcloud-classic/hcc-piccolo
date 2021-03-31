@@ -69,10 +69,24 @@ func GetBillingData(args map[string]interface{}) (interface{}, error) {
 	billingType, _ := args["billing_type"].(string)
 	dateStart, _ := args["date_start"].(int)
 	dateEnd, _ := args["date_end"].(int)
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
 
 	if !groupIDOk {
 		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
 			"need a group_id argument")}, nil
+	}
+
+	var reqBillingData = pb.ReqBillingData{
+		BillingType: billingType,
+		DateStart:   int32(dateStart),
+		DateEnd:     int32(dateEnd),
+	}
+	if rowOk {
+		reqBillingData.Row = int64(row)
+	}
+	if pageOk {
+		reqBillingData.Page = int64(page)
 	}
 
 	var groupIDs []int32
@@ -83,13 +97,9 @@ func GetBillingData(args map[string]interface{}) (interface{}, error) {
 			groupIDs = append(groupIDs, int32(gid))
 		}
 	}
+	reqBillingData.GroupID = groupIDs
 
-	resBillingData, err := client.RC.GetBillingData(&pb.ReqBillingData{
-		BillingType: billingType,
-		GroupID:     groupIDs,
-		DateStart:   int32(dateStart),
-		DateEnd:     int32(dateEnd),
-	})
+	resBillingData, err := client.RC.GetBillingData(&reqBillingData)
 	if err != nil {
 		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}

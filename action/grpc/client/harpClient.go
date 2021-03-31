@@ -117,11 +117,13 @@ func (rc *RPCClient) GetSubnetList(in *pb.ReqGetSubnetList) (*pb.ResGetSubnetLis
 }
 
 // GetAvailableSubnetList : Get the list of available subnets
-func (rc *RPCClient) GetAvailableSubnetList() (*pb.ResGetAvailableSubnetList, error) {
+func (rc *RPCClient) GetAvailableSubnetList(groupID int64) (*pb.ResGetAvailableSubnetList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	subnetList, err := rc.harp.GetAvailableSubnetList(ctx, &pb.Empty{})
+	subnetList, err := rc.harp.GetAvailableSubnetList(ctx, &pb.ReqGetAvailableSubnetList{
+		GroupID: groupID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -130,11 +132,13 @@ func (rc *RPCClient) GetAvailableSubnetList() (*pb.ResGetAvailableSubnetList, er
 }
 
 // GetSubnetNum : Get the number of subnets
-func (rc *RPCClient) GetSubnetNum() (*pb.ResGetSubnetNum, error) {
+func (rc *RPCClient) GetSubnetNum(groupID int64) (*pb.ResGetSubnetNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resGetSubnetNum, err := rc.harp.GetSubnetNum(ctx, &pb.Empty{})
+	resGetSubnetNum, err := rc.harp.GetSubnetNum(ctx, &pb.ReqGetSubnetNum{
+		GroupID: groupID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -247,11 +251,13 @@ func (rc *RPCClient) GetAdaptiveIPServerList(in *pb.ReqGetAdaptiveIPServerList) 
 }
 
 // GetAdaptiveIPServerNum : Get the number of adaptiveIP server
-func (rc *RPCClient) GetAdaptiveIPServerNum() (*pb.ResGetAdaptiveIPServerNum, error) {
+func (rc *RPCClient) GetAdaptiveIPServerNum(groupID int64) (*pb.ResGetAdaptiveIPServerNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resGetAdaptiveIPServerNum, err := rc.harp.GetAdaptiveIPServerNum(ctx, &pb.Empty{})
+	resGetAdaptiveIPServerNum, err := rc.harp.GetAdaptiveIPServerNum(ctx, &pb.ReqGetAdaptiveIPServerNum{
+		GroupID: groupID,
+	})
 	if err != nil {
 		return nil, err
 	}

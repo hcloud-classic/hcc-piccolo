@@ -26,11 +26,11 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err := usertool.ValidateToken(params.Args)
+					err, groupID := usertool.ValidateToken(params.Args)
 					if err != nil {
 						return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
-					data, err := queryparser.ResourceUsage()
+					data, err := queryparser.ResourceUsage(groupID)
 					if err != nil {
 						logger.Logger.Println("piccolo / resource_usage (Subscription): " + err.Error())
 					}
@@ -42,6 +42,9 @@ var subscriptionTypes = graphql.NewObject(
 				Type:        graphqlType.ServerListType,
 				Description: "Get all server list",
 				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"row": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
@@ -53,10 +56,11 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err := usertool.ValidateToken(params.Args)
+					err, groupID := usertool.ValidateToken(params.Args)
 					if err != nil {
 						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
+					params.Args["group_id"] = int(groupID)
 					data, err := queryparser.AllServer(params.Args)
 					if err != nil {
 						logger.Logger.Println("violin / all_server (Subscription): " + err.Error())
@@ -69,6 +73,9 @@ var subscriptionTypes = graphql.NewObject(
 				Type:        graphqlType.SubnetListType,
 				Description: "Get all subnet list",
 				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"row": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
@@ -80,10 +87,11 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err := usertool.ValidateToken(params.Args)
+					err, groupID := usertool.ValidateToken(params.Args)
 					if err != nil {
 						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
+					params.Args["group_id"] = int(groupID)
 					data, err := queryparser.AllSubnet(params.Args)
 					if err != nil {
 						logger.Logger.Println("harp / all_subnet (Subscription): " + err.Error())
@@ -131,7 +139,7 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err := usertool.ValidateToken(params.Args)
+					err, _ := usertool.ValidateToken(params.Args)
 					if err != nil {
 						return model.Telegraf{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -165,7 +173,7 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err := usertool.ValidateToken(params.Args)
+					err, _ := usertool.ValidateToken(params.Args)
 					if err != nil {
 						return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}

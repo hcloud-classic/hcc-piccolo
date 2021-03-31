@@ -1,6 +1,7 @@
 package pbtomodel
 
 import (
+	"encoding/json"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
 	"time"
@@ -72,11 +73,16 @@ func PbServerNodeToModelServerNode(serverNode *pb.ServerNode, node *pb.Node,
 		}
 	}
 
+	var nodeDetailJSON model.NodeDetailData
+	err := json.Unmarshal([]byte(nodeDetail.NodeDetailData), &nodeDetailJSON)
+	if err != nil {
+		return &model.ServerNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}
+	}
 	modelServerNode := &model.ServerNode{
 		UUID:       serverNode.UUID,
 		ServerUUID: serverNode.ServerUUID,
 		NodeUUID:   serverNode.NodeUUID,
-		CPUModel:   nodeDetail.CPUModel,
+		CPUModel:   nodeDetailJSON.CPUs[0].Model,
 		CreatedAt:  createdAt,
 		Errors:     errconv.HccErrorToPiccoloHccErr(*hcc_errors.NewHccErrorStack()),
 	}
@@ -86,9 +92,13 @@ func PbServerNodeToModelServerNode(serverNode *pb.ServerNode, node *pb.Node,
 	}
 
 	if node != nil && nodeDetail != nil {
-		modelServerNode.CPUProcessors = int(nodeDetail.CPUProcessors)
+		modelServerNode.CPUProcessors = len(nodeDetailJSON.CPUs)
 		modelServerNode.CPUCores = int(node.CPUCores)
-		modelServerNode.CPUThreads = int(nodeDetail.CPUThreads)
+		var cpuThreads = 0
+		for _, cpu := range nodeDetailJSON.CPUs {
+			cpuThreads += cpu.Threads
+		}
+		modelServerNode.CPUThreads = cpuThreads
 		modelServerNode.Memory = int(node.Memory)
 	}
 

@@ -162,8 +162,8 @@ func AllNode(args map[string]interface{}) (interface{}, error) {
 }
 
 // NumNode : Get number of nodes
-func NumNode() (interface{}, error) {
-	resGetNodeNum, err := client.RC.GetNodeNum()
+func NumNode(groupID int64) (interface{}, error) {
+	resGetNodeNum, err := client.RC.GetNodeNum(groupID)
 	if err != nil {
 		return model.NodeNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}

@@ -87,6 +87,8 @@ func Login(args map[string]interface{}) (interface{}, error) {
 // User : Get the user info
 func User(args map[string]interface{}) (interface{}, error) {
 	var name string
+	var groupID int64
+	var groupName string
 	var email string
 	var loginAt time.Time
 	var createdAt time.Time
@@ -94,30 +96,32 @@ func User(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 	id, idOk := args["id"].(string)
 
-	sql := "select uuid, id, name, email, login_at, created_at from user where"
+	sql := "select piccolo.user.uuid, piccolo.user.id, piccolo.user.name, piccolo.user.group_id, piccolo.group.name as group_name, piccolo.user.email, piccolo.user.login_at, piccolo.user.created_at from piccolo.user, piccolo.group where piccolo.user.group_id = piccolo.group.id and"
 
 	var row *dbsql.Row
 	var err error
 
 	if idOk && uuidOk {
-		sql += " id = ? and uuid = ? order by created_at"
+		sql += " piccolo.user.id = ? and piccolo.user.uuid = ? order by piccolo.user.created_at"
 		row = mysql.Db.QueryRow(sql, id, uuid)
 	} else if idOk {
-		sql += " id = ? order by created_at"
+		sql += " piccolo.user.id = ? order by piccolo.user.created_at"
 		row = mysql.Db.QueryRow(sql, id)
 	} else if uuidOk {
-		sql += " uuid = ? order by created_at"
+		sql += " piccolo.user.uuid = ? order by piccolo.user.created_at"
 		row = mysql.Db.QueryRow(sql, uuid)
 	} else {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert uuid or id arguments")}, nil
 	}
 
-	err = mysql.QueryRowScan(row, &uuid, &id, &name, &email, &loginAt, &createdAt)
+	err = mysql.QueryRowScan(row, &uuid, &id, &name, &groupID, &groupName, &email, &loginAt, &createdAt)
 	if err != nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
-	user := model.User{UUID: uuid, ID: id, Name: name, Email: email, LoginAt: loginAt, CreatedAt: createdAt}
+	user := model.User{UUID: uuid, ID: id, Name: name,
+		GroupID: groupID, GroupName: groupName,
+		Email: email, LoginAt: loginAt, CreatedAt: createdAt}
 	user.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 
 	return user, nil
@@ -133,6 +137,8 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 
 	id, idOk := args["id"].(string)
 	name, nameOk := args["name"].(string)
+	groupID, groupIDOk := args["group_id"].(int)
+	groupName, groupNameOk := args["group_name"].(string)
 	email, emailOk := args["email"].(string)
 
 	row, rowOk := args["row"].(int)
@@ -145,20 +151,26 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 		return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
 	}
 
-	sql := "select uuid, id, name, email, login_at, created_at from user where 1=1"
+	sql := "select piccolo.user.uuid, piccolo.user.id, piccolo.user.name, piccolo.user.group_id, piccolo.group.name as group_name, piccolo.user.email, piccolo.user.login_at, piccolo.user.created_at from piccolo.user, piccolo.group where piccolo.user.group_id = piccolo.group.id"
 
 	if idOk {
-		sql += " and id = '" + id + "'"
+		sql += " and piccolo.user.id = '" + id + "'"
 	}
 	if nameOk {
-		sql += " and name = '" + name + "'"
+		sql += " and piccolo.user.name = '" + name + "'"
+	}
+	if groupIDOk {
+		sql += " and piccolo.user.group_id = " + strconv.Itoa(groupID)
+	}
+	if groupNameOk {
+		sql += " and group_name = '" + groupName + "'"
 	}
 	if emailOk {
-		sql += " and email = '" + email + "'"
+		sql += " and piccolo.user.email = '" + email + "'"
 	}
 
 	if !noLimit {
-		sql += " order by created_at desc limit ? offset ?"
+		sql += " order by piccolo.user.created_at desc limit ? offset ?"
 	}
 
 	var stmt *dbsql.Rows
@@ -179,11 +191,13 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	}()
 
 	for stmt.Next() {
-		err := stmt.Scan(&uuid, &id, &name, &email, &loginAt, &createdAt)
+		err := stmt.Scan(&uuid, &id, &name, &groupID, &groupName, &email, &loginAt, &createdAt)
 		if err != nil {
 			logger.Logger.Println(err)
 		}
-		user := model.User{UUID: uuid, ID: id, Name: name, Email: email, LoginAt: loginAt, CreatedAt: createdAt}
+		user := model.User{UUID: uuid, ID: id, Name: name,
+			GroupID: int64(groupID), GroupName: groupName,
+			Email: email, LoginAt: loginAt, CreatedAt: createdAt}
 		users = append(users, user)
 	}
 
@@ -211,7 +225,7 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
 	}
 
-	err := usertool.ValidateToken(args)
+	err, _ := usertool.ValidateToken(args)
 	if err != nil {
 		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 	}
@@ -220,8 +234,11 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 }
 
 // ResourceUsage : Get usage of resources
-func ResourceUsage() (interface{}, error) {
-	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{Node: &pb.Node{}})
+func ResourceUsage(groupID int64) (interface{}, error) {
+	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{
+		Node: &pb.Node{
+			GroupID: groupID,
+		}})
 	if err != nil {
 		return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "failed to get nodes")}, nil
 	}
@@ -249,6 +266,7 @@ func ResourceUsage() (interface{}, error) {
 		"availablesize": "",
 	}
 
+	// TODO: Need to handle group_id - ish
 	poolStruct, err := GetPoolList(poolArg)
 	convModelPools := poolStruct.(model.PoolList)
 	for _, eachPool := range convModelPools.Pools {
