@@ -86,7 +86,7 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 // PbNodeDetailToModelNodeDetail : Change nodeDetail of proto type to model
 func PbNodeDetailToModelNodeDetail(nodeDetail *pb.NodeDetail, hccGrpcErrStack *pb.HccErrorStack) *model.NodeDetail {
 	modelNodeDetail := &model.NodeDetail{
-		NodeUUID:      nodeDetail.NodeUUID,
+		NodeUUID:       nodeDetail.NodeUUID,
 		NodeDetailData: nodeDetail.NodeDetailData,
 	}
 
