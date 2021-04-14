@@ -40,7 +40,7 @@ var queryTypes = graphql.NewObject(
 			},
 			"user": &graphql.Field{
 				Type:        graphqlType.UserType,
-				Description: "Get the user list from piccolo",
+				Description: "Get the user info from piccolo",
 				Args: graphql.FieldConfigArgument{
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
