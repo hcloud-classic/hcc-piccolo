@@ -13,6 +13,12 @@ var NodeType = graphql.NewObject(
 			"group_id": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"node_num": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"node_ip": &graphql.Field{
+				Type: graphql.String,
+			},
 			"server_uuid": &graphql.Field{
 				Type: graphql.String,
 			},

@@ -9,6 +9,8 @@ import (
 type Node struct {
 	UUID            string                    `json:"uuid"`
 	GroupID         int64                     `json:"group_id"`
+	NodeNum         int64                     `json:"node_num"`
+	NodeIP          string                    `json:"node_ip"`
 	ServerUUID      string                    `json:"server_uuid"`
 	BmcMacAddr      string                    `json:"bmc_mac_addr"`
 	BmcIP           string                    `json:"bmc_ip"`

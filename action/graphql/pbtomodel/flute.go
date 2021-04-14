@@ -50,8 +50,10 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 	}
 
 	modelNode := &model.Node{
-		GroupID:         node.GroupID,
 		UUID:            node.UUID,
+		GroupID:         node.GroupID,
+		NodeNum:         int64(node.NodeNum),
+		NodeIP:          node.NodeIP,
 		ServerUUID:      node.ServerUUID,
 		BmcMacAddr:      node.BmcMacAddr,
 		BmcIP:           node.BmcIP,
