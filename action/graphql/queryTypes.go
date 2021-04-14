@@ -688,6 +688,12 @@ var queryTypes = graphql.NewObject(
 					"private_gateway": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
