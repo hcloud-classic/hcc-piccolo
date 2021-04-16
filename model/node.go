@@ -17,6 +17,7 @@ type Node struct {
 	BmcIPSubnetMask string                    `json:"bmc_ip_subnet_mask"`
 	PXEMacAddr      string                    `json:"pxe_mac_addr"`
 	Status          string                    `json:"status"`
+	CPUModel        string                    `json:"cpu_model"`
 	CPUCores        int                       `json:"cpu_cores"`
 	Memory          int                       `json:"memory"`
 	NICSpeed        string                    `json:"nic_speed"`

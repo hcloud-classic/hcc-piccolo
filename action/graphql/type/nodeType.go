@@ -37,6 +37,9 @@ var NodeType = graphql.NewObject(
 			"status": &graphql.Field{
 				Type: graphql.String,
 			},
+			"cpu_model": &graphql.Field{
+				Type: graphql.String,
+			},
 			"cpu_cores": &graphql.Field{
 				Type: graphql.Int,
 			},

@@ -19,6 +19,18 @@ var ServerType = graphql.NewObject(
 			"subnet_uuid": &graphql.Field{
 				Type: graphql.String,
 			},
+			"nic_speed": &graphql.Field{
+				Type: graphql.String,
+			},
+			"external_ip": &graphql.Field{
+				Type: graphql.String,
+			},
+			"pxe_boot_ip": &graphql.Field{
+				Type: graphql.String,
+			},
+			"node_list": &graphql.Field{
+				Type: graphql.NewList(NodeType),
+			},
 			"os": &graphql.Field{
 				Type: graphql.String,
 			},
