@@ -3,7 +3,6 @@ package pbtomodel
 import (
 	"encoding/json"
 	"hcc/piccolo/action/grpc/errconv"
-	"hcc/piccolo/dao"
 	"hcc/piccolo/model"
 	"time"
 
@@ -30,15 +29,9 @@ func PbServerToModelServer(server *pb.Server, hccGrpcErrStack *pb.HccErrorStack)
 		}
 	}
 
-	group, err := dao.ReadGroup(int(server.GroupID))
-	if err != nil {
-		return &model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}
-	}
-
 	modelServer := &model.Server{
 		UUID:       server.UUID,
 		GroupID:    server.GroupID,
-		GroupName:  group.Name,
 		SubnetUUID: server.SubnetUUID,
 		OS:         server.OS,
 		ServerName: server.ServerName,

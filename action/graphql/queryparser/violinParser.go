@@ -4,6 +4,7 @@ import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/model"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
@@ -24,6 +25,12 @@ func Server(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelServer := *pbtomodel.PbServerToModelServer(resGetServer.Server, resGetServer.HccErrorStack)
+
+	group, err := dao.ReadGroup(int(modelServer.GroupID))
+	if err != nil {
+		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+	modelServer.GroupName = group.Name
 
 	queryArgs := make(map[string]interface{})
 	queryArgs["server_uuid"] = modelServer.UUID
