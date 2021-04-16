@@ -10,6 +10,12 @@ var ServerType = graphql.NewObject(
 			"uuid": &graphql.Field{
 				Type: graphql.String,
 			},
+			"group_id": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"group_name": &graphql.Field{
+				Type: graphql.String,
+			},
 			"subnet_uuid": &graphql.Field{
 				Type: graphql.String,
 			},

@@ -9,6 +9,7 @@ import (
 type Server struct {
 	UUID       string                    `json:"uuid"`
 	GroupID    int64                     `json:"group_id"`
+	GroupName  string                    `json:"group_name"`
 	SubnetUUID string                    `json:"subnet_uuid"`
 	OS         string                    `json:"os"`
 	ServerName string                    `json:"server_name"`
