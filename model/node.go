@@ -20,7 +20,10 @@ type Node struct {
 	CPUModel        string                    `json:"cpu_model"`
 	CPUCores        int                       `json:"cpu_cores"`
 	Memory          int                       `json:"memory"`
+	NICModel        string                    `json:"nic_model"`
 	NICSpeed        string                    `json:"nic_speed"`
+	BMCNICModel     string                    `json:"bmc_nic_model"`
+	BMCNICSpeed     string                    `json:"bmc_nic_speed"`
 	Description     string                    `json:"description"`
 	RackNumber      int                       `json:"rack_number"`
 	ChargeCPU       int                       `json:"charge_cpu"`

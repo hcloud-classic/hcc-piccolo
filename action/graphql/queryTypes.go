@@ -839,7 +839,16 @@ var queryTypes = graphql.NewObject(
 					"memory": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"nic_model": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"nic_speed_mbps": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"bmc_nic_model": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"bmc_nic_speed_mbps": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
 					"description": &graphql.ArgumentConfig{

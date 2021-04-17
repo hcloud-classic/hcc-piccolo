@@ -11,26 +11,10 @@ import (
 	"innogrid.com/hcloud-classic/pb"
 )
 
-// PbNodeToModelNode : Change node of proto type to model
-func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.Node {
-	var createdAt time.Time
-	var nicSpeed = "Unknown"
+func getNICSpeed(nicSpeedMbps int32) string {
+	var nicSpeed string
 
-	if node.CreatedAt == nil {
-		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
-			Seconds: 0,
-			Nanos:   0,
-		})
-	} else {
-		var err error
-
-		createdAt, err = ptypes.Timestamp(node.CreatedAt)
-		if err != nil {
-			return &model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
-		}
-	}
-
-	switch node.NicSpeedMbps {
+	switch nicSpeedMbps {
 	case 10:
 		nicSpeed = "10Mbps"
 	case 100:
@@ -47,6 +31,29 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 		nicSpeed = "20Gbps"
 	case 40000:
 		nicSpeed = "40Gbps"
+	default:
+		nicSpeed = "Unknown"
+	}
+
+	return nicSpeed
+}
+
+// PbNodeToModelNode : Change node of proto type to model
+func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.Node {
+	var createdAt time.Time
+
+	if node.CreatedAt == nil {
+		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
+			Seconds: 0,
+			Nanos:   0,
+		})
+	} else {
+		var err error
+
+		createdAt, err = ptypes.Timestamp(node.CreatedAt)
+		if err != nil {
+			return &model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
+		}
 	}
 
 	modelNode := &model.Node{
@@ -62,7 +69,10 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 		Status:          node.Status,
 		CPUCores:        int(node.CPUCores),
 		Memory:          int(node.Memory),
-		NICSpeed:        nicSpeed,
+		NICModel:        node.NicModel,
+		NICSpeed:        getNICSpeed(node.NicSpeedMbps),
+		BMCNICModel:     node.BmcNicModel,
+		BMCNICSpeed:     getNICSpeed(node.BmcNicSpeedMbps),
 		Description:     node.Description,
 		RackNumber:      int(node.RackNumber),
 		ChargeCPU:       int(node.ChargeCPU),
