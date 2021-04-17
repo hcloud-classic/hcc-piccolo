@@ -8,6 +8,7 @@ import (
 // Node : Contain infos of the node
 type Node struct {
 	UUID            string                    `json:"uuid"`
+	NodeName        string                    `json:"node_name"`
 	GroupID         int64                     `json:"group_id"`
 	NodeNum         int64                     `json:"node_num"`
 	NodeIP          string                    `json:"node_ip"`

@@ -103,6 +103,7 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 
 // CreateNode : Create a node
 func CreateNode(args map[string]interface{}) (interface{}, error) {
+	nodeName, nodeNameOk := args["node_name"].(string)
 	groupID, groupIDOk := args["group_id"].(int)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
 	nicModel, _ := args["nic_model"].(string)
@@ -118,11 +119,12 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 	var reqNode pb.Node
 	reqCreateNode.Node = &reqNode
 
-	if !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !chargeCPUOk || !chargeMemoryOk || !chargeNICOk {
+	if !nodeNameOk || !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !chargeCPUOk || !chargeMemoryOk || !chargeNICOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic arguments")}, nil
+			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic arguments")}, nil
 	}
 
+	reqCreateNode.Node.NodeName = nodeName
 	reqCreateNode.Node.GroupID = int64(groupID)
 	reqCreateNode.Node.BmcIP = bmcIP
 	reqCreateNode.Node.NicModel = nicModel
@@ -151,6 +153,7 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
+	nodeName, nodeNameOk := args["node_name"].(string)
 	groupID, groupIDOk := args["group_id"].(int)
 	nodeNum, nodeNumOk := args["node_num"].(int)
 	nodeIP, nodeIPOk := args["node_ip"].(string)
@@ -177,6 +180,9 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	reqUpdateNode.Node = &reqNode
 
 	reqUpdateNode.Node.UUID = requestedUUID
+	if nodeNameOk {
+		reqUpdateNode.Node.NodeName = nodeName
+	}
 	if groupIDOk {
 		reqUpdateNode.Node.GroupID = int64(groupID)
 	}

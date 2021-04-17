@@ -812,6 +812,9 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"node_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"node_num": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},

@@ -551,6 +551,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphqlType.NodeType,
 			Description: "Create new node",
 			Args: graphql.FieldConfigArgument{
+				"node_name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 				"group_id": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
@@ -602,6 +605,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Description: "Update node",
 			Args: graphql.FieldConfigArgument{
 				"uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"node_name": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 				"group_id": &graphql.ArgumentConfig{

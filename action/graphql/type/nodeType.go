@@ -10,6 +10,9 @@ var NodeType = graphql.NewObject(
 			"uuid": &graphql.Field{
 				Type: graphql.String,
 			},
+			"node_name": &graphql.Field{
+				Type: graphql.String,
+			},
 			"group_id": &graphql.Field{
 				Type: graphql.Int,
 			},

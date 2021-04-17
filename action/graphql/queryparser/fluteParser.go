@@ -52,6 +52,7 @@ func Node(args map[string]interface{}) (interface{}, error) {
 // ListNode : Get node list with provided options
 func ListNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
+	nodeName, nodeNameOk := args["node_name"].(string)
 	groupID, groupIDOk := args["group_id"].(int)
 	nodeNum, nodeNumOk := args["node_num"].(int)
 	nodeIP, nodeIPOk := args["node_ip"].(string)
@@ -81,6 +82,9 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 
 	if uuidOk {
 		reqListNode.Node.UUID = uuid
+	}
+	if nodeNameOk {
+		reqListNode.Node.NodeName = nodeName
 	}
 	if groupIDOk {
 		reqListNode.Node.GroupID = int64(groupID)
