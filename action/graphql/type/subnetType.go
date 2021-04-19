@@ -13,6 +13,9 @@ var SubnetType = graphql.NewObject(
 			"group_id": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"group_name": &graphql.Field{
+				Type: graphql.String,
+			},
 			"network_ip": &graphql.Field{
 				Type: graphql.String,
 			},
@@ -31,10 +34,19 @@ var SubnetType = graphql.NewObject(
 			"domain_name": &graphql.Field{
 				Type: graphql.String,
 			},
+			"pxe_boot_ip": &graphql.Field{
+				Type: graphql.String,
+			},
 			"server_uuid": &graphql.Field{
 				Type: graphql.String,
 			},
+			"server_name": &graphql.Field{
+				Type: graphql.String,
+			},
 			"leader_node_uuid": &graphql.Field{
+				Type: graphql.String,
+			},
+			"leader_node_name": &graphql.Field{
 				Type: graphql.String,
 			},
 			"os": &graphql.Field{

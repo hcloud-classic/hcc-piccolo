@@ -4,6 +4,7 @@ import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/model"
 
 	"github.com/golang/protobuf/ptypes"
@@ -25,6 +26,33 @@ func Subnet(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resGetSubnet.Subnet, resGetSubnet.HccErrorStack)
+
+	// group_name
+	group, err := dao.ReadGroup(int(modelSubnet.GroupID))
+	if err != nil {
+		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+	modelSubnet.GroupName = group.Name
+
+	// Get Leader Node
+	if len(modelSubnet.LeaderNodeUUID) != 0 {
+		resGetNode, _ := client.RC.GetNode(modelSubnet.LeaderNodeUUID)
+		if resGetNode != nil && resGetNode.Node != nil {
+			// pxe_boot_ip
+			modelSubnet.PXEBootIP = resGetNode.Node.NodeIP
+			// leader_node_name
+			modelSubnet.LeaderNodeName = resGetNode.Node.NodeName
+		}
+	}
+
+	// Get Server
+	if len(modelSubnet.ServerUUID) != 0 {
+		resGetServer, _ := client.RC.GetServer(modelSubnet.ServerUUID)
+		if resGetServer != nil && resGetServer.Server != nil {
+			// server_name
+			modelSubnet.ServerName = resGetServer.Server.ServerName
+		}
+	}
 
 	return *modelSubnet, nil
 }
