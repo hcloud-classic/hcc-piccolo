@@ -91,6 +91,7 @@ func PbNodeDetailToModelNodeDetail(nodeDetail *pb.NodeDetail, hccGrpcErrStack *p
 	modelNodeDetail := &model.NodeDetail{
 		NodeUUID:       nodeDetail.NodeUUID,
 		NodeDetailData: nodeDetail.NodeDetailData,
+		NicDetailData:  nodeDetail.NicDetailData,
 	}
 
 	if hccGrpcErrStack != nil {
