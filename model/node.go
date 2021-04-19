@@ -10,6 +10,7 @@ type Node struct {
 	UUID            string                    `json:"uuid"`
 	NodeName        string                    `json:"node_name"`
 	GroupID         int64                     `json:"group_id"`
+	GroupName       string                    `json:"group_name"`
 	NodeNum         int64                     `json:"node_num"`
 	NodeIP          string                    `json:"node_ip"`
 	ServerUUID      string                    `json:"server_uuid"`
@@ -21,10 +22,7 @@ type Node struct {
 	CPUModel        string                    `json:"cpu_model"`
 	CPUCores        int                       `json:"cpu_cores"`
 	Memory          int                       `json:"memory"`
-	NICModel        string                    `json:"nic_model"`
 	NICSpeed        string                    `json:"nic_speed"`
-	BMCNICModel     string                    `json:"bmc_nic_model"`
-	BMCNICSpeed     string                    `json:"bmc_nic_speed"`
 	Description     string                    `json:"description"`
 	RackNumber      int                       `json:"rack_number"`
 	ChargeCPU       int                       `json:"charge_cpu"`

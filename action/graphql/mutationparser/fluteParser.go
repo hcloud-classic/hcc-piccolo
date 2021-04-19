@@ -106,35 +106,35 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 	nodeName, nodeNameOk := args["node_name"].(string)
 	groupID, groupIDOk := args["group_id"].(int)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
-	nicModel, _ := args["nic_model"].(string)
 	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
-	bmcNICModel, _ := args["bmc_model"].(string)
-	bmcNICSpeedMbps, _ := args["bmc_nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
 	chargeCPU, chargeCPUOk := args["charge_cpu"].(int)
 	chargeMemory, chargeMemoryOk := args["charge_memory"].(int)
 	chargeNIC, chargeNICOk := args["charge_nic"].(int)
 
+	nicDetailData, nicDetailDataOk := args["nic_detail_data"].(string)
+
 	var reqCreateNode pb.ReqCreateNode
 	var reqNode pb.Node
 	reqCreateNode.Node = &reqNode
 
-	if !nodeNameOk || !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !chargeCPUOk || !chargeMemoryOk || !chargeNICOk {
+	if !nodeNameOk || !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !chargeCPUOk || !chargeMemoryOk || !chargeNICOk ||
+		!nicDetailDataOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic arguments")}, nil
+			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic, nic_detail_data, "+
+				"nic_detail_data arguments")}, nil
 	}
 
 	reqCreateNode.Node.NodeName = nodeName
 	reqCreateNode.Node.GroupID = int64(groupID)
 	reqCreateNode.Node.BmcIP = bmcIP
-	reqCreateNode.Node.NicModel = nicModel
 	reqCreateNode.Node.NicSpeedMbps = int32(nicSpeedMbps)
-	reqCreateNode.Node.BmcNicModel = bmcNICModel
-	reqCreateNode.Node.BmcNicSpeedMbps = int32(bmcNICSpeedMbps)
 	reqCreateNode.Node.Description = description
 	reqCreateNode.Node.ChargeCPU = int32(chargeCPU)
 	reqCreateNode.Node.ChargeMemory = int32(chargeMemory)
 	reqCreateNode.Node.ChargeNIC = int32(chargeNIC)
+
+	reqCreateNode.NicDetailData = nicDetailData
 
 	resCreateNode, err := client.RC.CreateNode(&reqCreateNode)
 	if err != nil {
@@ -164,10 +164,7 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	status, statusOk := args["status"].(string)
 	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
 	memory, memoryOk := args["memory"].(int)
-	nicModel, nicModelOk := args["nic_model"].(string)
 	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
-	bmcNICModel, bmcNICModelOk := args["bmc_nic_model"].(string)
-	bmcNICSpeedMbps, bmcNICSpeedMbpsOk := args["bmc_nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
 	rackNumber, rackNumberOk := args["rack_number"].(int)
 	chargeCPU, chargeCPUOk := args["charge_cpu"].(int)
@@ -213,17 +210,8 @@ func UpdateNode(args map[string]interface{}) (interface{}, error) {
 	if memoryOk {
 		reqUpdateNode.Node.Memory = int32(memory)
 	}
-	if nicModelOk {
-		reqUpdateNode.Node.NicModel = nicModel
-	}
 	if nicSpeedMbpsOk {
 		reqUpdateNode.Node.NicSpeedMbps = int32(nicSpeedMbps)
-	}
-	if bmcNICModelOk {
-		reqUpdateNode.Node.BmcNicModel = bmcNICModel
-	}
-	if bmcNICSpeedMbpsOk {
-		reqUpdateNode.Node.BmcNicSpeedMbps = int32(bmcNICSpeedMbps)
 	}
 	if descriptionOk {
 		reqUpdateNode.Node.Description = description

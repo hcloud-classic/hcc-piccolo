@@ -9,14 +9,18 @@ import (
 type Subnet struct {
 	UUID           string                    `json:"uuid"`
 	GroupID        int64                     `json:"group_id"`
+	GroupName      string                    `json:"group_name"`
 	NetworkIP      string                    `json:"network_ip"`
 	Netmask        string                    `json:"netmask"`
 	Gateway        string                    `json:"gateway"`
 	NextServer     string                    `json:"next_server"`
 	NameServer     string                    `json:"name_server"`
 	DomainName     string                    `json:"domain_name"`
+	PXEBootIP      string                    `json:"pxe_boot_ip"`
 	ServerUUID     string                    `json:"server_uuid"`
+	ServerName     string                    `json:"server_name"`
 	LeaderNodeUUID string                    `json:"leader_node_uuid"`
+	LeaderNodeName string                    `json:"leader_node_name"`
 	OS             string                    `json:"os"`
 	SubnetName     string                    `json:"subnet_name"`
 	CreatedAt      time.Time                 `json:"created_at"`

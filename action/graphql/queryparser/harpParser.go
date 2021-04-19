@@ -4,6 +4,7 @@ import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/model"
 
 	"github.com/golang/protobuf/ptypes"
@@ -25,6 +26,33 @@ func Subnet(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resGetSubnet.Subnet, resGetSubnet.HccErrorStack)
+
+	// group_name
+	group, err := dao.ReadGroup(int(modelSubnet.GroupID))
+	if err != nil {
+		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+	modelSubnet.GroupName = group.Name
+
+	// Get Leader Node
+	if len(modelSubnet.LeaderNodeUUID) != 0 {
+		resGetNode, _ := client.RC.GetNode(modelSubnet.LeaderNodeUUID)
+		if resGetNode != nil && resGetNode.Node != nil {
+			// pxe_boot_ip
+			modelSubnet.PXEBootIP = resGetNode.Node.NodeIP
+			// leader_node_name
+			modelSubnet.LeaderNodeName = resGetNode.Node.NodeName
+		}
+	}
+
+	// Get Server
+	if len(modelSubnet.ServerUUID) != 0 {
+		resGetServer, _ := client.RC.GetServer(modelSubnet.ServerUUID)
+		if resGetServer != nil && resGetServer.Server != nil {
+			// server_name
+			modelSubnet.ServerName = resGetServer.Server.ServerName
+		}
+	}
 
 	return *modelSubnet, nil
 }
@@ -101,6 +129,34 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	var subnetList []model.Subnet
 	for _, pSubnet := range resListSubnet.Subnet {
 		modelSubnet := pbtomodel.PbSubnetToModelSubnet(pSubnet, nil)
+
+		// group_name
+		group, err := dao.ReadGroup(int(modelSubnet.GroupID))
+		if err != nil {
+			return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		}
+		modelSubnet.GroupName = group.Name
+
+		// Get Leader Node
+		if len(modelSubnet.LeaderNodeUUID) != 0 {
+			resGetNode, _ := client.RC.GetNode(modelSubnet.LeaderNodeUUID)
+			if resGetNode != nil && resGetNode.Node != nil {
+				// pxe_boot_ip
+				modelSubnet.PXEBootIP = resGetNode.Node.NodeIP
+				// leader_node_name
+				modelSubnet.LeaderNodeName = resGetNode.Node.NodeName
+			}
+		}
+
+		// Get Server
+		if len(modelSubnet.ServerUUID) != 0 {
+			resGetServer, _ := client.RC.GetServer(modelSubnet.ServerUUID)
+			if resGetServer != nil && resGetServer.Server != nil {
+				// server_name
+				modelSubnet.ServerName = resGetServer.Server.ServerName
+			}
+		}
+
 		subnetList = append(subnetList, *modelSubnet)
 	}
 
@@ -243,7 +299,7 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil
 	}
 
-	return model.AdaptiveIPServer{
+	modelAdaptiveIPServer := model.AdaptiveIPServer{
 		ServerUUID:     resGetAdaptiveIPServer.AdaptiveipServer.ServerUUID,
 		GroupID:        resGetAdaptiveIPServer.AdaptiveipServer.GroupID,
 		PublicIP:       resGetAdaptiveIPServer.AdaptiveipServer.PublicIP,
@@ -251,7 +307,16 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		PrivateGateway: resGetAdaptiveIPServer.AdaptiveipServer.PrivateGateway,
 		CreatedAt:      _createdAt,
 		Errors:         Errors,
-	}, nil
+	}
+
+	// group_name
+	group, err := dao.ReadGroup(int(modelAdaptiveIPServer.GroupID))
+	if err != nil {
+		return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+	modelAdaptiveIPServer.GroupName = group.Name
+
+	return modelAdaptiveIPServer, nil
 }
 
 // ListAdaptiveIPServer : Get adaptiveIP server list with provided options
@@ -302,14 +367,23 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 			return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil
 		}
 
-		adaptiveIPServerList = append(adaptiveIPServerList, model.AdaptiveIPServer{
+		modelAdaptiveIPServer := model.AdaptiveIPServer{
 			ServerUUID:     adaptiveIPServer.ServerUUID,
 			GroupID:        adaptiveIPServer.GroupID,
 			PublicIP:       adaptiveIPServer.PublicIP,
 			PrivateIP:      adaptiveIPServer.PrivateIP,
 			PrivateGateway: adaptiveIPServer.PrivateGateway,
 			CreatedAt:      _createdAt,
-		})
+		}
+
+		// group_name
+		group, err := dao.ReadGroup(int(modelAdaptiveIPServer.GroupID))
+		if err != nil {
+			return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		}
+		modelAdaptiveIPServer.GroupName = group.Name
+
+		adaptiveIPServerList = append(adaptiveIPServerList, modelAdaptiveIPServer)
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(resAdaptiveIPServerList.HccErrorStack)
