@@ -299,7 +299,7 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil
 	}
 
-	return model.AdaptiveIPServer{
+	modelAdaptiveIPServer := model.AdaptiveIPServer{
 		ServerUUID:     resGetAdaptiveIPServer.AdaptiveipServer.ServerUUID,
 		GroupID:        resGetAdaptiveIPServer.AdaptiveipServer.GroupID,
 		PublicIP:       resGetAdaptiveIPServer.AdaptiveipServer.PublicIP,
@@ -307,7 +307,16 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		PrivateGateway: resGetAdaptiveIPServer.AdaptiveipServer.PrivateGateway,
 		CreatedAt:      _createdAt,
 		Errors:         Errors,
-	}, nil
+	}
+
+	// group_name
+	group, err := dao.ReadGroup(int(modelAdaptiveIPServer.GroupID))
+	if err != nil {
+		return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+	modelAdaptiveIPServer.GroupName = group.Name
+
+	return modelAdaptiveIPServer, nil
 }
 
 // ListAdaptiveIPServer : Get adaptiveIP server list with provided options
@@ -358,14 +367,23 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 			return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil
 		}
 
-		adaptiveIPServerList = append(adaptiveIPServerList, model.AdaptiveIPServer{
+		modelAdaptiveIPServer := model.AdaptiveIPServer{
 			ServerUUID:     adaptiveIPServer.ServerUUID,
 			GroupID:        adaptiveIPServer.GroupID,
 			PublicIP:       adaptiveIPServer.PublicIP,
 			PrivateIP:      adaptiveIPServer.PrivateIP,
 			PrivateGateway: adaptiveIPServer.PrivateGateway,
 			CreatedAt:      _createdAt,
-		})
+		}
+
+		// group_name
+		group, err := dao.ReadGroup(int(modelAdaptiveIPServer.GroupID))
+		if err != nil {
+			return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		}
+		modelAdaptiveIPServer.GroupName = group.Name
+
+		adaptiveIPServerList = append(adaptiveIPServerList, modelAdaptiveIPServer)
 	}
 
 	hccErrStack := errconv.GrpcStackToHcc(resAdaptiveIPServerList.HccErrorStack)

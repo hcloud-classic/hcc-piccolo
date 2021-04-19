@@ -9,6 +9,7 @@ import (
 type AdaptiveIPServer struct {
 	ServerUUID     string                    `json:"server_uuid"`
 	GroupID        int64                     `json:"group_id"`
+	GroupName      string                    `json:"group_name"`
 	PublicIP       string                    `json:"public_ip"`
 	PrivateIP      string                    `json:"private_ip"`
 	PrivateGateway string                    `json:"private_gateway"`
