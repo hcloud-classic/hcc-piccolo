@@ -121,8 +121,8 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 	if !nodeNameOk || !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !chargeCPUOk || !chargeMemoryOk || !chargeNICOk ||
 		!nicDetailDataOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic, nic_detail_data, " +
-			"nic_detail_data arguments")}, nil
+			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic, nic_detail_data, "+
+				"nic_detail_data arguments")}, nil
 	}
 
 	reqCreateNode.Node.NodeName = nodeName
