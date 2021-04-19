@@ -112,13 +112,17 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 	chargeMemory, chargeMemoryOk := args["charge_memory"].(int)
 	chargeNIC, chargeNICOk := args["charge_nic"].(int)
 
+	nicDetailData, nicDetailDataOk := args["nic_detail_data"].(string)
+
 	var reqCreateNode pb.ReqCreateNode
 	var reqNode pb.Node
 	reqCreateNode.Node = &reqNode
 
-	if !nodeNameOk || !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !chargeCPUOk || !chargeMemoryOk || !chargeNICOk {
+	if !nodeNameOk || !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !chargeCPUOk || !chargeMemoryOk || !chargeNICOk ||
+		!nicDetailDataOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic arguments")}, nil
+			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic, nic_detail_data, " +
+			"nic_detail_data arguments")}, nil
 	}
 
 	reqCreateNode.Node.NodeName = nodeName
@@ -129,6 +133,8 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 	reqCreateNode.Node.ChargeCPU = int32(chargeCPU)
 	reqCreateNode.Node.ChargeMemory = int32(chargeMemory)
 	reqCreateNode.Node.ChargeNIC = int32(chargeNIC)
+
+	reqCreateNode.NicDetailData = nicDetailData
 
 	resCreateNode, err := client.RC.CreateNode(&reqCreateNode)
 	if err != nil {

@@ -575,6 +575,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"charge_nic": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
+				"nic_detail_data": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 				"token": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
