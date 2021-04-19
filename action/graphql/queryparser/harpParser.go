@@ -129,6 +129,34 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	var subnetList []model.Subnet
 	for _, pSubnet := range resListSubnet.Subnet {
 		modelSubnet := pbtomodel.PbSubnetToModelSubnet(pSubnet, nil)
+
+		// group_name
+		group, err := dao.ReadGroup(int(modelSubnet.GroupID))
+		if err != nil {
+			return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		}
+		modelSubnet.GroupName = group.Name
+
+		// Get Leader Node
+		if len(modelSubnet.LeaderNodeUUID) != 0 {
+			resGetNode, _ := client.RC.GetNode(modelSubnet.LeaderNodeUUID)
+			if resGetNode != nil && resGetNode.Node != nil {
+				// pxe_boot_ip
+				modelSubnet.PXEBootIP = resGetNode.Node.NodeIP
+				// leader_node_name
+				modelSubnet.LeaderNodeName = resGetNode.Node.NodeName
+			}
+		}
+
+		// Get Server
+		if len(modelSubnet.ServerUUID) != 0 {
+			resGetServer, _ := client.RC.GetServer(modelSubnet.ServerUUID)
+			if resGetServer != nil && resGetServer.Server != nil {
+				// server_name
+				modelSubnet.ServerName = resGetServer.Server.ServerName
+			}
+		}
+
 		subnetList = append(subnetList, *modelSubnet)
 	}
 

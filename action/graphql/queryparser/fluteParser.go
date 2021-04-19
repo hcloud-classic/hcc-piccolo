@@ -156,6 +156,14 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	var nodeList []model.Node
 	for _, pNode := range resGetNodeList.Node {
 		modelNode := pbtomodel.PbNodeToModelNode(pNode, nil)
+
+		// group_name
+		group, err := dao.ReadGroup(int(modelNode.GroupID))
+		if err != nil {
+			return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		}
+		modelNode.GroupName = group.Name
+
 		nodeList = append(nodeList, *modelNode)
 	}
 
