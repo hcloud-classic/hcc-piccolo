@@ -13,6 +13,9 @@ var NodeDetailType = graphql.NewObject(
 			"node_detail_data": &graphql.Field{
 				Type: graphql.String,
 			},
+			"nic_detail_data": &graphql.Field{
+				Type: graphql.String,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},
