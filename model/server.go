@@ -9,7 +9,12 @@ import (
 type Server struct {
 	UUID       string                    `json:"uuid"`
 	GroupID    int64                     `json:"group_id"`
+	GroupName  string                    `json:"group_name"`
 	SubnetUUID string                    `json:"subnet_uuid"`
+	NicSpeed   string                    `json:"nic_speed"`
+	ExternalIP string                    `json:"external_ip"`
+	PXEBootIP  string                    `json:"pxe_boot_ip"`
+	NodeList   []Node                    `json:"node_list"`
 	OS         string                    `json:"os"`
 	ServerName string                    `json:"server_name"`
 	ServerDesc string                    `json:"server_desc"`

@@ -1,9 +1,11 @@
 package queryparser
 
 import (
+	"encoding/json"
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/model"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
@@ -24,6 +26,62 @@ func Server(args map[string]interface{}) (interface{}, error) {
 	}
 
 	modelServer := *pbtomodel.PbServerToModelServer(resGetServer.Server, resGetServer.HccErrorStack)
+
+	// group_name
+	group, err := dao.ReadGroup(int(modelServer.GroupID))
+	if err != nil {
+		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+	modelServer.GroupName = group.Name
+
+	// external_ip
+	resGetAdaptiveIPServer, err := client.RC.GetAdaptiveIPServer(uuid)
+	if err != nil {
+		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+	if resGetAdaptiveIPServer.AdaptiveipServer != nil {
+		modelServer.ExternalIP = resGetAdaptiveIPServer.AdaptiveipServer.PublicIP
+	}
+
+	// Get nodes
+	var nodeList []model.Node
+	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{
+		Node: &pb.Node{
+			ServerUUID: uuid,
+		},
+	})
+	if err != nil {
+		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+	if resGetNodeList.Node != nil {
+		for _, node := range resGetNodeList.Node {
+			modelNode := *pbtomodel.PbNodeToModelNode(node, nil)
+			resGetNodeDetail, _ := client.RC.GetNodeDetail(node.UUID)
+			if resGetNodeDetail.NodeDetail == nil {
+				continue
+			}
+			// cpu_model of the node
+			nodeDetailData := resGetNodeDetail.NodeDetail.GetNodeDetailData()
+			var nodeDetailJSON model.NodeDetailData
+			err := json.Unmarshal([]byte(nodeDetailData), &nodeDetailJSON)
+			if err != nil {
+				continue
+			}
+			modelNode.CPUModel = nodeDetailJSON.CPUs[0].Model
+			nodeList = append(nodeList, modelNode)
+		}
+	}
+
+	// node_list
+	modelServer.NodeList = nodeList
+
+	// nic_speed, pxe_boot_ip
+	if len(nodeList) != 0 {
+		modelServer.PXEBootIP = nodeList[0].NodeIP
+		modelServer.NicSpeed = nodeList[0].NICSpeed
+	}
+
+	// TODO : Need to get mount path from cello
 
 	queryArgs := make(map[string]interface{})
 	queryArgs["server_uuid"] = modelServer.UUID

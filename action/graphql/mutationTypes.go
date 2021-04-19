@@ -551,13 +551,25 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphqlType.NodeType,
 			Description: "Create new node",
 			Args: graphql.FieldConfigArgument{
+				"node_name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 				"group_id": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"bmc_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"nic_model": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 				"nic_speed_mbps": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"bmc_nic_model": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"bmc_nic_speed_mbps": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"description": &graphql.ArgumentConfig{
@@ -595,6 +607,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"node_name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 				"group_id": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
@@ -625,7 +640,16 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"memory": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
+				"nic_model": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 				"nic_speed_mbps": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"bmc_nic_model": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"bmc_nic_speed_mbps": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"description": &graphql.ArgumentConfig{

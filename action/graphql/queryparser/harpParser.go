@@ -238,12 +238,18 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
+	_createdAt, err := ptypes.Timestamp(resGetAdaptiveIPServer.AdaptiveipServer.CreatedAt)
+	if err != nil {
+		return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil
+	}
+
 	return model.AdaptiveIPServer{
 		ServerUUID:     resGetAdaptiveIPServer.AdaptiveipServer.ServerUUID,
 		GroupID:        resGetAdaptiveIPServer.AdaptiveipServer.GroupID,
 		PublicIP:       resGetAdaptiveIPServer.AdaptiveipServer.PublicIP,
 		PrivateIP:      resGetAdaptiveIPServer.AdaptiveipServer.PrivateIP,
 		PrivateGateway: resGetAdaptiveIPServer.AdaptiveipServer.PrivateGateway,
+		CreatedAt:      _createdAt,
 		Errors:         Errors,
 	}, nil
 }

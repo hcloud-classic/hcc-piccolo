@@ -10,8 +10,17 @@ var NodeType = graphql.NewObject(
 			"uuid": &graphql.Field{
 				Type: graphql.String,
 			},
+			"node_name": &graphql.Field{
+				Type: graphql.String,
+			},
 			"group_id": &graphql.Field{
 				Type: graphql.Int,
+			},
+			"node_num": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"node_ip": &graphql.Field{
+				Type: graphql.String,
 			},
 			"server_uuid": &graphql.Field{
 				Type: graphql.String,
@@ -31,13 +40,25 @@ var NodeType = graphql.NewObject(
 			"status": &graphql.Field{
 				Type: graphql.String,
 			},
+			"cpu_model": &graphql.Field{
+				Type: graphql.String,
+			},
 			"cpu_cores": &graphql.Field{
 				Type: graphql.Int,
 			},
 			"memory": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"nic_model": &graphql.Field{
+				Type: graphql.String,
+			},
 			"nic_speed": &graphql.Field{
+				Type: graphql.String,
+			},
+			"bmc_nic_model": &graphql.Field{
+				Type: graphql.String,
+			},
+			"bmc_nic_speed": &graphql.Field{
 				Type: graphql.String,
 			},
 			"description": &graphql.Field{

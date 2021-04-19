@@ -40,7 +40,7 @@ var queryTypes = graphql.NewObject(
 			},
 			"user": &graphql.Field{
 				Type:        graphqlType.UserType,
-				Description: "Get the user list from piccolo",
+				Description: "Get the user info from piccolo",
 				Args: graphql.FieldConfigArgument{
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -688,6 +688,12 @@ var queryTypes = graphql.NewObject(
 					"private_gateway": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -806,6 +812,9 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"node_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"node_num": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
@@ -833,7 +842,16 @@ var queryTypes = graphql.NewObject(
 					"memory": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"nic_model": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"nic_speed_mbps": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"bmc_nic_model": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"bmc_nic_speed_mbps": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
 					"description": &graphql.ArgumentConfig{

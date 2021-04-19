@@ -52,6 +52,7 @@ func Node(args map[string]interface{}) (interface{}, error) {
 // ListNode : Get node list with provided options
 func ListNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
+	nodeName, nodeNameOk := args["node_name"].(string)
 	groupID, groupIDOk := args["group_id"].(int)
 	nodeNum, nodeNumOk := args["node_num"].(int)
 	nodeIP, nodeIPOk := args["node_ip"].(string)
@@ -62,7 +63,10 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	status, statusOk := args["status"].(string)
 	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
 	memory, memoryOk := args["memory"].(int)
+	nicModel, nicModelOk := args["nic_model"].(string)
 	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
+	bmcNICModel, bmcNICModelOk := args["bmc_nic_model"].(string)
+	bmcNICSpeedMbps, bmcNICSpeedMbpsOk := args["bmc_nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
 	rackNumber, rackNumberOk := args["rack_number"].(int)
 	chargeCPU, chargeCPUOk := args["charge_cpu"].(int)
@@ -78,6 +82,9 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 
 	if uuidOk {
 		reqListNode.Node.UUID = uuid
+	}
+	if nodeNameOk {
+		reqListNode.Node.NodeName = nodeName
 	}
 	if groupIDOk {
 		reqListNode.Node.GroupID = int64(groupID)
@@ -109,8 +116,17 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	if memoryOk {
 		reqListNode.Node.Memory = int32(memory)
 	}
+	if nicModelOk {
+		reqListNode.Node.NicModel = nicModel
+	}
 	if nicSpeedMbpsOk {
 		reqListNode.Node.NicSpeedMbps = int32(nicSpeedMbps)
+	}
+	if bmcNICModelOk {
+		reqListNode.Node.BmcNicModel = bmcNICModel
+	}
+	if bmcNICSpeedMbpsOk {
+		reqListNode.Node.BmcNicSpeedMbps = int32(bmcNICSpeedMbps)
 	}
 	if descriptionOk {
 		reqListNode.Node.Description = description
