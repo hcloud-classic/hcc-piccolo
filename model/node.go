@@ -10,6 +10,7 @@ type Node struct {
 	UUID            string                    `json:"uuid"`
 	NodeName        string                    `json:"node_name"`
 	GroupID         int64                     `json:"group_id"`
+	GroupName       string                    `json:"group_name"`
 	NodeNum         int64                     `json:"node_num"`
 	NodeIP          string                    `json:"node_ip"`
 	ServerUUID      string                    `json:"server_uuid"`

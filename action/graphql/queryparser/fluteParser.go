@@ -4,6 +4,7 @@ import (
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/model"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
@@ -45,6 +46,13 @@ func Node(args map[string]interface{}) (interface{}, error) {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 	modelNode := pbtomodel.PbNodeToModelNode(resGetNode.Node, resGetNode.HccErrorStack)
+
+	// group_name
+	group, err := dao.ReadGroup(int(modelNode.GroupID))
+	if err != nil {
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+	modelNode.GroupName = group.Name
 
 	return *modelNode, nil
 }
