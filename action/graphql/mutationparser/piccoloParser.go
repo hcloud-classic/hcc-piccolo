@@ -25,9 +25,9 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and group_id, password, name, email arguments")}, nil
 	}
 
-	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
-		logger.Logger.Println("SignUp(): Someone tried to sign up with one of administrative ID.")
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Hey, you can't be the administrator!")}, nil
+	if strings.ToLower(id) == "master" {
+		logger.Logger.Println("SignUp(): Someone tried to sign up with master ID.")
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Hey, you can't be the master!")}, nil
 	}
 
 	sql := "select id from user where id = ?"
