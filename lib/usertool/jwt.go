@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
+	"hcc/piccolo/action/graphql/queryparserExt"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
@@ -66,14 +67,14 @@ func getGroupOfUser(id string) *model.Group {
 }
 
 // ValidateToken : Validate given token string
-func ValidateToken(args map[string]interface{}) (err error, groupID int64) {
+func ValidateToken(args map[string]interface{}, checkForAdmin bool) (err error, isMaster bool, groupID int64) {
 	var _groupID int
 
 	tokenString, tokenStringOk := args["token"].(string)
 	_groupID, _groupIDOk := args["group_id"].(int)
 
 	if !tokenStringOk {
-		return errors.New("need a token argument"), 0
+		return errors.New("need a token argument"), false, 0
 	}
 
 	// Parse takes the token string and a function for looking up the key. The latter is especially
@@ -90,103 +91,41 @@ func ValidateToken(args map[string]interface{}) (err error, groupID int64) {
 		return jwtKey, nil
 	})
 	if err != nil {
-		return errors.New("invalid token"), 0
+		return errors.New("invalid token"), false, 0
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if claims["iss"].(string) != "piccolo" &&
 			claims["sub"].(string) != "Auth" {
-			return errors.New("invalid token"), 0
+			return errors.New("invalid token"), false, 0
 		}
 
 		if time.Now().Unix() >= int64(claims["exp"].(float64)) {
-			return errors.New("token is expired"), 0
-		}
-
-		var dbPassword string
-		sql := "select password from user where id = ?"
-		row := mysql.Db.QueryRow(sql, claims["ID"].(string))
-		err := mysql.QueryRowScan(row, &dbPassword)
-		if err != nil {
-			logger.Logger.Println(err)
-			return errLoginMismatch, 0
-		}
-
-		// Given password is hashed password with bcrypt
-		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(dbPassword))
-		if err != nil {
-			return errLoginMismatch, 0
-		}
-
-		if !_groupIDOk {
-			group := getGroupOfUser(claims["ID"].(string))
-			if group != nil {
-				_groupID = int(group.ID)
-			}
-		}
-
-		return nil, int64(_groupID)
-	}
-
-	return errors.New("invalid token"), 0
-}
-
-// ValidateTokenForAdmin : Validate given token string for admin
-func ValidateTokenForAdmin(args map[string]interface{}) (err error, groupID int64) {
-	var _groupID int
-
-	tokenString, tokenStringOk := args["token"].(string)
-	_groupID, _groupIDOk := args["group_id"].(int)
-
-	if !tokenStringOk {
-		return errors.New("need a token argument"), 0
-	}
-
-	// Parse takes the token string and a function for looking up the key. The latter is especially
-	// useful if you use multiple keys for your application.  The standard is to use 'kid' in the
-	// head of the token to identify which key to use, but the parsed token (head and claims) is provided
-	// to the callback, providing flexibility.
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Don't forget to validate the alg is what you expect:
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected signing method: " + token.Header["alg"].(string))
-		}
-
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return jwtKey, nil
-	})
-	if err != nil {
-		return errors.New("invalid token"), 0
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		if claims["iss"].(string) != "piccolo" &&
-			claims["sub"].(string) != "Auth" {
-			return errors.New("invalid token"), 0
-		}
-
-		if time.Now().Unix() >= int64(claims["exp"].(float64)) {
-			return errors.New("token is expired"), 0
+			return errors.New("token is expired"), false, 0
 		}
 
 		id := claims["ID"].(string)
-		if strings.ToLower(id) != "admin" && strings.ToLower(id) != "administrator" {
-			return errors.New("hey there, you are not the admin"), 0
+		queryArgs := make(map[string]interface{})
+		queryArgs["id"] = id
+		user, err := queryparserExt.User(queryArgs)
+
+		if checkForAdmin && user.(model.User).Authentication != "admin" {
+			return errors.New("hey there, you are not the admin"), false, 0
 		}
 
 		var dbPassword string
 		sql := "select password from user where id = ?"
 		row := mysql.Db.QueryRow(sql, claims["ID"].(string))
-		err := mysql.QueryRowScan(row, &dbPassword)
+		err = mysql.QueryRowScan(row, &dbPassword)
 		if err != nil {
 			logger.Logger.Println(err)
-			return errLoginMismatch, 0
+			return errLoginMismatch, false, 0
 		}
 
 		// Given password is hashed password with bcrypt
 		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(dbPassword))
 		if err != nil {
-			return errLoginMismatch, 0
+			return errLoginMismatch, false, 0
 		}
 
 		if !_groupIDOk {
@@ -196,10 +135,14 @@ func ValidateTokenForAdmin(args map[string]interface{}) (err error, groupID int6
 			}
 		}
 
-		return nil, int64(_groupID)
+		if strings.ToLower(id) == "master" {
+			return nil, true, 0
+		}
+
+		return nil, false, int64(_groupID)
 	}
 
-	return errors.New("invalid token"), 0
+	return errors.New("invalid token"), false, 0
 }
 
 // GetUserID : Get the user ID from the token

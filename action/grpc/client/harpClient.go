@@ -117,13 +117,11 @@ func (rc *RPCClient) GetSubnetList(in *pb.ReqGetSubnetList) (*pb.ResGetSubnetLis
 }
 
 // GetAvailableSubnetList : Get the list of available subnets
-func (rc *RPCClient) GetAvailableSubnetList(groupID int64) (*pb.ResGetAvailableSubnetList, error) {
+func (rc *RPCClient) GetAvailableSubnetList(in *pb.ReqGetAvailableSubnetList) (*pb.ResGetAvailableSubnetList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	subnetList, err := rc.harp.GetAvailableSubnetList(ctx, &pb.ReqGetAvailableSubnetList{
-		GroupID: groupID,
-	})
+	subnetList, err := rc.harp.GetAvailableSubnetList(ctx, in)
 	if err != nil {
 		return nil, err
 	}
@@ -132,13 +130,11 @@ func (rc *RPCClient) GetAvailableSubnetList(groupID int64) (*pb.ResGetAvailableS
 }
 
 // GetSubnetNum : Get the number of subnets
-func (rc *RPCClient) GetSubnetNum(groupID int64) (*pb.ResGetSubnetNum, error) {
+func (rc *RPCClient) GetSubnetNum(in *pb.ReqGetSubnetNum) (*pb.ResGetSubnetNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resGetSubnetNum, err := rc.harp.GetSubnetNum(ctx, &pb.ReqGetSubnetNum{
-		GroupID: groupID,
-	})
+	resGetSubnetNum, err := rc.harp.GetSubnetNum(ctx, in)
 	if err != nil {
 		return nil, err
 	}
@@ -251,13 +247,11 @@ func (rc *RPCClient) GetAdaptiveIPServerList(in *pb.ReqGetAdaptiveIPServerList) 
 }
 
 // GetAdaptiveIPServerNum : Get the number of adaptiveIP server
-func (rc *RPCClient) GetAdaptiveIPServerNum(groupID int64) (*pb.ResGetAdaptiveIPServerNum, error) {
+func (rc *RPCClient) GetAdaptiveIPServerNum(in *pb.ReqGetAdaptiveIPServerNum) (*pb.ResGetAdaptiveIPServerNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resGetAdaptiveIPServerNum, err := rc.harp.GetAdaptiveIPServerNum(ctx, &pb.ReqGetAdaptiveIPServerNum{
-		GroupID: groupID,
-	})
+	resGetAdaptiveIPServerNum, err := rc.harp.GetAdaptiveIPServerNum(ctx, in)
 	if err != nil {
 		return nil, err
 	}

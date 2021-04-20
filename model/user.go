@@ -13,15 +13,16 @@ type Group struct {
 
 // User : Contain infos of the user
 type User struct {
-	UUID      string                    `json:"uuid"`
-	ID        string                    `json:"id"`
-	Name      string                    `json:"name"`
-	GroupID   int64                     `json:"group_id"`
-	GroupName string                    `json:"group_name"`
-	Email     string                    `json:"email"`
-	LoginAt   time.Time                 `json:"login_at"`
-	CreatedAt time.Time                 `json:"created_at"`
-	Errors    []errconv.PiccoloHccError `json:"errors"`
+	UUID           string                    `json:"uuid"`
+	ID             string                    `json:"id"`
+	Authentication string                    `json:"authentication"`
+	Name           string                    `json:"name"`
+	GroupID        int64                     `json:"group_id"`
+	GroupName      string                    `json:"group_name"`
+	Email          string                    `json:"email"`
+	LoginAt        time.Time                 `json:"login_at"`
+	CreatedAt      time.Time                 `json:"created_at"`
+	Errors         []errconv.PiccoloHccError `json:"errors"`
 }
 
 // UserList : Contain list of users

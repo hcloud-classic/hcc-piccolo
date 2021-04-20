@@ -2,6 +2,7 @@ package mutationparser
 
 import (
 	"hcc/piccolo/action/graphql/pbtomodel"
+	"hcc/piccolo/action/graphql/queryparser"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
@@ -66,10 +67,22 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 }
 
 // UpdateSubnet : Update infos of the subnet
-func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
+func UpdateSubnet(args map[string]interface{}, isMaster bool) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+	}
+
+	if !isMaster {
+		groupID, _ := args["group_id"].(int)
+		subnet, err := queryparser.Subnet(args)
+		if err != nil {
+			return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
+		if int(subnet.(model.Subnet).GroupID) != groupID {
+			return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other subnet if you are not a master")}, nil
+		}
 	}
 
 	groupID, groupIDOk := args["group_id"].(int)

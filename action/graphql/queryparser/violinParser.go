@@ -232,7 +232,7 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
-	numServer, err := NumServer(int64(groupID))
+	numServer, err := NumServer(args)
 	if err != nil {
 		return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -253,8 +253,15 @@ func AllServer(args map[string]interface{}) (interface{}, error) {
 }
 
 // NumServer : Get number of servers
-func NumServer(groupID int64) (interface{}, error) {
-	resGetServerNum, err := client.RC.GetServerNum(groupID)
+func NumServer(args map[string]interface{}) (interface{}, error) {
+	groupID, groupIDOk := args["group_id"].(int)
+
+	var reqGetServerNum pb.ReqGetServerNum
+	if groupIDOk {
+		reqGetServerNum.GroupID = int64(groupID)
+	}
+
+	resGetServerNum, err := client.RC.GetServerNum(&reqGetServerNum)
 	if err != nil {
 		return nil, err
 	}

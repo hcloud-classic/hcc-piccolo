@@ -166,7 +166,7 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
-	numSubnet, err := NumSubnet(int64(groupID))
+	numSubnet, err := NumSubnet(args)
 	if err != nil {
 		return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -187,8 +187,14 @@ func AllSubnet(args map[string]interface{}) (interface{}, error) {
 }
 
 // AvailableSubnetList : Get available subnet list
-func AvailableSubnetList(groupID int64) (interface{}, error) {
-	resListSubnet, err := client.RC.GetAvailableSubnetList(groupID)
+func AvailableSubnetList(args map[string]interface{}) (interface{}, error) {
+	groupID, groupIDOk := args["group_id"].(int)
+
+	var reqGetAvailableSubnetList pb.ReqGetAvailableSubnetList
+	if groupIDOk {
+		reqGetAvailableSubnetList.GroupID = int64(groupID)
+	}
+	resListSubnet, err := client.RC.GetAvailableSubnetList(&reqGetAvailableSubnetList)
 	if err != nil {
 		return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -209,8 +215,14 @@ func AvailableSubnetList(groupID int64) (interface{}, error) {
 }
 
 // NumSubnet : Get number of subnets
-func NumSubnet(groupID int64) (interface{}, error) {
-	resGetSubnetNum, err := client.RC.GetSubnetNum(groupID)
+func NumSubnet(args map[string]interface{}) (interface{}, error) {
+	groupID, groupIDOk := args["group_id"].(int)
+
+	var reqGetSubnetNum pb.ReqGetSubnetNum
+	if groupIDOk {
+		reqGetSubnetNum.GroupID = int64(groupID)
+	}
+	resGetSubnetNum, err := client.RC.GetSubnetNum(&reqGetSubnetNum)
 	if err != nil {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -401,8 +413,14 @@ func AllAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 }
 
 // NumAdaptiveIPServer : Get number of adaptiveIP servers
-func NumAdaptiveIPServer(groupID int64) (interface{}, error) {
-	resGetAdaptiveIPServerNum, err := client.RC.GetAdaptiveIPServerNum(groupID)
+func NumAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
+	groupID, groupIDOk := args["group_id"].(int)
+
+	var reqGetAdaptiveIPServerNum pb.ReqGetAdaptiveIPServerNum
+	if groupIDOk {
+		reqGetAdaptiveIPServerNum.GroupID = int64(groupID)
+	}
+	resGetAdaptiveIPServerNum, err := client.RC.GetAdaptiveIPServerNum(&reqGetAdaptiveIPServerNum)
 	if err != nil {
 		return model.AdaptiveIPServerNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
