@@ -23,9 +23,7 @@ func ReadGroup(groupID int) (*model.Group, error) {
 	if err != nil {
 		errStr := "ReadGroup(): " + err.Error()
 		logger.Logger.Println(errStr)
-		if strings.Contains(err.Error(), "no rows in result set") {
-			return nil, err
-		}
+
 		return nil, err
 	}
 
