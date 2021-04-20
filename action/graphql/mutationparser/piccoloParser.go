@@ -3,6 +3,7 @@ package mutationparser
 import (
 	"hcc/piccolo/action/graphql/queryparser"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
@@ -34,6 +35,15 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	err := mysql.QueryRowScan(row, &id)
 	if err == nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided ID is in use")}, nil
+	}
+
+	_, err = dao.ReadGroup(groupID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "Provided Group ID is not exist")}, nil
+		}
+
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
 	out, err := uuid.NewV4()
