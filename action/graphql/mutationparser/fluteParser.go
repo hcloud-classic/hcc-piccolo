@@ -2,6 +2,7 @@ package mutationparser
 
 import (
 	"hcc/piccolo/action/graphql/pbtomodel"
+	"hcc/piccolo/action/graphql/queryparser"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/timpani"
@@ -147,10 +148,22 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 }
 
 // UpdateNode : Update the infos of the node
-func UpdateNode(args map[string]interface{}) (interface{}, error) {
+func UpdateNode(args map[string]interface{}, isMaster bool) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+	}
+
+	if !isMaster {
+		groupID, _ := args["group_id"].(int)
+		node, err := queryparser.Node(args)
+		if err != nil {
+			return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
+		if int(node.(model.Node).GroupID) != groupID {
+			return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other node if you are not a master")}, nil
+		}
 	}
 
 	nodeName, nodeNameOk := args["node_name"].(string)

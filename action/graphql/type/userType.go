@@ -13,6 +13,9 @@ var UserType = graphql.NewObject(
 			"id": &graphql.Field{
 				Type: graphql.String,
 			},
+			"authentication": &graphql.Field{
+				Type: graphql.String,
+			},
 			"name": &graphql.Field{
 				Type: graphql.String,
 			},

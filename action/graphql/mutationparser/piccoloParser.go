@@ -1,8 +1,9 @@
 package mutationparser
 
 import (
-	"hcc/piccolo/action/graphql/queryparser"
+	"hcc/piccolo/action/graphql/queryparserExt"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
@@ -16,24 +17,38 @@ import (
 func SignUp(args map[string]interface{}) (interface{}, error) {
 	groupID, groupIDOk := args["group_id"].(int)
 	id, idOk := args["id"].(string)
+	authentication, authenticationOk := args["authentication"].(string)
 	password, passwordOk := args["password"].(string)
 	name, nameOk := args["name"].(string)
 	email, emailOk := args["email"].(string)
 
-	if !groupIDOk || !idOk || !passwordOk || !nameOk || !emailOk {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and group_id, password, name, email arguments")}, nil
+	if !groupIDOk || !idOk || !authenticationOk || !passwordOk || !nameOk || !emailOk {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and authentication, group_id, password, name, email arguments")}, nil
 	}
 
-	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
-		logger.Logger.Println("SignUp(): Someone tried to sign up with one of administrative ID.")
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Hey, you can't be the administrator!")}, nil
+	if strings.ToLower(id) == "master" {
+		logger.Logger.Println("SignUp(): Someone tried to sign up with master ID.")
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Hey, you can't be the master!")}, nil
 	}
 
-	sql := "select id from user where id = ?"
-	row := mysql.Db.QueryRow(sql, id)
-	err := mysql.QueryRowScan(row, &id)
+	if authentication != "admin" && authentication != "user" {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Wrong authentication provided!")}, nil
+	}
+
+	sql := "select id from user where id = ? and group_id = ?"
+	row := mysql.Db.QueryRow(sql, id, groupID)
+	err := mysql.QueryRowScan(row, &id, &groupID)
 	if err == nil {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided ID is in use")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided ID is in use in the group")}, nil
+	}
+
+	_, err = dao.ReadGroup(groupID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "Provided Group ID is not exist")}, nil
+		}
+
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
 	out, err := uuid.NewV4()
@@ -43,14 +58,15 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	UUID := out.String()
 
 	user := model.User{
-		UUID:    UUID,
-		GroupID: int64(groupID),
-		ID:      id,
-		Name:    name,
-		Email:   email,
+		UUID:           UUID,
+		GroupID:        int64(groupID),
+		ID:             id,
+		Authentication: authentication,
+		Name:           name,
+		Email:          email,
 	}
 
-	sql = "insert into user(uuid, group_id, id, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, ?, now(), now())"
+	sql = "insert into user(uuid, group_id, id, authentication, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, ?, ?, now(), now())"
 	stmt, err := mysql.Prepare(sql)
 	if err != nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, err.Error())}, nil
@@ -58,7 +74,7 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 	defer func() {
 		_ = stmt.Close()
 	}()
-	_, err = stmt.Exec(user.UUID, user.GroupID, user.ID, password, user.Name, user.Email)
+	_, err = stmt.Exec(user.UUID, user.GroupID, user.ID, authentication, password, user.Name, user.Email)
 	if err != nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
@@ -81,7 +97,7 @@ func Unregister(args map[string]interface{}) (interface{}, error) {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "You can't delete administrative IDs")}, nil
 	}
 
-	user, _ := queryparser.User(args)
+	user, _ := queryparserExt.User(args)
 	if len(user.(model.User).Errors) != 0 && user.(model.User).Errors[0].ErrCode != 0 {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "user not found")}, nil
 	}

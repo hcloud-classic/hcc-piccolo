@@ -2,6 +2,7 @@ package mutationparser
 
 import (
 	"hcc/piccolo/action/graphql/pbtomodel"
+	"hcc/piccolo/action/graphql/queryparser"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
@@ -85,7 +86,7 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 }
 
 // UpdateServer : Update the infos of the server
-func UpdateServer(args map[string]interface{}) (interface{}, error) {
+func UpdateServer(args map[string]interface{}, isMaster bool) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
@@ -100,6 +101,18 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 	diskSize, diskSizeOk := args["disk_size"].(int)
 	status, statusOk := args["status"].(string)
 	userUUID, userUUIDOk := args["user_uuid"].(string)
+
+	if !isMaster {
+		groupID, _ := args["group_id"].(int)
+		server, err := queryparser.Server(args)
+		if err != nil {
+			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
+		if int(server.(model.Server).GroupID) != groupID {
+			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other server if you are not a master")}, nil
+		}
+	}
 
 	var reqUpdateServer pb.ReqUpdateServer
 	var reqServer pb.Server
