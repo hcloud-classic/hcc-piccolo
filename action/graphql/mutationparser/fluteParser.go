@@ -148,7 +148,11 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 }
 
 // UpdateNode : Update the infos of the node
-func UpdateNode(args map[string]interface{}, isMaster bool) (interface{}, error) {
+func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+	if !isMaster || !isAdmin {
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
@@ -162,7 +166,7 @@ func UpdateNode(args map[string]interface{}, isMaster bool) (interface{}, error)
 		}
 
 		if int(node.(model.Node).GroupID) != groupID {
-			return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other node if you are not a master")}, nil
+			return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other group's node if you are not a master")}, nil
 		}
 	}
 
@@ -256,10 +260,26 @@ func UpdateNode(args map[string]interface{}, isMaster bool) (interface{}, error)
 }
 
 // DeleteNode : Delete the node
-func DeleteNode(args map[string]interface{}) (interface{}, error) {
+func DeleteNode(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+	if !isMaster || !isAdmin {
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+	}
+
+	if !isMaster {
+		groupID, _ := args["group_id"].(int)
+		node, err := queryparser.Node(args)
+		if err != nil {
+			return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
+		if int(node.(model.Node).GroupID) != groupID {
+			return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't delete the other group's node if you are not a master")}, nil
+		}
 	}
 
 	resDeleteNode, err := client.RC.DeleteNode(requestedUUID)
@@ -273,7 +293,11 @@ func DeleteNode(args map[string]interface{}) (interface{}, error) {
 }
 
 // CreateNodeDetail : Create detail infos of the node
-func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
+func CreateNodeDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+	if !isMaster || !isAdmin {
+		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
 	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
 	nodeDetailData, nodeDetailDataOk := args["node_detail_data"].(string)
 
@@ -299,7 +323,11 @@ func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
 }
 
 // UpdateNodeDetail : Update detail infos of the node
-func UpdateNodeDetail(args map[string]interface{}) (interface{}, error) {
+func UpdateNodeDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+	if !isMaster || !isAdmin {
+		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
 	nodeUUID, nodeUUIDOk := args["node_uuid"].(string)
 	nodeDetailData, nodeDetailDataOk := args["node_detail_data"].(string)
 
@@ -325,7 +353,11 @@ func UpdateNodeDetail(args map[string]interface{}) (interface{}, error) {
 }
 
 // DeleteNodeDetail : Delete the node detail of the node
-func DeleteNodeDetail(args map[string]interface{}) (interface{}, error) {
+func DeleteNodeDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+	if !isMaster || !isAdmin {
+		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
 	requestedUUID, requestedUUIDOk := args["node_uuid"].(string)
 	if !requestedUUIDOk {
 		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a node_uuid argument")}, nil

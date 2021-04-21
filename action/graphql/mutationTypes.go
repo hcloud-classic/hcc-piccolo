@@ -668,11 +668,12 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err, _, isMaster, _, _ := usertool.ValidateToken(params.Args, false)
+				err, isAdmin, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.UpdateNode(params.Args, isMaster)
+				params.Args["group_id"] = int(groupID)
+				data, err := mutationparser.UpdateNode(params.Args, isAdmin, isMaster)
 				if err != nil {
 					logger.Logger.Println("flute / update_node: " + err.Error())
 				}
@@ -691,11 +692,12 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
+				err, isAdmin, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.DeleteNode(params.Args)
+				params.Args["group_id"] = int(groupID)
+				data, err := mutationparser.DeleteNode(params.Args, isAdmin, isMaster)
 				if err != nil {
 					logger.Logger.Println("flute / delete_node: " + err.Error())
 				}
@@ -718,11 +720,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
+				err, isAdmin, isMaster, _, _ := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.CreateNodeDetail(params.Args)
+				data, err := mutationparser.CreateNodeDetail(params.Args, isAdmin, isMaster)
 				if err != nil {
 					logger.Logger.Println("flute / create_node_detail: " + err.Error())
 				}
@@ -744,11 +746,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
+				err, isAdmin, isMaster, _, _ := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.UpdateNodeDetail(params.Args)
+				data, err := mutationparser.UpdateNodeDetail(params.Args, isAdmin, isMaster)
 				if err != nil {
 					logger.Logger.Println("flute / update_node_detail: " + err.Error())
 				}
@@ -767,11 +769,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
+				err, isAdmin, isMaster, _, _ := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.DeleteNodeDetail(params.Args)
+				data, err := mutationparser.DeleteNodeDetail(params.Args, isAdmin, isMaster)
 				if err != nil {
 					logger.Logger.Println("flute / delete_node_detail: " + err.Error())
 				}
