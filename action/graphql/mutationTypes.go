@@ -190,11 +190,12 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
+				err, isAdmin, isMaster, id, groupID := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.DeleteServer(params.Args)
+				params.Args["group_id"] = int(groupID)
+				data, err := mutationparser.DeleteServer(params.Args, isAdmin, isMaster, id)
 				if err != nil {
 					logger.Logger.Println("violin / delete_server: " + err.Error())
 				}

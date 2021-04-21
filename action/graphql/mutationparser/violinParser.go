@@ -166,10 +166,30 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 }
 
 // DeleteServer : Delete the server
-func DeleteServer(args map[string]interface{}) (interface{}, error) {
+func DeleteServer(args map[string]interface{}, isAdmin bool, isMaster bool, id string) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+	}
+
+	if !isMaster || !isAdmin {
+		server, err := queryparser.Server(args)
+		if err != nil {
+			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
+		if !isMaster {
+			groupID, _ := args["group_id"].(int)
+
+			if int(server.(model.Server).GroupID) != groupID {
+				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't delete the other group's server if you are not a master")}, nil
+			}
+		}
+		if !isAdmin {
+			if server.(model.Server).UserUUID != id {
+				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't delete the other server if you are not the admin")}, nil
+			}
+		}
 	}
 
 	resDeleteServer, err := client.RC.DeleteServer(requestedUUID)
