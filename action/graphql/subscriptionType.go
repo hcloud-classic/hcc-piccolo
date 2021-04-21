@@ -26,7 +26,7 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -56,7 +56,7 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -86,7 +86,7 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -140,7 +140,7 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.Telegraf{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -174,7 +174,7 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}

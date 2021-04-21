@@ -54,7 +54,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -95,7 +95,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -118,7 +118,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -157,7 +157,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -189,7 +189,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerActions{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -212,7 +212,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerActionsNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -236,7 +236,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -295,7 +295,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -324,7 +324,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -347,7 +347,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -373,7 +373,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -396,7 +396,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerNodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -419,7 +419,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerNodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -442,7 +442,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerNodeNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -469,7 +469,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.VncPort{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -493,7 +493,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -555,7 +555,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -584,7 +584,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -607,7 +607,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -630,7 +630,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.SubnetNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -653,7 +653,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.AdaptiveIPAvailableIPList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -673,7 +673,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, _ := usertool.ValidateToken(params.Args, true)
+					err, _, isMaster, _, _ := usertool.ValidateToken(params.Args, true)
 					if err != nil {
 						return model.AdaptiveIPSetting{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -699,7 +699,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -737,7 +737,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -766,7 +766,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -789,7 +789,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.AdaptiveIPServerNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -816,7 +816,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.PowerStateNode{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -839,7 +839,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -922,7 +922,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -954,7 +954,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -977,7 +977,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.NodeNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -1003,7 +1003,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -1054,7 +1054,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.Telegraf{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -1093,7 +1093,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, true)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, true)
 					if err != nil {
 						return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -1130,7 +1130,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -1163,7 +1163,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, isMaster, groupID := usertool.ValidateToken(params.Args, false)
+					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -1200,7 +1200,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, _ := usertool.ValidateToken(params.Args, false)
+					err, _, _, _, _ := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}

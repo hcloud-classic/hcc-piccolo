@@ -67,14 +67,14 @@ func getGroupOfUser(id string) *model.Group {
 }
 
 // ValidateToken : Validate given token string
-func ValidateToken(args map[string]interface{}, checkForAdmin bool) (err error, isMaster bool, groupID int64) {
+func ValidateToken(args map[string]interface{}, checkForAdmin bool) (err error, isAdmin bool, isMaster bool, id string, groupID int64) {
 	var _groupID int
 
 	tokenString, tokenStringOk := args["token"].(string)
 	_groupID, _groupIDOk := args["group_id"].(int)
 
 	if !tokenStringOk {
-		return errors.New("need a token argument"), false, 0
+		return errors.New("need a token argument"), false, false, "", 0
 	}
 
 	// Parse takes the token string and a function for looking up the key. The latter is especially
@@ -91,17 +91,17 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (err error, 
 		return jwtKey, nil
 	})
 	if err != nil {
-		return errors.New("invalid token"), false, 0
+		return errors.New("invalid token"), false, false, "", 0
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if claims["iss"].(string) != "piccolo" &&
 			claims["sub"].(string) != "Auth" {
-			return errors.New("invalid token"), false, 0
+			return errors.New("invalid token"), false, false, "", 0
 		}
 
 		if time.Now().Unix() >= int64(claims["exp"].(float64)) {
-			return errors.New("token is expired"), false, 0
+			return errors.New("token is expired"), false, false, "", 0
 		}
 
 		id := claims["ID"].(string)
@@ -109,8 +109,9 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (err error, 
 		queryArgs["id"] = id
 		user, err := queryparserExt.User(queryArgs)
 
-		if checkForAdmin && user.(model.User).Authentication != "admin" {
-			return errors.New("hey there, you are not the admin"), false, 0
+		var userIsAdmin = user.(model.User).Authentication == "admin"
+		if checkForAdmin && !userIsAdmin {
+			return errors.New("hey there, you are not the admin"), false, false, "", 0
 		}
 
 		var dbPassword string
@@ -119,13 +120,13 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (err error, 
 		err = mysql.QueryRowScan(row, &dbPassword)
 		if err != nil {
 			logger.Logger.Println(err)
-			return errLoginMismatch, false, 0
+			return errLoginMismatch, false, false, "", 0
 		}
 
 		// Given password is hashed password with bcrypt
 		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(dbPassword))
 		if err != nil {
-			return errLoginMismatch, false, 0
+			return errLoginMismatch, false, false, "", 0
 		}
 
 		if !_groupIDOk {
@@ -136,13 +137,13 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (err error, 
 		}
 
 		if strings.ToLower(id) == "master" {
-			return nil, true, 0
+			return nil, false, true, "", 0
 		}
 
-		return nil, false, int64(_groupID)
+		return nil, userIsAdmin, false, id, int64(_groupID)
 	}
 
-	return errors.New("invalid token"), false, 0
+	return errors.New("invalid token"), false, false, "", 0
 }
 
 // GetUserID : Get the user ID from the token
