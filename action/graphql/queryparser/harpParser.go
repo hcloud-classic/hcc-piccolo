@@ -5,6 +5,7 @@ import (
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
+	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/model"
 
 	"github.com/golang/protobuf/ptypes"
@@ -341,6 +342,8 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
 
+	userUUID, userUUIDOk := args["user_uuid"].(string)
+
 	var reqGetAdaptiveIPServerList pb.ReqGetAdaptiveIPServerList
 	var reqAdaptiveIPServerList pb.AdaptiveIPServer
 	reqGetAdaptiveIPServerList.AdaptiveipServer = &reqAdaptiveIPServerList
@@ -374,6 +377,19 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 	var adaptiveIPServerList []model.AdaptiveIPServer
 	for _, adaptiveIPServer := range resAdaptiveIPServerList.AdaptiveipServer {
+		if userUUIDOk {
+			queryArgs := make(map[string]interface{})
+			queryArgs["uuid"] = adaptiveIPServer.ServerUUID
+			server, err:= Server(queryArgs)
+			if err != nil {
+				logger.Logger.Println("ListAdaptiveIPServer(): Failed to get server information for server_uuid = " + adaptiveIPServer.ServerUUID)
+				continue
+			}
+			if server.(model.Server).UserUUID != userUUID {
+				continue
+			}
+		}
+
 		_createdAt, err := ptypes.Timestamp(adaptiveIPServer.CreatedAt)
 		if err != nil {
 			return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil

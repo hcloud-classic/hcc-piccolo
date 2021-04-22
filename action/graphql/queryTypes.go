@@ -69,6 +69,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.UserListType,
 				Description: "Get the user list from piccolo",
 				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"id": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -295,12 +298,15 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
+					err, isAdmin, isMaster, id, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
+					}
+					if !isAdmin && !isMaster {
+						params.Args["user_uuid"] = id
 					}
 					data, err := queryparser.ListServer(params.Args)
 					if err != nil {
@@ -737,12 +743,15 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
+					err, isAdmin, isMaster, id, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
+					}
+					if !isAdmin && !isMaster {
+						params.Args["user_uuid"] = id
 					}
 					data, err := queryparser.ListAdaptiveIPServer(params.Args)
 					if err != nil {
