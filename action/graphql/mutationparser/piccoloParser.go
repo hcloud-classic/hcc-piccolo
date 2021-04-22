@@ -14,7 +14,11 @@ import (
 )
 
 // SignUp : Do user sign up process
-func SignUp(args map[string]interface{}) (interface{}, error) {
+func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserGroupID int) (interface{}, error) {
+	if !isMaster || !isAdmin {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
 	groupID, groupIDOk := args["group_id"].(int)
 	id, idOk := args["id"].(string)
 	authentication, authenticationOk := args["authentication"].(string)
@@ -24,6 +28,10 @@ func SignUp(args map[string]interface{}) (interface{}, error) {
 
 	if !groupIDOk || !idOk || !authenticationOk || !passwordOk || !nameOk || !emailOk {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and authentication, group_id, password, name, email arguments")}, nil
+	}
+
+	if !isMaster && loginUserGroupID != groupID {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't create the other group's user if you are not a master")}, nil
 	}
 
 	if strings.ToLower(id) == "master" {

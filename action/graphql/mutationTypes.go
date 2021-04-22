@@ -41,14 +41,14 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, true)
+				err, isAdmin, isMaster, _, groupID := usertool.ValidateToken(params.Args, true)
 				if err != nil {
 					return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
 				if !isMaster {
 					params.Args["group_id"] = int(groupID)
 				}
-				data, err := mutationparser.SignUp(params.Args)
+				data, err := mutationparser.SignUp(params.Args, isAdmin, isMaster, int(groupID))
 				if err != nil {
 					logger.Logger.Println("piccolo / signup: " + err.Error())
 				}
