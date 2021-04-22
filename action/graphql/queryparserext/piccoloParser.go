@@ -1,4 +1,4 @@
-package queryparserExt
+package queryparserext
 
 import (
 	dbsql "database/sql"

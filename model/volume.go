@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Volume - cgs
+// Volume : Contain infos of the volume
 type Volume struct {
 	UUID       string                    `json:"uuid"`
 	Size       int                       `json:"size"`
@@ -21,14 +21,15 @@ type Volume struct {
 	Pool       string                    `json:"pool"`
 }
 
-// VolumeNum - cgs
-type VolumeNum struct {
-	Number int                       `json:"number"`
-	Errors []errconv.PiccoloHccError `json:"errors"`
-}
-
+// VolumeList : Contain list of volumes
 type VolumeList struct {
 	Volumes  []Volume                  `json:"volume_list"`
 	TotalNum int                       `json:"total_num"`
 	Errors   []errconv.PiccoloHccError `json:"errors"`
+}
+
+// VolumeNum : Contain the number of volumes
+type VolumeNum struct {
+	Number int                       `json:"number"`
+	Errors []errconv.PiccoloHccError `json:"errors"`
 }

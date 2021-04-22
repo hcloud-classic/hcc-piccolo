@@ -79,6 +79,7 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 	return model.PoolList{Pools: modelPoolList, Errors: Errors}, nil
 }
 
+// GetVolumeList : Get the list of volumes
 func GetVolumeList(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	userUUID, userUUIDOk := args["user_uuid"].(string)
