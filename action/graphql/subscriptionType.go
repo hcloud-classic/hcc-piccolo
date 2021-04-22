@@ -56,12 +56,15 @@ var subscriptionTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					err, _, isMaster, _, groupID := usertool.ValidateToken(params.Args, false)
+					err, isAdmin, isMaster, id, groupID := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
+					}
+					if !isAdmin && !isMaster {
+						params.Args["user_uuid"] = id
 					}
 					data, err := queryparser.AllServer(params.Args)
 					if err != nil {
