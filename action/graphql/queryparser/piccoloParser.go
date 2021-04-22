@@ -191,7 +191,7 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
 	}
 
-	err, _, _ := usertool.ValidateToken(args, false)
+	err, _, _, _, _ := usertool.ValidateToken(args, false)
 	if err != nil {
 		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 	}
