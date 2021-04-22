@@ -109,9 +109,10 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (err error, 
 		queryArgs["id"] = id
 		user, err := queryparserExt.User(queryArgs)
 
-		var userIsAdmin = user.(model.User).Authentication == "admin"
-		if checkForAdmin && !userIsAdmin {
-			return errors.New("hey there, you are not the admin"), false, false, "", 0
+		var userIsAdminOrMaster = user.(model.User).Authentication == "admin" ||
+			user.(model.User).Authentication == "master"
+		if checkForAdmin && !userIsAdminOrMaster {
+			return errors.New("hey there, you are not the admin or a master"), false, false, "", 0
 		}
 
 		var dbPassword string
@@ -140,7 +141,7 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (err error, 
 			return nil, false, true, "", 0
 		}
 
-		return nil, userIsAdmin, false, id, int64(_groupID)
+		return nil, userIsAdminOrMaster, false, id, int64(_groupID)
 	}
 
 	return errors.New("invalid token"), false, false, "", 0
