@@ -723,6 +723,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.AdaptiveIPServerListType,
 				Description: "Get adaptiveip_server list",
 				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
