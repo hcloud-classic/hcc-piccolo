@@ -28,6 +28,7 @@ type VolumeNum struct {
 }
 
 type VolumeList struct {
-	Volumes []Volume                  `json:"volume_list"`
-	Errors  []errconv.PiccoloHccError `json:"errors"`
+	Volumes  []Volume                  `json:"volume_list"`
+	TotalNum int                       `json:"total_num"`
+	Errors   []errconv.PiccoloHccError `json:"errors"`
 }

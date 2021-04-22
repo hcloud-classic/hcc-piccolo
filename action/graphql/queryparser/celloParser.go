@@ -80,49 +80,63 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 }
 
 func GetVolumeList(args map[string]interface{}) (interface{}, error) {
-
-	ServerUUID, ServerUUIDOk := args["server_uuid"].(string)
-	UserUUID, UserUUIDOk := args["user_uuid"].(string)
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	userUUID, userUUIDOk := args["user_uuid"].(string)
 	// Size, SizeOk := args["size"].(string)
 	// Free, FreeOk := args["free"].(string)
 	// Capacity, CapacityOk := args["capacity"].(string)
 	// Health, HealthOk := args["health"].(string)
 	// Name, NameOk := args["name"].(string)
-	Action, ActionOk := args["action"].(string)
-	Row, RowOk := args["row"].(int)
-	Page, PageOk := args["page"].(int)
+	action, actionOk := args["action"].(string)
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
+
 	var reqVolumeListHandler pb.ReqGetVolumeList
 	var reqVolumeList pb.Volume
 	var modelVolumeList []model.Volume
 	reqVolumeListHandler.Volume = &reqVolumeList
 
-	if ActionOk {
-		reqVolumeListHandler.Volume.Action = Action
+	if actionOk {
+		reqVolumeListHandler.Volume.Action = action
 	} else {
 		reqVolumeListHandler.Volume.Action = "read_list"
 	}
-	if RowOk {
-		reqVolumeListHandler.Row = int64(Row)
+	if rowOk {
+		reqVolumeListHandler.Row = int64(row)
 	} else {
 		reqVolumeListHandler.Row = int64(10)
 	}
-	if PageOk {
-		reqVolumeListHandler.Page = int64(Page)
+	if pageOk {
+		reqVolumeListHandler.Page = int64(page)
 	} else {
 		reqVolumeListHandler.Page = int64(1)
 	}
 
-	if ServerUUIDOk {
-		reqVolumeListHandler.Volume.ServerUUID = ServerUUID
+	if serverUUIDOk {
+		reqVolumeListHandler.Volume.ServerUUID = serverUUID
 	}
-	if UserUUIDOk {
-		reqVolumeListHandler.Volume.UserUUID = UserUUID
+	if userUUIDOk {
+		reqVolumeListHandler.Volume.UserUUID = userUUID
 	}
 
 	resGetVolumeList, err := client.RC.GetVolumeList(&reqVolumeListHandler)
 	if err != nil {
 		return model.VolumeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
+
+	var numVolume int
+	if rowOk && pageOk {
+		reqVolumeListHandler.Row = 0
+		reqVolumeListHandler.Page = 0
+		resGetVolumeList2, err := client.RC.GetVolumeList(&reqVolumeListHandler)
+		if err != nil {
+			return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+		numVolume = len(resGetVolumeList2.Volume)
+	} else {
+		numVolume = len(resGetVolumeList.Volume)
+	}
+
 	fmt.Println(resGetVolumeList.Volume)
 	for _, args := range resGetVolumeList.Volume {
 		tempVol := pbtomodel.PbVolumeToModelVolume(args, resGetVolumeList.HccErrorStack)
@@ -135,5 +149,6 @@ func GetVolumeList(args map[string]interface{}) (interface{}, error) {
 	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
-	return model.VolumeList{Volumes: modelVolumeList, Errors: Errors}, nil
+
+	return model.VolumeList{Volumes: modelVolumeList, TotalNum: numVolume, Errors: Errors}, nil
 }

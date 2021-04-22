@@ -36,8 +36,9 @@ type Node struct {
 
 // NodeList : Contain list of nodes
 type NodeList struct {
-	Nodes  []Node                    `json:"node_list"`
-	Errors []errconv.PiccoloHccError `json:"errors"`
+	Nodes    []Node                    `json:"node_list"`
+	TotalNum int                       `json:"total_num"`
+	Errors   []errconv.PiccoloHccError `json:"errors"`
 }
 
 // NodeNum : Contain the number of nodes

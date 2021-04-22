@@ -91,6 +91,9 @@ var NodeListType = graphql.NewObject(
 			"node_list": &graphql.Field{
 				Type: graphql.NewList(NodeType),
 			},
+			"total_num": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},

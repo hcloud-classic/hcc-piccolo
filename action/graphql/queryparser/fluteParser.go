@@ -148,9 +148,23 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	if pageOk {
 		reqListNode.Page = int64(page)
 	}
+
 	resGetNodeList, err := client.RC.GetNodeList(&reqListNode)
 	if err != nil {
 		return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	var numNode int
+	if rowOk && pageOk {
+		reqListNode.Row = 0
+		reqListNode.Page = 0
+		resGetNodeList2, err := client.RC.GetNodeList(&reqListNode)
+		if err != nil {
+			return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+		numNode = len(resGetNodeList2.Node)
+	} else {
+		numNode = len(resGetNodeList.Node)
 	}
 
 	var nodeList []model.Node
@@ -173,7 +187,7 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
-	return model.NodeList{Nodes: nodeList, Errors: Errors}, nil
+	return model.NodeList{Nodes: nodeList, TotalNum: numNode, Errors: Errors}, nil
 }
 
 // AllNode : Get node list with provided options (Just call ListNode())
