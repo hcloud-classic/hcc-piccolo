@@ -93,21 +93,29 @@ func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserG
 }
 
 // Unregister : Do user unregister process
-func Unregister(args map[string]interface{}) (interface{}, error) {
+func Unregister(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserID string, loginUserGroupID int) (interface{}, error) {
 	id, idOk := args["id"].(string)
 
 	if !idOk {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a id argument")}, nil
 	}
 
-	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
-		logger.Logger.Println("Unregister(): Someone tried to unregister one of administrative ID.")
+	if strings.ToLower(id) == "master" {
+		logger.Logger.Println("Unregister(): Someone tried to unregister master ID.")
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "You can't delete administrative IDs")}, nil
 	}
 
 	user, _ := queryparserExt.User(args)
 	if len(user.(model.User).Errors) != 0 && user.(model.User).Errors[0].ErrCode != 0 {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "user not found")}, nil
+	}
+
+	if !isMaster && int(user.(model.User).GroupID) != loginUserGroupID {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't unregister the other group's user if you are not a master")}, nil
+	}
+
+	if !isMaster && !isAdmin && user.(model.User).ID != loginUserID {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't unregister the other user if you are not a master or the admin")}, nil
 	}
 
 	sql := "delete from user where id = ?"

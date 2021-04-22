@@ -67,11 +67,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				err, _, _, _, _ := usertool.ValidateToken(params.Args, true)
+				err, isAdmin, isMaster, id, groupID := usertool.ValidateToken(params.Args, true)
 				if err != nil {
 					return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.Unregister(params.Args)
+				data, err := mutationparser.Unregister(params.Args, isAdmin, isMaster, id, int(groupID))
 				if err != nil {
 					logger.Logger.Println("piccolo / unregister: " + err.Error())
 				}
