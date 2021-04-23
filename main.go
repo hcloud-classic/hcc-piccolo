@@ -8,6 +8,7 @@ import (
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
+	"hcc/piccolo/lib/syscheck"
 	"os"
 	"os/signal"
 	"syscall"
@@ -28,6 +29,11 @@ func init() {
 	err = mysql.Init()
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "mysql.Init(): "+err.Error()).Fatal()
+	}
+
+	err = syscheck.IncreaseRLimitToMax()
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "syscheck.IncreaseRLimitToMax(): "+err.Error()).Fatal()
 	}
 
 	err = client.Init()
