@@ -41,6 +41,71 @@ var subscriptionTypes = graphql.NewObject(
 				},
 			},
 			// violin
+			"list_server": &graphql.Field{
+				Type:        graphqlType.ServerListType,
+				Description: "Get server list",
+				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"subnet_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"os": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_desc": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"cpu": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"memory": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"disk_size": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"status": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"user_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					isAdmin, isMaster, id, groupID, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					if !isMaster {
+						params.Args["group_id"] = int(groupID)
+					}
+					if !isAdmin && !isMaster {
+						params.Args["user_uuid"] = id
+					}
+					data, err := queryparser.ListServer(params.Args)
+					if err != nil {
+						logger.Logger.Println("violin / list_server (Subscription): " + err.Error())
+					}
+					return data, err
+				},
+			},
 			"all_server": &graphql.Field{
 				Type:        graphqlType.ServerListType,
 				Description: "Get all server list",
@@ -74,6 +139,71 @@ var subscriptionTypes = graphql.NewObject(
 				},
 			},
 			// harp
+			"list_subnet": &graphql.Field{
+				Type:        graphqlType.SubnetListType,
+				Description: "Get subnet list",
+				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"network_ip": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"netmask": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"gateway": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"next_server": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"name_server": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"domain_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"leader_node_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"os": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"subnet_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					if !isMaster {
+						params.Args["group_id"] = int(groupID)
+					}
+					data, err := queryparser.ListSubnet(params.Args)
+					if err != nil {
+						logger.Logger.Println("harp / list_subnet (Subscription): " + err.Error())
+					}
+					return data, err
+				},
+			},
 			"all_subnet": &graphql.Field{
 				Type:        graphqlType.SubnetListType,
 				Description: "Get all subnet list",
