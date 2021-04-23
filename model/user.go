@@ -27,8 +27,9 @@ type User struct {
 
 // UserList : Contain list of users
 type UserList struct {
-	Users  []User                    `json:"user_list"`
-	Errors []errconv.PiccoloHccError `json:"errors"`
+	Users    []User                    `json:"user_list"`
+	TotalNum int                       `json:"total_num"`
+	Errors   []errconv.PiccoloHccError `json:"errors"`
 }
 
 // UserNum : Contain the number of users

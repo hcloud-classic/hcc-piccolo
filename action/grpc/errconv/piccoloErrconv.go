@@ -10,7 +10,7 @@ type PiccoloHccError struct {
 	ErrText string `json:"errtext"` // error string
 }
 
-// HccErrorStackToPiccoloHccErr: Convert HccErrorStack type to PiccoloHccErr type
+// HccErrorToPiccoloHccErr : Convert HccErrorStack type to PiccoloHccErr type
 func HccErrorToPiccoloHccErr(hccErr errh.HccErrorStack) []PiccoloHccError {
 	var piccoloHccErr []PiccoloHccError
 
@@ -28,7 +28,7 @@ func HccErrorToPiccoloHccErr(hccErr errh.HccErrorStack) []PiccoloHccError {
 	return piccoloHccErr
 }
 
-// ReturnHccErrorPiccolo: Get error code and error string and return as []PiccoloHccError
+// ReturnHccErrorPiccolo : Get error code and error string and return as []PiccoloHccError
 func ReturnHccErrorPiccolo(errCode uint64, errText string) []PiccoloHccError {
 	var piccoloHccErr []PiccoloHccError
 
@@ -43,7 +43,7 @@ func ReturnHccErrorPiccolo(errCode uint64, errText string) []PiccoloHccError {
 	return piccoloHccErr
 }
 
-// ReturnHccEmptyErrorPiccolo: Return dummy error as []PiccoloHccError
+// ReturnHccEmptyErrorPiccolo : Return dummy error as []PiccoloHccError
 func ReturnHccEmptyErrorPiccolo() []PiccoloHccError {
 	var piccoloHccErr []PiccoloHccError
 

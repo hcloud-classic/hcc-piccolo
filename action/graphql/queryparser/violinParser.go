@@ -157,6 +157,19 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 		return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
+	var numServer int
+	if rowOk && pageOk {
+		reqListServer.Row = 0
+		reqListServer.Page = 0
+		resListServer2, err := client.RC.GetServerList(&reqListServer)
+		if err != nil {
+			return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+		numServer = len(resListServer2.Server)
+	} else {
+		numServer = len(resListServer.Server)
+	}
+
 	var serverList []model.Server
 	for _, pServer := range resListServer.Server {
 		modelServer := pbtomodel.PbServerToModelServer(pServer, nil)
@@ -232,19 +245,7 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
-	numServer, err := NumServer(args)
-	if err != nil {
-		return model.ServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
-	}
-	modelServerNum := numServer.(model.ServerNum)
-	if len(modelServerNum.Errors) != 0 {
-		for _, numError := range modelServerNum.Errors {
-			Errors = append(Errors, numError)
-		}
-		modelServerNum.Number = 0
-	}
-
-	return model.ServerList{Servers: serverList, TotalNum: modelServerNum.Number, Errors: Errors}, nil
+	return model.ServerList{Servers: serverList, TotalNum: numServer, Errors: Errors}, nil
 }
 
 // AllServer : Get server list with provided options (Just call ListServer())

@@ -43,6 +43,9 @@ var AdaptiveIPServerListType = graphql.NewObject(
 			"adaptiveip_server_list": &graphql.Field{
 				Type: graphql.NewList(AdaptiveIPServerType),
 			},
+			"total_num": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},

@@ -49,6 +49,9 @@ var UserListType = graphql.NewObject(
 			"user_list": &graphql.Field{
 				Type: graphql.NewList(UserType),
 			},
+			"total_num": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},

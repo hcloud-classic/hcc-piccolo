@@ -109,25 +109,27 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 		return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
 	}
 
-	sql := "select piccolo.user.uuid, piccolo.user.id, piccolo.user.authentication, piccolo.user.name, piccolo.user.group_id, piccolo.group.name as group_name, piccolo.user.email, piccolo.user.login_at, piccolo.user.created_at from piccolo.user, piccolo.group where piccolo.user.group_id = piccolo.group.id"
+	sqlSelect := "select piccolo.user.uuid, piccolo.user.id, piccolo.user.authentication, piccolo.user.name, piccolo.user.group_id, piccolo.group.name as group_name, piccolo.user.email, piccolo.user.login_at, piccolo.user.created_at"
+	sqlCount := "select count(*)"
+	sql := " from piccolo.user, piccolo.group where piccolo.user.group_id = piccolo.group.id"
 
 	if idOk {
-		sql += " and piccolo.user.id = '" + id + "'"
+		sql += " and piccolo.user.id like '%" + id + "%'"
 	}
 	if authenticationOk {
-		sql += " and piccolo.user.authentication = '" + authentication + "'"
+		sql += " and piccolo.user.authentication like '%" + authentication + "%'"
 	}
 	if nameOk {
-		sql += " and piccolo.user.name = '" + name + "'"
+		sql += " and piccolo.user.name like '%" + name + "%'"
 	}
 	if groupIDOk {
 		sql += " and piccolo.user.group_id = " + strconv.Itoa(groupID)
 	}
 	if groupNameOk {
-		sql += " and group_name = '" + groupName + "'"
+		sql += " and group_name like '%" + groupName + "%'"
 	}
 	if emailOk {
-		sql += " and piccolo.user.email = '" + email + "'"
+		sql += " and piccolo.user.email like '%" + email + "%'"
 	}
 
 	if !noLimit {
@@ -137,10 +139,17 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	var stmt *dbsql.Rows
 	var err error
 
+	var userNum int
+	result := mysql.Db.QueryRow(sqlCount + sql)
+	err = mysql.QueryRowScan(result, &userNum)
+	if err != nil {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
 	if noLimit {
-		stmt, err = mysql.Query(sql)
+		stmt, err = mysql.Query(sqlSelect + sql)
 	} else {
-		stmt, err = mysql.Query(sql, row, row*(page-1))
+		stmt, err = mysql.Query(sqlSelect+sql, row, row*(page-1))
 	}
 
 	if err != nil {
@@ -162,7 +171,7 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 		users = append(users, user)
 	}
 
-	return model.UserList{Users: users, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+	return model.UserList{Users: users, TotalNum: userNum, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // NumUser : Get number of users
@@ -191,7 +200,7 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
 	}
 
-	err, _, _, _, _ := usertool.ValidateToken(args, false)
+	_, _, _, _, err := usertool.ValidateToken(args, false)
 	if err != nil {
 		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 	}

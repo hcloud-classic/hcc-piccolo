@@ -20,6 +20,7 @@ type AdaptiveIPServer struct {
 // AdaptiveIPServerList : Contain list of AdaptiveIPServers
 type AdaptiveIPServerList struct {
 	AdaptiveIPServers []AdaptiveIPServer        `json:"adaptiveip_server_list"`
+	TotalNum          int                       `json:"total_num"`
 	Errors            []errconv.PiccoloHccError `json:"errors"`
 }
 

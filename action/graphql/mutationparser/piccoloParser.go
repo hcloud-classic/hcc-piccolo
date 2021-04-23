@@ -1,7 +1,7 @@
 package mutationparser
 
 import (
-	"hcc/piccolo/action/graphql/queryparserExt"
+	"hcc/piccolo/action/graphql/queryparserext"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
@@ -105,7 +105,7 @@ func Unregister(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "You can't delete administrative IDs")}, nil
 	}
 
-	user, _ := queryparserExt.User(args)
+	user, _ := queryparserext.User(args)
 	if len(user.(model.User).Errors) != 0 && user.(model.User).Errors[0].ErrCode != 0 {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "user not found")}, nil
 	}
