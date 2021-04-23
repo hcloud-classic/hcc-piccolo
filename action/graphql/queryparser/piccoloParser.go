@@ -114,22 +114,22 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	sql := " from piccolo.user, piccolo.group where piccolo.user.group_id = piccolo.group.id"
 
 	if idOk {
-		sql += " and piccolo.user.id = '" + id + "'"
+		sql += " and piccolo.user.id like '%" + id + "%'"
 	}
 	if authenticationOk {
-		sql += " and piccolo.user.authentication = '" + authentication + "'"
+		sql += " and piccolo.user.authentication like '%" + authentication + "%'"
 	}
 	if nameOk {
-		sql += " and piccolo.user.name = '" + name + "'"
+		sql += " and piccolo.user.name like '%" + name + "%'"
 	}
 	if groupIDOk {
 		sql += " and piccolo.user.group_id = " + strconv.Itoa(groupID)
 	}
 	if groupNameOk {
-		sql += " and group_name = '" + groupName + "'"
+		sql += " and group_name like '%" + groupName + "%'"
 	}
 	if emailOk {
-		sql += " and piccolo.user.email = '" + email + "'"
+		sql += " and piccolo.user.email like '%" + email + "%'"
 	}
 
 	if !noLimit {
