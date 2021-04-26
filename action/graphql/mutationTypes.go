@@ -78,6 +78,44 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return data, err
 			},
 		},
+		"update_user": &graphql.Field{
+			Type:        graphqlType.UserType,
+			Description: "Update user",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"authentication": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"password": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"email": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+				if err != nil {
+					return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+				}
+				data, err := mutationparser.UpdateUser(params.Args, isAdmin, isMaster, int(groupID))
+				if err != nil {
+					logger.Logger.Println("piccolo / update_user: " + err.Error())
+				}
+				return data, err
+			},
+		},
 		// violin
 		"create_server": &graphql.Field{
 			Type:        graphqlType.ServerType,
