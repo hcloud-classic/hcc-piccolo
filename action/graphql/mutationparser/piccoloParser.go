@@ -15,7 +15,7 @@ import (
 
 // SignUp : Do user sign up process
 func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserGroupID int) (interface{}, error) {
-	if !isMaster || !isAdmin {
+	if !isMaster && !isAdmin {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
@@ -133,7 +133,7 @@ func Unregister(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 
 // UpdateUser : Update info of the user
 func UpdateUser(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserGroupID int) (interface{}, error) {
-	if !isMaster || !isAdmin {
+	if !isMaster && !isAdmin {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 

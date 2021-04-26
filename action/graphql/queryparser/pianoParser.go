@@ -65,7 +65,7 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 
 // GetBillingData : Get billing data with provided options
 func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
-	if !isMaster || !isAdmin {
+	if !isMaster && !isAdmin {
 		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
