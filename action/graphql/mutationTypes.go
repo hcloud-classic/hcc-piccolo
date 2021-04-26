@@ -39,6 +39,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"email": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
@@ -98,6 +101,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 					Type: graphql.String,
 				},
 				"email": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"token": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 			},
