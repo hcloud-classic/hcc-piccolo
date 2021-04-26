@@ -1111,14 +1111,14 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+					isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
 					if err != nil {
 						return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
 					}
-					data, err := queryparser.GetBillingData(params.Args)
+					data, err := queryparser.GetBillingData(params.Args, isAdmin, isMaster)
 					if err != nil {
 						logger.Logger.Println("piano / billing_data: " + err.Error())
 					}

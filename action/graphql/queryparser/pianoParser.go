@@ -64,7 +64,11 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 }
 
 // GetBillingData : Get billing data with provided options
-func GetBillingData(args map[string]interface{}) (interface{}, error) {
+func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+	if !isMaster || !isAdmin {
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
 	groupID, groupIDOk := args["group_id"].(string)
 	billingType, _ := args["billing_type"].(string)
 	dateStart, _ := args["date_start"].(int)
@@ -73,7 +77,7 @@ func GetBillingData(args map[string]interface{}) (interface{}, error) {
 	page, pageOk := args["page"].(int)
 
 	if !groupIDOk {
-		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
 			"need a group_id argument")}, nil
 	}
 
