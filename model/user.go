@@ -13,11 +13,10 @@ type Group struct {
 
 // User : Contain infos of the user
 type User struct {
-	UUID           string                    `json:"uuid"`
 	ID             string                    `json:"id"`
+	GroupID        int64                     `json:"group_id"`
 	Authentication string                    `json:"authentication"`
 	Name           string                    `json:"name"`
-	GroupID        int64                     `json:"group_id"`
 	GroupName      string                    `json:"group_name"`
 	Email          string                    `json:"email"`
 	LoginAt        time.Time                 `json:"login_at"`

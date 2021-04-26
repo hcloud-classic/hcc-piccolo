@@ -87,7 +87,6 @@ func Login(args map[string]interface{}) (interface{}, error) {
 // UserList : Get the user list
 func UserList(args map[string]interface{}) (interface{}, error) {
 	var users []model.User
-	var uuid string
 	var loginAt time.Time
 	var createdAt time.Time
 	var noLimit bool
@@ -109,7 +108,7 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 		return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
 	}
 
-	sqlSelect := "select piccolo.user.uuid, piccolo.user.id, piccolo.user.authentication, piccolo.user.name, piccolo.user.group_id, piccolo.group.name as group_name, piccolo.user.email, piccolo.user.login_at, piccolo.user.created_at"
+	sqlSelect := "select piccolo.user.id, piccolo.user.authentication, piccolo.user.name, piccolo.user.group_id, piccolo.group.name as group_name, piccolo.user.email, piccolo.user.login_at, piccolo.user.created_at"
 	sqlCount := "select count(*)"
 	sql := " from piccolo.user, piccolo.group where piccolo.user.group_id = piccolo.group.id"
 
@@ -161,11 +160,11 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	}()
 
 	for stmt.Next() {
-		err := stmt.Scan(&uuid, &id, &authentication, &name, &groupID, &groupName, &email, &loginAt, &createdAt)
+		err := stmt.Scan(&id, &authentication, &name, &groupID, &groupName, &email, &loginAt, &createdAt)
 		if err != nil {
 			logger.Logger.Println(err)
 		}
-		user := model.User{UUID: uuid, ID: id, Authentication: authentication, Name: name,
+		user := model.User{ID: id, Authentication: authentication, Name: name,
 			GroupID: int64(groupID), GroupName: groupName,
 			Email: email, LoginAt: loginAt, CreatedAt: createdAt}
 		users = append(users, user)

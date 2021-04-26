@@ -7,9 +7,6 @@ var UserType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "User",
 		Fields: graphql.Fields{
-			"uuid": &graphql.Field{
-				Type: graphql.String,
-			},
 			"id": &graphql.Field{
 				Type: graphql.String,
 			},

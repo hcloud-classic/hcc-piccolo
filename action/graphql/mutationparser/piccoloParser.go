@@ -9,7 +9,6 @@ import (
 	"hcc/piccolo/model"
 	"strings"
 
-	uuid "github.com/nu7hatch/gouuid"
 	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
@@ -59,22 +58,15 @@ func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserG
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
-	out, err := uuid.NewV4()
-	if err != nil {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloInternalUUIDGenerationError, err.Error())}, nil
-	}
-	UUID := out.String()
-
 	user := model.User{
-		UUID:           UUID,
-		GroupID:        int64(groupID),
 		ID:             id,
+		GroupID:        int64(groupID),
 		Authentication: authentication,
 		Name:           name,
 		Email:          email,
 	}
 
-	sql = "insert into user(uuid, group_id, id, authentication, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, ?, ?, now(), now())"
+	sql = "insert into user(id, group_id, authentication, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, ?, now(), now())"
 	stmt, err := mysql.Prepare(sql)
 	if err != nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, err.Error())}, nil
@@ -82,7 +74,7 @@ func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserG
 	defer func() {
 		_ = stmt.Close()
 	}()
-	_, err = stmt.Exec(user.UUID, user.GroupID, user.ID, authentication, password, user.Name, user.Email)
+	_, err = stmt.Exec(user.ID, user.GroupID, authentication, password, user.Name, user.Email)
 	if err != nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
