@@ -146,10 +146,22 @@ func UpdateSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 }
 
 // DeleteSubnet : Delete the subnet
-func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
+func DeleteSubnet(args map[string]interface{}, isMaster bool) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+	}
+
+	if !isMaster {
+		groupID, _ := args["group_id"].(int)
+		subnet, err := queryparser.Subnet(args)
+		if err != nil {
+			return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
+		if int(subnet.(model.Subnet).GroupID) != groupID {
+			return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't delete the other subnet if you are not a master")}, nil
+		}
 	}
 
 	resDeleteSubnet, err := client.RC.DeleteSubnet(requestedUUID)
