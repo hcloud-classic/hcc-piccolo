@@ -2,7 +2,7 @@ package graphqltype
 
 import "github.com/graphql-go/graphql"
 
-// UserType : Graphql object type of user
+// GroupType : Graphql object type of user
 var UserType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "User",

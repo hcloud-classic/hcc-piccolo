@@ -5,12 +5,6 @@ import (
 	"time"
 )
 
-// Group : Contain infos of the group
-type Group struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-}
-
 // User : Contain infos of the user
 type User struct {
 	ID             string                    `json:"id"`

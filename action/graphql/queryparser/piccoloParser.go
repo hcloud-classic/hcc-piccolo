@@ -2,8 +2,10 @@ package queryparser
 
 import (
 	dbsql "database/sql"
+	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/lib/usertool"
@@ -190,6 +192,27 @@ func NumUser(args map[string]interface{}) (interface{}, error) {
 	}
 
 	return model.UserNum{Number: userNum, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+}
+
+// ReadGroupList : Get list of groups
+func ReadGroupList(isMaster bool) (interface{}, error) {
+	if !isMaster {
+		return model.GroupList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	var groupList []model.Group
+
+	resGetGroupList, errCode, errText := dao.ReadGroupList()
+	if errCode != 0 || errText != "" {
+		return model.GroupList{Errors: errconv.ReturnHccErrorPiccolo(errCode, errText)}, nil
+	}
+
+	for i := range resGetGroupList.Group {
+		group := pbtomodel.PbGroupToModelGroup(resGetGroupList.Group[i])
+		groupList = append(groupList, *group)
+	}
+
+	return model.GroupList{Groups: groupList}, nil
 }
 
 // CheckToken : Do token validation check process
