@@ -42,11 +42,11 @@ func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserG
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Wrong authentication provided!")}, nil
 	}
 
-	sql := "select id from user where id = ? and group_id = ?"
-	row := mysql.Db.QueryRow(sql, id, groupID)
-	err := mysql.QueryRowScan(row, &id, &groupID)
+	sql := "select id from user where id = ?"
+	row := mysql.Db.QueryRow(sql, id)
+	err := mysql.QueryRowScan(row, &id)
 	if err == nil {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided ID is in use in the group")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided ID is in use")}, nil
 	}
 
 	_, err = dao.ReadGroup(groupID)
