@@ -103,7 +103,11 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 }
 
 // CreateNode : Create a node
-func CreateNode(args map[string]interface{}) (interface{}, error) {
+func CreateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+	if !isMaster || !isAdmin {
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
 	nodeName, nodeNameOk := args["node_name"].(string)
 	groupID, groupIDOk := args["group_id"].(int)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)

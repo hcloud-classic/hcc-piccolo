@@ -594,11 +594,14 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.CreateNode(params.Args)
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+				}
+				data, err := mutationparser.CreateNode(params.Args, isAdmin, isMaster)
 				if err != nil {
 					logger.Logger.Println("flute / create_node: " + err.Error())
 				}
