@@ -149,7 +149,7 @@ func UpdateUser(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 	name, nameOk := args["name"].(string)
 	email, emailOk := args["email"].(string)
 
-	if !groupIDOk && !idOk && !authenticationOk && !passwordOk && !nameOk && !emailOk {
+	if !groupIDOk && !authenticationOk && !passwordOk && !nameOk && !emailOk {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need some arguments")}, nil
 	}
 
