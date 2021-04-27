@@ -292,3 +292,122 @@ func ResourceUsage(args map[string]interface{}) (interface{}, error) {
 
 	return model.ResourceUsage{Total: total, InUse: inUse, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
+
+// QuotaList : Get the quota list
+func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserGroupID int) (interface{}, error) {
+	if !isMaster && !isAdmin {
+		return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	var quotas []model.Quota
+	var noLimit bool
+
+	groupID, groupIDOk := args["group_id"].(int)
+	groupName, groupNameOk := args["group_name"].(string)
+
+	if !isMaster && (groupIDOk || groupNameOk) {
+		return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Only a master can search other group's quotas!")}, nil
+	}
+
+	limitCPUCores, limitCPUCoresOk := args["limit_cpu_cores"].(int)
+	limitMemoryGB, limitMemoryGBOk := args["limit_memory_gb"].(int)
+	limitSubnetHostBit, limitSubnetHostBitOk := args["limit_subnet_host_bit"].(int)
+	limitAdaptiveIPCnt, limitAdaptiveIPCntOk := args["limit_adaptive_ip_cnt"].(int)
+	limitSSDGB, limitSSDGBOk := args["limit_ssd_gb"].(int)
+	limitHDDGB, limitHDDGBOk := args["limit_hdd_gb"].(int)
+
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
+	if !rowOk && !pageOk {
+		noLimit = true
+	} else if rowOk && pageOk {
+		noLimit = false
+	} else {
+		return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
+	}
+
+	sqlSelect := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
+		"piccolo.quota.limit_cpu_cores, piccolo.quota.limit_memory_gb, " +
+		"piccolo.quota.limit_subnet_host_bit, piccolo.quota.limit_adaptive_ip_cnt, " +
+		"piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb"
+	sqlCount := "select count(*)"
+	sql := " from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id"
+
+	if !isMaster {
+		sql = " from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id and " +
+			"piccolo.group.id = " + strconv.Itoa(loginUserGroupID)
+	}
+
+	if groupIDOk {
+		sql += " and piccolo.quota.group_id = " + strconv.Itoa(groupID)
+	}
+	if groupNameOk {
+		sql += " and piccolo.group.name like '%" + groupName + "%'"
+	}
+	if limitCPUCoresOk {
+		sql += " and piccolo.quota.limit_cpu_cores = " + strconv.Itoa(limitCPUCores)
+	}
+	if limitMemoryGBOk {
+		sql += " and piccolo.quota.limit_memory_gb = " + strconv.Itoa(limitMemoryGB)
+	}
+	if limitSubnetHostBitOk {
+		sql += " and piccolo.quota.limit_subnet_host_bit = " + strconv.Itoa(limitSubnetHostBit)
+	}
+	if limitAdaptiveIPCntOk {
+		sql += " and piccolo.quota.limit_adaptive_ip_cnt = " + strconv.Itoa(limitAdaptiveIPCnt)
+	}
+	if limitSSDGBOk {
+		sql += " and piccolo.quota.limit_ssd_gb = " + strconv.Itoa(limitSSDGB)
+	}
+	if limitHDDGBOk {
+		sql += " and piccolo.quota.limit_hdd_gb = " + strconv.Itoa(limitHDDGB)
+	}
+
+	if !noLimit {
+		sql += " order by piccolo.quota.group_id desc limit ? offset ?"
+	}
+
+	var stmt *dbsql.Rows
+	var err error
+
+	var quotaNum int
+	result := mysql.Db.QueryRow(sqlCount + sql)
+	err = mysql.QueryRowScan(result, &quotaNum)
+	if err != nil {
+		return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
+	if noLimit {
+		stmt, err = mysql.Query(sqlSelect + sql)
+	} else {
+		stmt, err = mysql.Query(sqlSelect+sql, row, row*(page-1))
+	}
+
+	if err != nil {
+		logger.Logger.Println(err)
+		return nil, err
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+
+	for stmt.Next() {
+		err := stmt.Scan(&groupID, &groupName, &limitCPUCores, &limitMemoryGB, &limitSubnetHostBit, &limitAdaptiveIPCnt, &limitSSDGB, &limitHDDGB)
+		if err != nil {
+			logger.Logger.Println(err)
+		}
+		quota := model.Quota{
+			GroupID:            int64(groupID),
+			GroupName:          groupName,
+			LimitCPUCores:      limitCPUCores,
+			LimitMemoryGB:      limitMemoryGB,
+			LimitSubnetHostBit: limitSubnetHostBit,
+			LimitAdaptiveIPCnt: limitAdaptiveIPCnt,
+			LimitSSDGB:         limitSSDGB,
+			LimitHDDGB:         limitHDDGB,
+		}
+		quotas = append(quotas, quota)
+	}
+
+	return model.QuotaList{Quotas: quotas, TotalNum: quotaNum, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+}

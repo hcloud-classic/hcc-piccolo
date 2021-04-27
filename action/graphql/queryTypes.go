@@ -243,6 +243,56 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"list_quota": &graphql.Field{
+				Type:        graphqlType.QuotaListType,
+				Description: "Get the quota list from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"group_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"limit_cpu_cores": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_memory_gb": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_subnet_host_bit": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_adaptive_ip_cnt": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_ssd_gb": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_hdd_gb": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+					if err != nil {
+						return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.QuotaList(params.Args, isAdmin, isMaster, int(groupID))
+					if err != nil {
+						logger.Logger.Println("piccolo / list_quota: " + err.Error())
+					}
+					return data, err
+				},
+			},
 			// violin
 			"server": &graphql.Field{
 				Type:        graphqlType.ServerType,
