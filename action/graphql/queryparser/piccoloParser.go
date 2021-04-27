@@ -127,7 +127,7 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 		sql += " and piccolo.user.group_id = " + strconv.Itoa(groupID)
 	}
 	if groupNameOk {
-		sql += " and group_name like '%" + groupName + "%'"
+		sql += " and piccolo.group.name like '%" + groupName + "%'"
 	}
 	if emailOk {
 		sql += " and piccolo.user.email like '%" + email + "%'"
