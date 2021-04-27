@@ -109,26 +109,6 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
-			"all_group": &graphql.Field{
-				Type:        graphqlType.GroupListType,
-				Description: "Get the group list from piccolo",
-				Args: graphql.FieldConfigArgument{
-					"token": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-				},
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					_, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
-					if err != nil {
-						return model.GroupList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
-					}
-					data, err := queryparser.ReadGroupList(isMaster)
-					if err != nil {
-						logger.Logger.Println("piccolo / all_group: " + err.Error())
-					}
-					return data, err
-				},
-			},
 			"num_user": &graphql.Field{
 				Type:        graphqlType.UserNumType,
 				Description: "Get the number of users",
@@ -148,6 +128,26 @@ var queryTypes = graphql.NewObject(
 					data, err := queryparser.NumUser(params.Args)
 					if err != nil {
 						logger.Logger.Println("piccolo / num_user: " + err.Error())
+					}
+					return data, err
+				},
+			},
+			"all_group": &graphql.Field{
+				Type:        graphqlType.GroupListType,
+				Description: "Get the group list from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.GroupList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.ReadGroupList(isMaster)
+					if err != nil {
+						logger.Logger.Println("piccolo / all_group: " + err.Error())
 					}
 					return data, err
 				},
