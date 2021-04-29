@@ -364,10 +364,6 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 		sql += " and piccolo.quota.limit_hdd_gb = " + strconv.Itoa(limitHDDGB)
 	}
 
-	if !noLimit {
-		sql += " order by piccolo.quota.group_id desc limit ? offset ?"
-	}
-
 	var stmt *dbsql.Rows
 	var err error
 
@@ -376,6 +372,10 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	err = mysql.QueryRowScan(result, &quotaNum)
 	if err != nil {
 		return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
+	if !noLimit {
+		sql += " order by piccolo.quota.group_id asc limit ? offset ?"
 	}
 
 	if noLimit {
