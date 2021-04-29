@@ -314,6 +314,7 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	limitMemoryGB, limitMemoryGBOk := args["limit_memory_gb"].(int)
 	limitSubnetHostBits, limitSubnetHostBitsOk := args["limit_subnet_host_bits"].(int)
 	limitAdaptiveIPCnt, limitAdaptiveIPCntOk := args["limit_adaptive_ip_cnt"].(int)
+	poolName, poolNameOk := args["pool_name"].(string)
 	limitSSDGB, limitSSDGBOk := args["limit_ssd_gb"].(int)
 	limitHDDGB, limitHDDGBOk := args["limit_hdd_gb"].(int)
 
@@ -330,7 +331,7 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	sqlSelect := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
 		"piccolo.quota.limit_cpu_cores, piccolo.quota.limit_memory_gb, " +
 		"piccolo.quota.limit_subnet_host_bits, piccolo.quota.limit_adaptive_ip_cnt, " +
-		"piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb"
+		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb"
 	sqlCount := "select count(*)"
 	sql := " from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id"
 
@@ -356,6 +357,9 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	}
 	if limitAdaptiveIPCntOk {
 		sql += " and piccolo.quota.limit_adaptive_ip_cnt = " + strconv.Itoa(limitAdaptiveIPCnt)
+	}
+	if poolNameOk {
+		sql += " and piccolo.quota.pool_name like '%" + poolName + "%'"
 	}
 	if limitSSDGBOk {
 		sql += " and piccolo.quota.limit_ssd_gb = " + strconv.Itoa(limitSSDGB)
@@ -393,7 +397,7 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	}()
 
 	for stmt.Next() {
-		err := stmt.Scan(&groupID, &groupName, &limitCPUCores, &limitMemoryGB, &limitSubnetHostBits, &limitAdaptiveIPCnt, &limitSSDGB, &limitHDDGB)
+		err := stmt.Scan(&groupID, &groupName, &limitCPUCores, &limitMemoryGB, &limitSubnetHostBits, &limitAdaptiveIPCnt, &poolName, &limitSSDGB, &limitHDDGB)
 		if err != nil {
 			logger.Logger.Println(err)
 		}
@@ -404,6 +408,7 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 			LimitMemoryGB:       limitMemoryGB,
 			LimitSubnetHostBits: limitSubnetHostBits,
 			LimitAdaptiveIPCnt:  limitAdaptiveIPCnt,
+			PoolName:            poolName,
 			LimitSSDGB:          limitSSDGB,
 			LimitHDDGB:          limitHDDGB,
 		}

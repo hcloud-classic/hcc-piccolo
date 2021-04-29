@@ -265,6 +265,9 @@ var queryTypes = graphql.NewObject(
 					"limit_adaptive_ip_cnt": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"pool_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"limit_ssd_gb": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},

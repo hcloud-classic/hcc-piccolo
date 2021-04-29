@@ -12,6 +12,7 @@ type Quota struct {
 	LimitMemoryGB       int    `json:"limit_memory_gb"`
 	LimitSubnetHostBits int    `json:"limit_subnet_host_bits"`
 	LimitAdaptiveIPCnt  int    `json:"limit_adaptive_ip_cnt"`
+	PoolName            string `json:"pool_name"`
 	LimitSSDGB          int    `json:"limit_ssd_gb"`
 	LimitHDDGB          int    `json:"limit_hdd_gb"`
 }

@@ -25,6 +25,9 @@ var QuotaType = graphql.NewObject(
 			"limit_adaptive_ip_cnt": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"pool_name": &graphql.Field{
+				Type: graphql.String,
+			},
 			"limit_ssd_gb": &graphql.Field{
 				Type: graphql.Int,
 			},
