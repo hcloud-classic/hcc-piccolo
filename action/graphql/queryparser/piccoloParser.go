@@ -340,31 +340,31 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 			"piccolo.group.id = " + strconv.Itoa(loginUserGroupID)
 	}
 
-	if groupIDOk {
+	if groupIDOk && groupID != 0 {
 		sql += " and piccolo.quota.group_id = " + strconv.Itoa(groupID)
 	}
-	if groupNameOk {
+	if groupNameOk && len(groupName) != 0 {
 		sql += " and piccolo.group.name like '%" + groupName + "%'"
 	}
-	if limitCPUCoresOk {
+	if limitCPUCoresOk && limitCPUCores != 0 {
 		sql += " and piccolo.quota.limit_cpu_cores = " + strconv.Itoa(limitCPUCores)
 	}
-	if limitMemoryGBOk {
+	if limitMemoryGBOk && limitMemoryGB != 0 {
 		sql += " and piccolo.quota.limit_memory_gb = " + strconv.Itoa(limitMemoryGB)
 	}
-	if limitSubnetHostBitsOk {
+	if limitSubnetHostBitsOk && limitSubnetHostBits != 0 {
 		sql += " and piccolo.quota.limit_subnet_host_bits = " + strconv.Itoa(limitSubnetHostBits)
 	}
-	if limitAdaptiveIPCntOk {
+	if limitAdaptiveIPCntOk && limitAdaptiveIPCnt != 0 {
 		sql += " and piccolo.quota.limit_adaptive_ip_cnt = " + strconv.Itoa(limitAdaptiveIPCnt)
 	}
-	if poolNameOk {
+	if poolNameOk && len(poolName) != 0 {
 		sql += " and piccolo.quota.pool_name like '%" + poolName + "%'"
 	}
-	if limitSSDGBOk {
+	if limitSSDGBOk && limitSSDGB != 0 {
 		sql += " and piccolo.quota.limit_ssd_gb = " + strconv.Itoa(limitSSDGB)
 	}
-	if limitHDDGBOk {
+	if limitHDDGBOk && limitHDDGB != 0 {
 		sql += " and piccolo.quota.limit_hdd_gb = " + strconv.Itoa(limitHDDGB)
 	}
 
