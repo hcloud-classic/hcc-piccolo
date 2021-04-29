@@ -6,6 +6,7 @@ import (
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
+	"hcc/piccolo/lib/iputil"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/lib/usertool"
@@ -311,7 +312,7 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 
 	limitCPUCores, limitCPUCoresOk := args["limit_cpu_cores"].(int)
 	limitMemoryGB, limitMemoryGBOk := args["limit_memory_gb"].(int)
-	limitSubnetHostBit, limitSubnetHostBitOk := args["limit_subnet_host_bit"].(int)
+	limitSubnetHostBits, limitSubnetHostBitsOk := args["limit_subnet_host_bits"].(int)
 	limitAdaptiveIPCnt, limitAdaptiveIPCntOk := args["limit_adaptive_ip_cnt"].(int)
 	limitSSDGB, limitSSDGBOk := args["limit_ssd_gb"].(int)
 	limitHDDGB, limitHDDGBOk := args["limit_hdd_gb"].(int)
@@ -328,7 +329,7 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 
 	sqlSelect := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
 		"piccolo.quota.limit_cpu_cores, piccolo.quota.limit_memory_gb, " +
-		"piccolo.quota.limit_subnet_host_bit, piccolo.quota.limit_adaptive_ip_cnt, " +
+		"piccolo.quota.limit_subnet_host_bits, piccolo.quota.limit_adaptive_ip_cnt, " +
 		"piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb"
 	sqlCount := "select count(*)"
 	sql := " from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id"
@@ -350,8 +351,8 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	if limitMemoryGBOk {
 		sql += " and piccolo.quota.limit_memory_gb = " + strconv.Itoa(limitMemoryGB)
 	}
-	if limitSubnetHostBitOk {
-		sql += " and piccolo.quota.limit_subnet_host_bit = " + strconv.Itoa(limitSubnetHostBit)
+	if limitSubnetHostBitsOk {
+		sql += " and piccolo.quota.limit_subnet_host_bits = " + strconv.Itoa(limitSubnetHostBits)
 	}
 	if limitAdaptiveIPCntOk {
 		sql += " and piccolo.quota.limit_adaptive_ip_cnt = " + strconv.Itoa(limitAdaptiveIPCnt)
@@ -392,22 +393,124 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	}()
 
 	for stmt.Next() {
-		err := stmt.Scan(&groupID, &groupName, &limitCPUCores, &limitMemoryGB, &limitSubnetHostBit, &limitAdaptiveIPCnt, &limitSSDGB, &limitHDDGB)
+		err := stmt.Scan(&groupID, &groupName, &limitCPUCores, &limitMemoryGB, &limitSubnetHostBits, &limitAdaptiveIPCnt, &limitSSDGB, &limitHDDGB)
 		if err != nil {
 			logger.Logger.Println(err)
 		}
 		quota := model.Quota{
-			GroupID:            int64(groupID),
-			GroupName:          groupName,
-			LimitCPUCores:      limitCPUCores,
-			LimitMemoryGB:      limitMemoryGB,
-			LimitSubnetHostBit: limitSubnetHostBit,
-			LimitAdaptiveIPCnt: limitAdaptiveIPCnt,
-			LimitSSDGB:         limitSSDGB,
-			LimitHDDGB:         limitHDDGB,
+			GroupID:             int64(groupID),
+			GroupName:           groupName,
+			LimitCPUCores:       limitCPUCores,
+			LimitMemoryGB:       limitMemoryGB,
+			LimitSubnetHostBits: limitSubnetHostBits,
+			LimitAdaptiveIPCnt:  limitAdaptiveIPCnt,
+			LimitSSDGB:          limitSSDGB,
+			LimitHDDGB:          limitHDDGB,
 		}
 		quotas = append(quotas, quota)
 	}
 
 	return model.QuotaList{Quotas: quotas, TotalNum: quotaNum, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+}
+
+func getGroup(groupID int) (*model.Group, error) {
+	var group model.Group
+
+	sql := "select piccolo.group.id, piccolo.group.name from piccolo.group where id = ?"
+	row := mysql.Db.QueryRow(sql, groupID)
+	err := mysql.QueryRowScan(row, &group.ID, &group.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &group, nil
+}
+
+// QuotaDetail : Get detail info of the quota
+func QuotaDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+	if !isMaster && !isAdmin {
+		return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	groupID, groupIDOk := args["group_id"].(int)
+	if !groupIDOk {
+		return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a group_id argument")}, nil
+	}
+
+	var quataDetail model.QuotaDetail
+
+	group, err := getGroup(groupID)
+	if err != nil {
+		return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "Failed to get group info!")}, nil
+	}
+
+	// Group
+	quataDetail.GroupID = group.ID
+	quataDetail.GroupName = group.Name
+
+	queryArgs := make(map[string]interface{})
+	queryArgs["group_id"] = int(group.ID)
+
+	// Nodes
+	var totalCPUCores = 0
+	var totalMemoryGB = 0
+	nodes, err := ListNode(queryArgs)
+	if err != nil {
+		return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "Failed to get info of nodes!")}, nil
+	}
+	serverUUIDs := make(map[string]string)
+	quataDetail.Nodes = nodes.(model.NodeList).Nodes
+	for _, node := range quataDetail.Nodes {
+		totalCPUCores += node.CPUCores
+		totalMemoryGB += node.Memory
+		if node.Active == 1 {
+			serverUUIDs[node.ServerUUID] = node.ServerUUID
+		}
+	}
+	quataDetail.TotalCPUCores = totalCPUCores
+	quataDetail.TotalMemoryGB = totalMemoryGB
+
+	// TotalSubnetHostBits
+	var totalSubnetHostBits = 0
+	subnets, err := ListSubnet(queryArgs)
+	if err != nil {
+		return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "Failed to get info of subnets!")}, nil
+	}
+	for _, subnet := range subnets.(model.SubnetList).Subnets {
+		mask, err := iputil.CheckNetmask(subnet.Netmask)
+		if err != nil {
+			return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError,
+				"error occurred while getting length of the subnet mask (uuid="+subnet.UUID+", error: "+err.Error()+")")}, nil
+		}
+		maskLen, _ := mask.Size()
+		hostBits := 32 - maskLen
+
+		totalSubnetHostBits += hostBits
+	}
+	quataDetail.TotalSubnetHostBits = totalSubnetHostBits
+
+	// TotalAdaptiveIPNum
+	adaptiveIPNum, err := NumAdaptiveIPServer(queryArgs)
+	if err != nil {
+		return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "Failed to get number of AdaptiveIPs!")}, nil
+	}
+	quataDetail.TotalAdaptiveIPNum = adaptiveIPNum.(model.AdaptiveIPServerNum).Number
+
+	// Volumes
+	var volumes []model.Volume
+	for _, serverUUID := range serverUUIDs {
+		queryArgs := make(map[string]interface{})
+		queryArgs["server_uuid"] = serverUUID
+
+		volumeList, err := GetVolumeList(queryArgs)
+		if err == nil {
+			volumes = append(volumes, volumeList.(model.VolumeList).Volumes...)
+		}
+	}
+	quataDetail.Volumes = volumes
+
+	// Errors
+	quataDetail.Errors = errconv.ReturnHccEmptyErrorPiccolo()
+
+	return quataDetail, nil
 }
