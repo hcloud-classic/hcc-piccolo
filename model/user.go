@@ -33,13 +33,13 @@ type UserNum struct {
 
 // Token : Contain the user token and authentication
 type Token struct {
-	Token          string                    `json:"token"`
-	Authentication string                    `json:"authentication"`
-	Errors         []errconv.PiccoloHccError `json:"errors"`
+	Token  string                    `json:"token"`
+	Errors []errconv.PiccoloHccError `json:"errors"`
 }
 
 // IsValid : Contain the validation of the token
 type IsValid struct {
-	IsValid bool                      `json:"isvalid"`
-	Errors  []errconv.PiccoloHccError `json:"errors"`
+	IsValid        bool                      `json:"isvalid"`
+	Authentication string                    `json:"authentication"`
+	Errors         []errconv.PiccoloHccError `json:"errors"`
 }

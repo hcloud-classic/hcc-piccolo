@@ -64,9 +64,6 @@ var Token = graphql.NewObject(
 			"token": &graphql.Field{
 				Type: graphql.String,
 			},
-			"authentication": &graphql.Field{
-				Type: graphql.String,
-			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},
@@ -81,6 +78,9 @@ var IsValid = graphql.NewObject(
 		Fields: graphql.Fields{
 			"isvalid": &graphql.Field{
 				Type: graphql.Boolean,
+			},
+			"authentication": &graphql.Field{
+				Type: graphql.String,
 			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),

@@ -48,25 +48,24 @@ func Login(args map[string]interface{}) (interface{}, error) {
 	password, passwordOk := args["password"].(string)
 
 	if !idOk || !passwordOk {
-		return model.Token{Token: "", Authentication: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and password arguments")}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need id and password arguments")}, nil
 	}
 
 	var dbPassword string
-	var authentication string
 
-	sql := "select authentication, password from user where id = ?"
+	sql := "select password from user where id = ?"
 	row := mysql.Db.QueryRow(sql, id)
-	err := mysql.QueryRowScan(row, &authentication, &dbPassword)
+	err := mysql.QueryRowScan(row, &dbPassword)
 	if err != nil {
 		logger.Logger.Println(err)
 
-		return model.Token{Token: "", Authentication: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
 	}
 
 	// Given password is hashed password with bcrypt
 	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(dbPassword))
 	if err != nil {
-		return model.Token{Token: "", Authentication: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
 	}
 
 	if strings.ToLower(id) == "admin" || strings.ToLower(id) == "administrator" {
@@ -77,15 +76,15 @@ func Login(args map[string]interface{}) (interface{}, error) {
 
 	err = updateUserLoginAt(id)
 	if err != nil {
-		return model.Token{Token: "", Authentication: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
 	token, err := usertool.GenerateToken(id, password)
 	if err != nil {
-		return model.Token{Token: "", Authentication: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTokenGenerationError, err.Error())}, nil
+		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTokenGenerationError, err.Error())}, nil
 	}
 
-	return model.Token{Token: token, Authentication: authentication, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+	return model.Token{Token: token, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // UserList : Get the user list
@@ -221,15 +220,22 @@ func ReadGroupList(isMaster bool) (interface{}, error) {
 func CheckToken(args map[string]interface{}) (interface{}, error) {
 	_, tokenOk := args["token"].(string)
 	if !tokenOk {
-		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
+		return model.IsValid{IsValid: false, Authentication: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
 	}
 
-	_, _, _, _, err := usertool.ValidateToken(args, false)
+	isAdmin, isMaster, _, _, err := usertool.ValidateToken(args, false)
 	if err != nil {
-		return model.IsValid{IsValid: false, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+		return model.IsValid{IsValid: false, Authentication: "", Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 	}
 
-	return model.IsValid{IsValid: true, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+	var authentication = "user"
+	if isAdmin {
+		authentication = "admin"
+	} else if isMaster {
+		authentication = "master"
+	}
+
+	return model.IsValid{IsValid: true, Authentication: authentication, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // ResourceUsage : Get usage of resources
