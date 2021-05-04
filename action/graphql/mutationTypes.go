@@ -530,6 +530,70 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return data, err
 			},
 		},
+		"create_port_forwarding": &graphql.Field{
+			Type:        graphqlType.PortForwardingType,
+			Description: "Create new AdaptiveIP Port Forwarding",
+			Args: graphql.FieldConfigArgument{
+				"server_uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"forwarding_tcp": &graphql.ArgumentConfig{
+					Type: graphql.Boolean,
+				},
+				"forwarding_udp": &graphql.ArgumentConfig{
+					Type: graphql.Boolean,
+				},
+				"external_port": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"internal_port": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"description": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				if err != nil {
+					return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				data, err := mutationparser.CreatePortForwarding(params.Args)
+				if err != nil {
+					logger.Logger.Println("harp / create_port_forwarding: " + err.Error())
+				}
+				return data, err
+			},
+		},
+		"delete_port_forwarding": &graphql.Field{
+			Type:        graphqlType.PortForwardingType,
+			Description: "Delete AdaptiveIP Port Forwarding by server_uuid",
+			Args: graphql.FieldConfigArgument{
+				"server_uuid": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"external_port": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				if err != nil {
+					return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				data, err := mutationparser.DeletePortForwarding(params.Args)
+				if err != nil {
+					logger.Logger.Println("harp / delete_port_forwarding: " + err.Error())
+				}
+				return data, err
+			},
+		},
 		// flute
 		"on_node": &graphql.Field{
 			Type:        graphqlType.PowerControlNodeType,

@@ -272,6 +272,45 @@ func (rc *RPCClient) DeleteAdaptiveIPServer(serverUUID string) (*pb.ResDeleteAda
 	return resDeleteAdaptiveIPServer, nil
 }
 
+// GetPortForwardingList : Get list of the AdaptiveIP Port Forwarding
+func (rc *RPCClient) GetPortForwardingList(in *pb.ReqGetPortForwardingList) (*pb.ResGetPortForwardingList, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	adaptiveIPServerList, err := rc.harp.GetPortForwardingList(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return adaptiveIPServerList, nil
+}
+
+// CreatePortForwarding : Create the AdaptiveIP Port Forwarding
+func (rc *RPCClient) CreatePortForwarding(in *pb.ReqCreatePortForwarding) (*pb.ResCreatePortForwarding, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resCreatePortForwarding, err := rc.harp.CreatePortForwarding(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resCreatePortForwarding, nil
+}
+
+// DeletePortForwarding : Delete the AdaptiveIP Port Forwarding
+func (rc *RPCClient) DeletePortForwarding(in *pb.ReqDeletePortForwarding) (*pb.ResDeletePortForwarding, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resDeletePortForwarding, err := rc.harp.DeletePortForwarding(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resDeletePortForwarding, nil
+}
+
 // CreateDHCPDConfig : Do dhcpd config file creation works
 func (rc *RPCClient) CreateDHCPDConfig(subnetUUID string, nodeUUIDs string) (*pb.ResCreateDHCPDConf, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),

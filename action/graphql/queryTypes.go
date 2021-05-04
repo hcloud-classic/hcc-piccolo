@@ -914,6 +914,47 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"list_port_forwarding": &graphql.Field{
+				Type:        graphqlType.PortForwardingListType,
+				Description: "Get port_forwarding list",
+				Args: graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"forwarding_tcp": &graphql.ArgumentConfig{
+						Type: graphql.Boolean,
+					},
+					"forwarding_udp": &graphql.ArgumentConfig{
+						Type: graphql.Boolean,
+					},
+					"external_port": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"internal_port": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.PortForwardingList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.ListPortForwarding(params.Args)
+					if err != nil {
+						logger.Logger.Println("harp / list_port_forwarding: " + err.Error())
+					}
+					return data, err
+				},
+			},
 			// flute
 			"power_state_node": &graphql.Field{
 				Type:        graphqlType.PowerStateNodeType,
