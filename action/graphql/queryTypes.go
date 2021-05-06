@@ -930,6 +930,9 @@ var queryTypes = graphql.NewObject(
 					"internal_port": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"description": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"row": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
