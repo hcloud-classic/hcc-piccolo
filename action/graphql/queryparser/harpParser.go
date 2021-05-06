@@ -7,6 +7,7 @@ import (
 	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/model"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes"
 	"innogrid.com/hcloud-classic/hcc_errors"
@@ -467,8 +468,7 @@ func NumAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 // ListPortForwarding : Get AdaptiveIP Port Forwarding list with provided options
 func ListPortForwarding(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	forwardTCP, forwardTCPOk := args["forwarding_tcp"].(bool)
-	forwardUDP, forwardUDPOk := args["forwarding_udp"].(bool)
+	protocol, protocolOk := args["protocol"].(string)
 	externalPort, externalPortOk := args["external_port"].(int)
 	internalPort, internalPortOk := args["internal_port"].(int)
 	description, descriptionOk := args["description"].(string)
@@ -485,11 +485,19 @@ func ListPortForwarding(args map[string]interface{}) (interface{}, error) {
 	}
 	reqGetPortForwardingList.PortForwarding.ServerUUID = serverUUID
 
-	if forwardTCPOk {
-		reqGetPortForwardingList.PortForwarding.ForwardUDP = forwardTCP
-	}
-	if forwardUDPOk {
-		reqGetPortForwardingList.PortForwarding.ForwardUDP = forwardUDP
+	if protocolOk {
+		protocol = strings.ToLower(protocol)
+		if protocol == "tcp" {
+			reqGetPortForwardingList.PortForwarding.ForwardTCP = true
+		} else if protocol == "udp" {
+			reqGetPortForwardingList.PortForwarding.ForwardUDP = true
+		} else if protocol == "all" {
+			reqGetPortForwardingList.PortForwarding.ForwardTCP = true
+			reqGetPortForwardingList.PortForwarding.ForwardUDP = true
+		} else {
+			reqGetPortForwardingList.PortForwarding.ForwardTCP = false
+			reqGetPortForwardingList.PortForwarding.ForwardUDP = false
+		}
 	}
 	if externalPortOk {
 		reqGetPortForwardingList.PortForwarding.ExternalPort = int64(externalPort)

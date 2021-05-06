@@ -921,11 +921,8 @@ var queryTypes = graphql.NewObject(
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"forwarding_tcp": &graphql.ArgumentConfig{
-						Type: graphql.Boolean,
-					},
-					"forwarding_udp": &graphql.ArgumentConfig{
-						Type: graphql.Boolean,
+					"protocol": &graphql.ArgumentConfig{
+						Type: graphql.String,
 					},
 					"external_port": &graphql.ArgumentConfig{
 						Type: graphql.Int,
