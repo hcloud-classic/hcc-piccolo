@@ -466,9 +466,12 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				_, isMaster, _, _, err := usertool.ValidateToken(params.Args, true)
 				if err != nil {
 					return model.AdaptiveIPSetting{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				if !isMaster {
+					return model.AdaptiveIPSetting{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Only master can change this setting!")}, nil
 				}
 				data, err := mutationparser.CreateAdaptiveIPSetting(params.Args)
 				if err != nil {
