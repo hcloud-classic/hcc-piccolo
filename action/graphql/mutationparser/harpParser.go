@@ -177,12 +177,11 @@ func DeleteSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 // CreateDHCPDConf : Create the configuration of the DHCP server
 func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
-	nodeUUIDs, nodeUUIDsOk := args["nodeUUIDs"].(string)
-	if !subnetUUIDOk || !nodeUUIDsOk {
-		return model.CreateDHCPConfResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need subnet_uuid and nodeUUIDs arguments")}, nil
+	if !subnetUUIDOk {
+		return model.CreateDHCPConfResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a subnet_uuid argument")}, nil
 	}
 
-	resCreateDHCPDConfig, err := client.RC.CreateDHCPDConfig(subnetUUID, nodeUUIDs)
+	resCreateDHCPDConfig, err := client.RC.CreateDHCPDConfig(subnetUUID)
 	if err != nil {
 		return model.CreateDHCPConfResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -477,7 +476,7 @@ func DeletePortForwarding(args map[string]interface{}) (interface{}, error) {
 
 	resDeletePortForwarding, err := client.RC.DeletePortForwarding(&pb.ReqDeletePortForwarding{
 		PortForwarding: &pb.PortForwarding{
-			ServerUUID: serverUUID,
+			ServerUUID:   serverUUID,
 			ExternalPort: int64(externalPort),
 		},
 	})

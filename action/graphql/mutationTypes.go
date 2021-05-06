@@ -426,9 +426,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"subnet_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"node_uuids": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
 				"token": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
