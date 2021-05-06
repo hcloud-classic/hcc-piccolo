@@ -376,16 +376,29 @@ func CreatePortForwarding(args map[string]interface{}) (interface{}, error) {
 	tokenString, _ := args["token"].(string)
 
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	forwardTCP, forwardTCPOk := args["forwarding_tcp"].(bool)
-	forwardUDP, forwardUDPOk := args["forwarding_udp"].(bool)
+	protocol, protocolOk := args["protocol"].(string)
 	externalPort, externalPortOk := args["external_port"].(int)
 	internalPort, internalPortOk := args["internal_port"].(int)
 	description, descriptionOk := args["description"].(string)
 
-	if !serverUUIDOk || (!forwardTCPOk && !forwardUDPOk) || !externalPortOk || !internalPortOk || !descriptionOk {
+	if !serverUUIDOk || !protocolOk || !externalPortOk || !internalPortOk || !descriptionOk {
 		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need ServerUUID and ForwardTCP/ForwardUDP,"+
-				"ExternalPort, InternalPort, Description arguments")}, nil
+			"need server_uuid and protocol,"+
+				"external_port, internal_port, description arguments")}, nil
+	}
+
+	var forwardTCP = false
+	var forwardUDP = false
+
+	if protocol == "tcp" {
+		forwardTCP = true
+	} else if protocol == "udp" {
+		forwardUDP = true
+	} else if protocol == "all" {
+		forwardTCP = true
+		forwardUDP = true
+	} else {
+		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Unknown protocol")}, nil
 	}
 
 	reqCreatePortForwarding := &pb.ReqCreatePortForwarding{
@@ -407,13 +420,11 @@ func CreatePortForwarding(args map[string]interface{}) (interface{}, error) {
 	hccErrStack := errconv.GrpcStackToHcc(resCreatePortForwarding.HccErrorStack)
 
 	resPortForwarding := resCreatePortForwarding.PortForwarding
-
-	var protocol string
 	if resPortForwarding.ForwardTCP && resPortForwarding.ForwardUDP {
 		protocol = "all"
-	} else if forwardTCPOk {
+	} else if resPortForwarding.ForwardTCP {
 		protocol = "tcp"
-	} else if forwardUDPOk {
+	} else if resPortForwarding.ForwardUDP {
 		protocol = "udp"
 	}
 
