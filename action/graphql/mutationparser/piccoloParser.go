@@ -7,15 +7,15 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
+	"strconv"
 	"strings"
 
-	uuid "github.com/nu7hatch/gouuid"
 	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
 // SignUp : Do user sign up process
 func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserGroupID int) (interface{}, error) {
-	if !isMaster || !isAdmin {
+	if !isMaster && !isAdmin {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
@@ -43,11 +43,11 @@ func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserG
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Wrong authentication provided!")}, nil
 	}
 
-	sql := "select id from user where id = ? and group_id = ?"
-	row := mysql.Db.QueryRow(sql, id, groupID)
-	err := mysql.QueryRowScan(row, &id, &groupID)
+	sql := "select id from user where id = ?"
+	row := mysql.Db.QueryRow(sql, id)
+	err := mysql.QueryRowScan(row, &id)
 	if err == nil {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided ID is in use in the group")}, nil
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided ID is in use")}, nil
 	}
 
 	_, err = dao.ReadGroup(groupID)
@@ -59,22 +59,15 @@ func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserG
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
-	out, err := uuid.NewV4()
-	if err != nil {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloInternalUUIDGenerationError, err.Error())}, nil
-	}
-	UUID := out.String()
-
 	user := model.User{
-		UUID:           UUID,
-		GroupID:        int64(groupID),
 		ID:             id,
+		GroupID:        int64(groupID),
 		Authentication: authentication,
 		Name:           name,
 		Email:          email,
 	}
 
-	sql = "insert into user(uuid, group_id, id, authentication, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, ?, ?, now(), now())"
+	sql = "insert into user(id, group_id, authentication, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, ?, now(), now())"
 	stmt, err := mysql.Prepare(sql)
 	if err != nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, err.Error())}, nil
@@ -82,7 +75,7 @@ func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserG
 	defer func() {
 		_ = stmt.Close()
 	}()
-	_, err = stmt.Exec(user.UUID, user.GroupID, user.ID, authentication, password, user.Name, user.Email)
+	_, err = stmt.Exec(user.ID, user.GroupID, authentication, password, user.Name, user.Email)
 	if err != nil {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
@@ -136,4 +129,91 @@ func Unregister(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 	}
 
 	return model.User{ID: id, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+}
+
+// UpdateUser : Update info of the user
+func UpdateUser(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserGroupID int) (interface{}, error) {
+	if !isMaster && !isAdmin {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	id, idOk := args["id"].(string)
+
+	if !idOk {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a id argument")}, nil
+	}
+
+	groupID, groupIDOk := args["group_id"].(int)
+	authentication, authenticationOk := args["authentication"].(string)
+	password, passwordOk := args["password"].(string)
+	name, nameOk := args["name"].(string)
+	email, emailOk := args["email"].(string)
+
+	if !groupIDOk && !authenticationOk && !passwordOk && !nameOk && !emailOk {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need some arguments")}, nil
+	}
+
+	if !isMaster && loginUserGroupID != groupID {
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other group's user if you are not a master")}, nil
+	}
+
+	_, err := dao.ReadGroup(groupID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "Provided Group ID is not exist")}, nil
+		}
+
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
+	sql := "update user set"
+	var updateSet = ""
+	if isMaster && groupIDOk {
+		updateSet += " group_id = " + strconv.Itoa(groupID) + ", "
+	}
+	if authenticationOk {
+		if authentication != "admin" && authentication != "user" {
+			return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Wrong authentication provided!")}, nil
+		}
+		updateSet += " authentication = '" + authentication + "', "
+	}
+	if passwordOk {
+		updateSet += " password = '" + password + "', "
+	}
+	if nameOk {
+		updateSet += " name = '" + name + "', "
+	}
+	if emailOk {
+		updateSet += " email = '" + email + "', "
+	}
+
+	sql += updateSet[0:len(updateSet)-2] + " where id = ?"
+
+	stmt, err := mysql.Prepare(sql)
+	if err != nil {
+		errStr := "UpdateUser(): " + err.Error()
+		logger.Logger.Println(errStr)
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, errStr)}, nil
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+
+	_, err2 := stmt.Exec(id)
+	if err2 != nil {
+		errStr := "UpdateUser(): " + err2.Error()
+		logger.Logger.Println(errStr)
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, errStr)}, nil
+	}
+
+	_user, err := queryparserext.User(args)
+	if err != nil {
+		logger.Logger.Println("UpdateUser(): " + err.Error())
+	}
+
+	var user = _user.(model.User)
+
+	user.Errors = errconv.ReturnHccEmptyErrorPiccolo()
+
+	return &user, nil
 }

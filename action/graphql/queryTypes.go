@@ -43,9 +43,6 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.UserType,
 				Description: "Get the user info from piccolo",
 				Args: graphql.FieldConfigArgument{
-					"uuid": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
 					"id": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -98,7 +95,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -121,7 +118,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -131,6 +128,26 @@ var queryTypes = graphql.NewObject(
 					data, err := queryparser.NumUser(params.Args)
 					if err != nil {
 						logger.Logger.Println("piccolo / num_user: " + err.Error())
+					}
+					return data, err
+				},
+			},
+			"all_group": &graphql.Field{
+				Type:        graphqlType.GroupListType,
+				Description: "Get the group list from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.GroupList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.ReadGroupList(isMaster)
+					if err != nil {
+						logger.Logger.Println("piccolo / all_group: " + err.Error())
 					}
 					return data, err
 				},
@@ -160,7 +177,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -222,6 +239,82 @@ var queryTypes = graphql.NewObject(
 					data, err := dao.ShowServerActionsNum(params.Args)
 					if err != nil {
 						logger.Logger.Println("piccolo / num_server_log: " + err.Error())
+					}
+					return data, err
+				},
+			},
+			"list_quota": &graphql.Field{
+				Type:        graphqlType.QuotaListType,
+				Description: "Get the quota list from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"group_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"limit_cpu_cores": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_memory_gb": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_subnet_host_bits": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_adaptive_ip_cnt": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"pool_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"limit_ssd_gb": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_hdd_gb": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+					if err != nil {
+						return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.QuotaList(params.Args, isAdmin, isMaster, int(groupID))
+					if err != nil {
+						logger.Logger.Println("piccolo / list_quota: " + err.Error())
+					}
+					return data, err
+				},
+			},
+			"quota_detail": &graphql.Field{
+				Type:        graphqlType.QuotaDetailType,
+				Description: "Get detail info of the quota from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					isAdmin, isMaster, _, _, err := usertool.ValidateToken(params.Args, true)
+					if err != nil {
+						return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.QuotaDetail(params.Args, isAdmin, isMaster)
+					if err != nil {
+						logger.Logger.Println("piccolo / quota_detail: " + err.Error())
 					}
 					return data, err
 				},
@@ -356,7 +449,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.ServerNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -564,7 +657,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -593,7 +686,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -616,7 +709,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.SubnetList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -639,7 +732,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.SubnetNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -807,7 +900,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.AdaptiveIPServerNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -817,6 +910,47 @@ var queryTypes = graphql.NewObject(
 					data, err := queryparser.NumAdaptiveIPServer(params.Args)
 					if err != nil {
 						logger.Logger.Println("harp / num_adaptiveip_server: " + err.Error())
+					}
+					return data, err
+				},
+			},
+			"list_port_forwarding": &graphql.Field{
+				Type:        graphqlType.PortForwardingListType,
+				Description: "Get port_forwarding list",
+				Args: graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"protocol": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"external_port": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"internal_port": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"description": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.PortForwardingList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.ListPortForwarding(params.Args)
+					if err != nil {
+						logger.Logger.Println("harp / list_port_forwarding: " + err.Error())
 					}
 					return data, err
 				},
@@ -940,7 +1074,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -972,7 +1106,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -995,7 +1129,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.NodeNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
@@ -1111,14 +1245,14 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+					isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
 					if err != nil {
 						return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
 					}
-					data, err := queryparser.GetBillingData(params.Args)
+					data, err := queryparser.GetBillingData(params.Args, isAdmin, isMaster)
 					if err != nil {
 						logger.Logger.Println("piano / billing_data: " + err.Error())
 					}
@@ -1181,7 +1315,7 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					 _, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}

@@ -39,6 +39,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"email": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
@@ -74,6 +77,47 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				data, err := mutationparser.Unregister(params.Args, isAdmin, isMaster, id, int(groupID))
 				if err != nil {
 					logger.Logger.Println("piccolo / unregister: " + err.Error())
+				}
+				return data, err
+			},
+		},
+		"update_user": &graphql.Field{
+			Type:        graphqlType.UserType,
+			Description: "Update user",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"authentication": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"password": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"email": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+				if err != nil {
+					return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+				}
+				data, err := mutationparser.UpdateUser(params.Args, isAdmin, isMaster, int(groupID))
+				if err != nil {
+					logger.Logger.Println("piccolo / update_user: " + err.Error())
 				}
 				return data, err
 			},
@@ -363,11 +407,12 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.DeleteSubnet(params.Args)
+				params.Args["group_id"] = int(groupID)
+				data, err := mutationparser.DeleteSubnet(params.Args, isMaster)
 				if err != nil {
 					logger.Logger.Println("harp / delete_subnet: " + err.Error())
 				}
@@ -485,6 +530,70 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return data, err
 			},
 		},
+		"create_port_forwarding": &graphql.Field{
+			Type:        graphqlType.PortForwardingType,
+			Description: "Create new AdaptiveIP Port Forwarding",
+			Args: graphql.FieldConfigArgument{
+				"server_uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"forwarding_tcp": &graphql.ArgumentConfig{
+					Type: graphql.Boolean,
+				},
+				"forwarding_udp": &graphql.ArgumentConfig{
+					Type: graphql.Boolean,
+				},
+				"external_port": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"internal_port": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"description": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				if err != nil {
+					return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				data, err := mutationparser.CreatePortForwarding(params.Args)
+				if err != nil {
+					logger.Logger.Println("harp / create_port_forwarding: " + err.Error())
+				}
+				return data, err
+			},
+		},
+		"delete_port_forwarding": &graphql.Field{
+			Type:        graphqlType.PortForwardingType,
+			Description: "Delete AdaptiveIP Port Forwarding by server_uuid",
+			Args: graphql.FieldConfigArgument{
+				"server_uuid": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"external_port": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				if err != nil {
+					return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				data, err := mutationparser.DeletePortForwarding(params.Args)
+				if err != nil {
+					logger.Logger.Println("harp / delete_port_forwarding: " + err.Error())
+				}
+				return data, err
+			},
+		},
 		// flute
 		"on_node": &graphql.Field{
 			Type:        graphqlType.PowerControlNodeType,
@@ -594,11 +703,14 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.CreateNode(params.Args)
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+				}
+				data, err := mutationparser.CreateNode(params.Args, isAdmin, isMaster)
 				if err != nil {
 					logger.Logger.Println("flute / create_node: " + err.Error())
 				}
@@ -614,9 +726,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 				"node_name": &graphql.ArgumentConfig{
 					Type: graphql.String,
-				},
-				"group_id": &graphql.ArgumentConfig{
-					Type: graphql.Int,
 				},
 				"node_num": &graphql.ArgumentConfig{
 					Type: graphql.Int,

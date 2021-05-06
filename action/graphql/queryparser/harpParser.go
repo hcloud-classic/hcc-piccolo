@@ -7,6 +7,7 @@ import (
 	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/model"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes"
 	"innogrid.com/hcloud-classic/hcc_errors"
@@ -462,4 +463,104 @@ func NumAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	}
 
 	return model.AdaptiveIPServerNum{Number: int(resGetAdaptiveIPServerNum.Num), Errors: Errors}, nil
+}
+
+// ListPortForwarding : Get AdaptiveIP Port Forwarding list with provided options
+func ListPortForwarding(args map[string]interface{}) (interface{}, error) {
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	protocol, protocolOk := args["protocol"].(string)
+	externalPort, externalPortOk := args["external_port"].(int)
+	internalPort, internalPortOk := args["internal_port"].(int)
+	description, descriptionOk := args["description"].(string)
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
+
+	var reqGetPortForwardingList pb.ReqGetPortForwardingList
+	var reqPortForwardingList pb.PortForwarding
+	reqGetPortForwardingList.PortForwarding = &reqPortForwardingList
+
+	if !serverUUIDOk {
+		return model.PortForwardingList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"Need a server_uuid argument")}, nil
+	}
+	reqGetPortForwardingList.PortForwarding.ServerUUID = serverUUID
+
+	if protocolOk {
+		protocol = strings.ToLower(protocol)
+		if protocol == "tcp" {
+			reqGetPortForwardingList.PortForwarding.ForwardTCP = true
+		} else if protocol == "udp" {
+			reqGetPortForwardingList.PortForwarding.ForwardUDP = true
+		} else if protocol == "all" {
+			reqGetPortForwardingList.PortForwarding.ForwardTCP = true
+			reqGetPortForwardingList.PortForwarding.ForwardUDP = true
+		} else {
+			reqGetPortForwardingList.PortForwarding.ForwardTCP = false
+			reqGetPortForwardingList.PortForwarding.ForwardUDP = false
+		}
+	}
+	if externalPortOk {
+		reqGetPortForwardingList.PortForwarding.ExternalPort = int64(externalPort)
+	}
+	if internalPortOk {
+		reqGetPortForwardingList.PortForwarding.InternalPort = int64(internalPort)
+	}
+	if descriptionOk {
+		reqGetPortForwardingList.PortForwarding.Description = description
+	}
+	if rowOk {
+		reqGetPortForwardingList.Row = int64(row)
+	}
+	if pageOk {
+		reqGetPortForwardingList.Page = int64(page)
+	}
+
+	resGetPortForwardingList, err := client.RC.GetPortForwardingList(&reqGetPortForwardingList)
+	if err != nil {
+		return model.PortForwardingList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	var numPortForwarding int
+	if rowOk && pageOk {
+		reqGetPortForwardingList.Row = 0
+		reqGetPortForwardingList.Page = 0
+		resGetPortForwardingList2, err := client.RC.GetPortForwardingList(&reqGetPortForwardingList)
+		if err != nil {
+			return model.PortForwardingList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+		numPortForwarding = len(resGetPortForwardingList2.PortForwarding)
+	} else {
+		numPortForwarding = len(resGetPortForwardingList.PortForwarding)
+	}
+
+	var portForwardingList []model.PortForwarding
+	for _, portForwarding := range resGetPortForwardingList.PortForwarding {
+		var protocol string
+
+		if portForwarding.ForwardTCP && portForwarding.ForwardUDP {
+			protocol = "all"
+		} else if portForwarding.ForwardTCP {
+			protocol = "tcp"
+		} else if portForwarding.ForwardUDP {
+			protocol = "udp"
+		}
+
+		modelPortForwarding := model.PortForwarding{
+			ServerUUID:   portForwarding.ServerUUID,
+			Protocol:     protocol,
+			ExternalPort: portForwarding.ExternalPort,
+			InternalPort: portForwarding.InternalPort,
+			Description:  portForwarding.Description,
+		}
+
+		portForwardingList = append(portForwardingList, modelPortForwarding)
+	}
+
+	hccErrStack := errconv.GrpcStackToHcc(resGetPortForwardingList.HccErrorStack)
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errconv.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return model.PortForwardingList{PortForwardings: portForwardingList, TotalNum: numPortForwarding, Errors: Errors}, nil
 }

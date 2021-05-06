@@ -103,7 +103,11 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 }
 
 // CreateNode : Create a node
-func CreateNode(args map[string]interface{}) (interface{}, error) {
+func CreateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+	if !isMaster && !isAdmin {
+		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
 	nodeName, nodeNameOk := args["node_name"].(string)
 	groupID, groupIDOk := args["group_id"].(int)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
@@ -149,7 +153,7 @@ func CreateNode(args map[string]interface{}) (interface{}, error) {
 
 // UpdateNode : Update the infos of the node
 func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
-	if !isMaster || !isAdmin {
+	if !isMaster && !isAdmin {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
@@ -261,7 +265,7 @@ func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 
 // DeleteNode : Delete the node
 func DeleteNode(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
-	if !isMaster || !isAdmin {
+	if !isMaster && !isAdmin {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
@@ -294,7 +298,7 @@ func DeleteNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 
 // CreateNodeDetail : Create detail infos of the node
 func CreateNodeDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
-	if !isMaster || !isAdmin {
+	if !isMaster && !isAdmin {
 		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
@@ -324,7 +328,7 @@ func CreateNodeDetail(args map[string]interface{}, isAdmin bool, isMaster bool) 
 
 // UpdateNodeDetail : Update detail infos of the node
 func UpdateNodeDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
-	if !isMaster || !isAdmin {
+	if !isMaster && !isAdmin {
 		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
@@ -354,7 +358,7 @@ func UpdateNodeDetail(args map[string]interface{}, isAdmin bool, isMaster bool) 
 
 // DeleteNodeDetail : Delete the node detail of the node
 func DeleteNodeDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
-	if !isMaster || !isAdmin {
+	if !isMaster && !isAdmin {
 		return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 

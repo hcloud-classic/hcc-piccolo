@@ -17,6 +17,53 @@ var subscriptionTypes = graphql.NewObject(
 		Name: "Subscription",
 		Fields: graphql.Fields{
 			// piccolo
+			"list_user": &graphql.Field{
+				Type:        graphqlType.UserListType,
+				Description: "Get the user list from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"authentication": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"group_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"email": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					if !isMaster {
+						params.Args["group_id"] = int(groupID)
+					}
+					data, err := queryparser.UserList(params.Args)
+					if err != nil {
+						logger.Logger.Println("piccolo / list_user (Subscription): " + err.Error())
+					}
+					return data, err
+				},
+			},
 			"resource_usage": &graphql.Field{
 				Type:        graphqlType.ResourceUsageType,
 				Description: "Get resource usage",

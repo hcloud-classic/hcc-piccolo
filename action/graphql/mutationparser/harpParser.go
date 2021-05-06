@@ -146,10 +146,22 @@ func UpdateSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 }
 
 // DeleteSubnet : Delete the subnet
-func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
+func DeleteSubnet(args map[string]interface{}, isMaster bool) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
 		return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
+	}
+
+	if !isMaster {
+		groupID, _ := args["group_id"].(int)
+		subnet, err := queryparser.Subnet(args)
+		if err != nil {
+			return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
+		if int(subnet.(model.Subnet).GroupID) != groupID {
+			return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't delete the other subnet if you are not a master")}, nil
+		}
 	}
 
 	resDeleteSubnet, err := client.RC.DeleteSubnet(requestedUUID)
@@ -358,4 +370,154 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 		EndIPAddress:      adaptiveipSetting.EndIPAddress,
 		Errors:            Errors,
 	}, nil
+}
+
+// CreatePortForwarding : Create the AdaptiveIP Port Forwarding
+func CreatePortForwarding(args map[string]interface{}) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
+
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	forwardTCP, forwardTCPOk := args["forwarding_tcp"].(bool)
+	forwardUDP, forwardUDPOk := args["forwarding_udp"].(bool)
+	externalPort, externalPortOk := args["external_port"].(int)
+	internalPort, internalPortOk := args["internal_port"].(int)
+	description, descriptionOk := args["description"].(string)
+
+	if !serverUUIDOk || (!forwardTCPOk && !forwardUDPOk) || !externalPortOk || !internalPortOk || !descriptionOk {
+		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"need ServerUUID and ForwardTCP/ForwardUDP,"+
+				"ExternalPort, InternalPort, Description arguments")}, nil
+	}
+
+	reqCreatePortForwarding := &pb.ReqCreatePortForwarding{
+		PortForwarding: &pb.PortForwarding{
+			ServerUUID:   serverUUID,
+			ForwardTCP:   forwardTCP,
+			ForwardUDP:   forwardUDP,
+			ExternalPort: int64(externalPort),
+			InternalPort: int64(internalPort),
+			Description:  description,
+		},
+	}
+
+	resCreatePortForwarding, err := client.RC.CreatePortForwarding(reqCreatePortForwarding)
+	if err != nil {
+		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	hccErrStack := errconv.GrpcStackToHcc(resCreatePortForwarding.HccErrorStack)
+
+	resPortForwarding := resCreatePortForwarding.PortForwarding
+
+	var protocol string
+	if resPortForwarding.ForwardTCP && resPortForwarding.ForwardUDP {
+		protocol = "all"
+	} else if forwardTCPOk {
+		protocol = "tcp"
+	} else if forwardUDPOk {
+		protocol = "udp"
+	}
+
+	portForwarding := model.PortForwarding{
+		ServerUUID:   resPortForwarding.ServerUUID,
+		Protocol:     protocol,
+		ExternalPort: resPortForwarding.ExternalPort,
+		InternalPort: resPortForwarding.InternalPort,
+		Description:  resPortForwarding.Description,
+	}
+
+	var success bool
+	var errStr = ""
+
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
+	if len(Errors) != 0 {
+		if Errors[0].ErrCode == 0 {
+			success = true
+			Errors = errconv.ReturnHccEmptyErrorPiccolo()
+		} else {
+			success = false
+			errStr = Errors[0].ErrText
+		}
+	} else {
+		success = true
+	}
+
+	var result string
+	if success {
+		result = "Success"
+	} else {
+		result = "Failed"
+	}
+
+	err = dao.WriteServerAction(
+		serverUUID,
+		"harp / create_port_forwarding",
+		result,
+		errStr,
+		tokenString)
+	if err != nil {
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
+	}
+
+	portForwarding.Errors = Errors
+
+	return portForwarding, nil
+}
+
+// DeletePortForwarding : Delete the AdaptiveIP Port Forwarding
+func DeletePortForwarding(args map[string]interface{}) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
+
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	externalPort, externalPortOk := args["external_port"].(int)
+
+	if !serverUUIDOk || !externalPortOk {
+		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need server_uuid and external_port arguments")}, nil
+	}
+
+	resDeletePortForwarding, err := client.RC.DeletePortForwarding(&pb.ReqDeletePortForwarding{
+		PortForwarding: &pb.PortForwarding{
+			ServerUUID: serverUUID,
+			ExternalPort: int64(externalPort),
+		},
+	})
+	if err != nil {
+		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	var success bool
+	var errStr = ""
+
+	hccErrStack := errconv.GrpcStackToHcc(resDeletePortForwarding.HccErrorStack)
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
+	if len(Errors) != 0 {
+		if Errors[0].ErrCode == 0 {
+			success = true
+			Errors = errconv.ReturnHccEmptyErrorPiccolo()
+		} else {
+			success = false
+			errStr = Errors[0].ErrText
+		}
+	} else {
+		success = true
+	}
+
+	var result string
+	if success {
+		result = "Success"
+	} else {
+		result = "Failed"
+	}
+
+	err = dao.WriteServerAction(
+		serverUUID,
+		"harp / delete_port_forwarding",
+		result,
+		errStr,
+		tokenString)
+	if err != nil {
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
+	}
+
+	return model.PortForwarding{ServerUUID: resDeletePortForwarding.ServerUUID, Errors: Errors}, nil
 }
