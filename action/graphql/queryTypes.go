@@ -1051,15 +1051,6 @@ var queryTypes = graphql.NewObject(
 					"rack_number": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
-					"charge_cpu": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
-					"charge_memory": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
-					"charge_nic": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
 					"active": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},

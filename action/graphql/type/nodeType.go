@@ -61,15 +61,6 @@ var NodeType = graphql.NewObject(
 			"rack_number": &graphql.Field{
 				Type: graphql.Int,
 			},
-			"charge_cpu": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"charge_memory": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"charge_nic": &graphql.Field{
-				Type: graphql.Int,
-			},
 			"active": &graphql.Field{
 				Type: graphql.Int,
 			},
