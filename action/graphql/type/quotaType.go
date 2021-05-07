@@ -19,7 +19,7 @@ var QuotaType = graphql.NewObject(
 			"limit_memory_gb": &graphql.Field{
 				Type: graphql.Int,
 			},
-			"limit_subnet_host_bits": &graphql.Field{
+			"limit_subnet_cnt": &graphql.Field{
 				Type: graphql.Int,
 			},
 			"limit_adaptive_ip_cnt": &graphql.Field{
@@ -76,7 +76,7 @@ var QuotaDetailType = graphql.NewObject(
 			"nodes": &graphql.Field{
 				Type: graphql.NewList(NodeType),
 			},
-			"total_subnet_host_bits": &graphql.Field{
+			"total_subnet_num": &graphql.Field{
 				Type: graphql.Int,
 			},
 			"total_adaptive_ip_num": &graphql.Field{

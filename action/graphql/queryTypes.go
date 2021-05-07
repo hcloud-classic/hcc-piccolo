@@ -259,7 +259,7 @@ var queryTypes = graphql.NewObject(
 					"limit_memory_gb": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
-					"limit_subnet_host_bits": &graphql.ArgumentConfig{
+					"limit_subnet_cnt": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
 					"limit_adaptive_ip_cnt": &graphql.ArgumentConfig{
