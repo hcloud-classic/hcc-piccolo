@@ -242,6 +242,58 @@ func NumSubnet(args map[string]interface{}) (interface{}, error) {
 	return modelSubnetNum, nil
 }
 
+// ValidCheckSubnet : Check if we can create the subnet
+func ValidCheckSubnet(args map[string]interface{}) (interface{}, error) {
+	networkIP, networkIPOk := args["network_ip"].(string)
+	netmask, netmaskOk := args["netmask"].(string)
+	gateway, gatewayOk := args["gateway"].(string)
+
+	var subnet pb.Subnet
+	if networkIPOk {
+		subnet.NetworkIP = networkIP
+	}
+	if netmaskOk {
+		subnet.Netmask = netmask
+	}
+	if gatewayOk {
+		subnet.Gateway = gateway
+	}
+
+	resValidCheckSubnet, err := client.RC.ValidCheckSubnet(&pb.ReqValidCheckSubnet{
+		Subnet: &subnet,
+	})
+	if err != nil {
+		return model.SubnetValid{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	var valid = false
+	var errMsg = ""
+	switch resValidCheckSubnet.ErrorCode {
+	case SubnetValid:
+		valid = true
+	case SubnetValidErrorArgumentError:
+		errMsg = "필수 항목들을 모두 입력해 주십시오."
+	case SubnetValidErrorStartIPNot1:
+		errMsg = "시작 IP 주소가 x.x.x.1 의 형태가 되어야 합니다."
+	case SubnetValidErrorInvalidNetworkAddress:
+		errMsg = "올바르지 않은 네트워크 주소입니다."
+	case SubnetValidErrorInvalidNetmask:
+		errMsg = "올바르지 않은 넷마스크 주소 입니다."
+	case SubnetValidErrorSubnetConflict:
+		errMsg = "생성하려는 서브넷이 다른 기존의 서브넷과 충돌합니다."
+	case SubnetValidErrorNotPrivate:
+		errMsg = "사설 네트워크 주소를 입력해 주십시오."
+	case SubnetValidErrorInvalidGatewayAddress:
+		errMsg = "게이트웨이 주소가 올바르지 않습니다."
+	case SubnetValidErrorGatewayNotInSubnet:
+		errMsg = "게이트웨이 주소가 서브넷에 포함되지 않습니다."
+	case SubnetValidErrorSubnetIsUsedByIface:
+		errMsg = "해당 서브넷은 내부 네트워크 인터페이스에서 사용중입니다."
+	}
+
+	return model.SubnetValid{Valid: valid, ErrMsg: errMsg, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+}
+
 // GetAdaptiveIPAvailableIPList : Get available IP list of AdaptiveIP
 func GetAdaptiveIPAvailableIPList() (interface{}, error) {
 	resGetAdaptiveIPAvailableIPList, err := client.RC.GetAdaptiveIPAvailableIPList()

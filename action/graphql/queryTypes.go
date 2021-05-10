@@ -746,6 +746,35 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"valid_check_subnet": &graphql.Field{
+				Type:        graphqlType.SubnetValidType,
+				Description: "Check if we can create the subnet",
+				Args: graphql.FieldConfigArgument{
+					"network_ip": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"netmask": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"gateway": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.ValidCheckSubnet(params.Args)
+					if err != nil {
+						logger.Logger.Println("harp / valid_check_subnet: " + err.Error())
+					}
+					return data, err
+				},
+			},
 			"adaptiveip_available_ip_list": &graphql.Field{
 				Type:        graphqlType.AdaptiveIPAvailableIPListType,
 				Description: "Get available ip list for adaptive ip",

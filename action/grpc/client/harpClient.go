@@ -142,6 +142,19 @@ func (rc *RPCClient) GetSubnetNum(in *pb.ReqGetSubnetNum) (*pb.ResGetSubnetNum, 
 	return resGetSubnetNum, nil
 }
 
+// ValidCheckSubnet : Check if we can create the subnet
+func (rc *RPCClient) ValidCheckSubnet(in *pb.ReqValidCheckSubnet) (*pb.ResValidCheckSubnet, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resValidCheckSubnet, err := rc.harp.ValidCheckSubnet(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resValidCheckSubnet, nil
+}
+
 // UpdateSubnet : Update infos of the subnet
 func (rc *RPCClient) UpdateSubnet(in *pb.ReqUpdateSubnet) (*pb.ResUpdateSubnet, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
