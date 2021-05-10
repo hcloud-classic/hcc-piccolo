@@ -91,6 +91,9 @@ var SubnetValidType = graphql.NewObject(
 			"valid": &graphql.Field{
 				Type: graphql.Boolean,
 			},
+			"err_msg": &graphql.Field{
+				Type: graphql.String,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},
