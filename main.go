@@ -44,6 +44,7 @@ func init() {
 
 func end() {
 	client.End()
+	mysql.End()
 	logger.End()
 }
 
