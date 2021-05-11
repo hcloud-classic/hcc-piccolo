@@ -50,3 +50,15 @@ func (s *piccoloServer) GetGroupList(_ context.Context, _ *pb.Empty) (*pb.ResGet
 
 	return groupList, nil
 }
+
+func (s *piccoloServer) GetCharge(_ context.Context, in *pb.ReqGetCharge) (*pb.ResGetCharge, error) {
+	// logger.Logger.Println("Request received: GetCharge()")
+
+	resGetCharge, err := dao.ReadCharge(in.GroupID)
+	if err != nil {
+		errStack := hcc_errors.NewHccErrorStack(hcc_errors.NewHccError(hcc_errors.PiccoloMySQLExecuteError, err.Error()))
+		return &pb.ResGetCharge{Charge: &pb.Charge{}, HccErrorStack: errconv.HccStackToGrpc(errStack)}, nil
+	}
+
+	return &pb.ResGetCharge{Charge: resGetCharge}, nil
+}
