@@ -15,6 +15,7 @@ type piccoloServer struct {
 	pb.UnimplementedPiccoloServer
 }
 
+// WriteServerAction : Write server actions to the database
 func (s *piccoloServer) WriteServerAction(_ context.Context, in *pb.ReqWriteServerAction) (*pb.ResWriteServerAction, error) {
 	logger.Logger.Println("Request received: WriteServerAction()")
 
@@ -39,6 +40,7 @@ func (s *piccoloServer) WriteServerAction(_ context.Context, in *pb.ReqWriteServ
 	return &pb.ResWriteServerAction{Result: "Success"}, nil
 }
 
+// GetGroupList : Get the group list
 func (s *piccoloServer) GetGroupList(_ context.Context, _ *pb.Empty) (*pb.ResGetGroupList, error) {
 	// logger.Logger.Println("Request received: GetGroupList()")
 
@@ -51,6 +53,7 @@ func (s *piccoloServer) GetGroupList(_ context.Context, _ *pb.Empty) (*pb.ResGet
 	return groupList, nil
 }
 
+// GetCharge : Get the charge info of the group
 func (s *piccoloServer) GetCharge(_ context.Context, in *pb.ReqGetCharge) (*pb.ResGetCharge, error) {
 	// logger.Logger.Println("Request received: GetCharge()")
 
