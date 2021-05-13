@@ -85,7 +85,6 @@ func UpdateSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 		}
 	}
 
-	groupID, groupIDOk := args["group_id"].(int)
 	networkIP, networkIPOk := args["network_ip"].(string)
 	netmask, netmaskOk := args["netmask"].(string)
 	gateway, gatewayOk := args["gateway"].(string)
@@ -99,9 +98,6 @@ func UpdateSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 
 	var subnet pb.Subnet
 	subnet.UUID = requestedUUID
-	if groupIDOk {
-		subnet.GroupID = int64(groupID)
-	}
 	if networkIPOk {
 		subnet.NetworkIP = networkIP
 	}
