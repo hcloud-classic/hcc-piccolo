@@ -167,7 +167,6 @@ func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	}
 
 	nodeName, nodeNameOk := args["node_name"].(string)
-	groupID, groupIDOk := args["group_id"].(int)
 	nodeNum, nodeNumOk := args["node_num"].(int)
 	nodeIP, nodeIPOk := args["node_ip"].(string)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
@@ -189,9 +188,6 @@ func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	reqUpdateNode.Node.UUID = requestedUUID
 	if nodeNameOk {
 		reqUpdateNode.Node.NodeName = nodeName
-	}
-	if groupIDOk {
-		reqUpdateNode.Node.GroupID = int64(groupID)
 	}
 	if nodeNumOk {
 		reqUpdateNode.Node.NodeNum = int32(nodeNum)
