@@ -86,7 +86,7 @@ func parseGraphQL() {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
 
-	GraphQL.UsePlayground, err = config.GraphQLConfig.Bool("use_playground")
+	GraphQL.UsePlayground, _ = config.GraphQLConfig.Bool("use_playground")
 
 	GraphQL.SubscriptionInterval, err = config.GraphQLConfig.Int("subscription_interval_ms")
 	if err != nil {
