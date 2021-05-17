@@ -195,14 +195,10 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	tokenString, _ := args["token"].(string)
 
-	groupID, groupIDOk := args["group_id"].(int)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	publicIP, publicIPOk := args["public_ip"].(string)
 
 	var reqCreateAdaptiveIPServer pb.ReqCreateAdaptiveIPServer
-	if groupIDOk {
-		reqCreateAdaptiveIPServer.GroupID = int64(groupID)
-	}
 	if serverUUIDOk {
 		reqCreateAdaptiveIPServer.ServerUUID = serverUUID
 	}

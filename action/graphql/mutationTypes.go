@@ -127,6 +127,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphqlType.ServerType,
 			Description: "Create new server",
 			Args: graphql.FieldConfigArgument{
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
 				"subnet_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -159,11 +162,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, groupID, err := usertool.ValidateToken(params.Args, false)
+				_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				params.Args["group_id"] = int(groupID)
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+				}
 				data, err := mutationparser.CreateServer(params.Args)
 				if err != nil {
 					logger.Logger.Println("violin / create_server: " + err.Error())
@@ -300,6 +305,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphqlType.SubnetType,
 			Description: "Create new subnet",
 			Args: graphql.FieldConfigArgument{
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
 				"network_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -329,11 +337,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, groupID, err := usertool.ValidateToken(params.Args, false)
+				_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				params.Args["group_id"] = int(groupID)
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+				}
 				data, err := mutationparser.CreateSubnet(params.Args)
 				if err != nil {
 					logger.Logger.Println("harp / create_subnet: " + err.Error())
@@ -495,11 +505,10 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, groupID, err := usertool.ValidateToken(params.Args, false)
+				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				params.Args["group_id"] = int(groupID)
 				data, err := mutationparser.CreateAdaptiveIPServer(params.Args)
 				if err != nil {
 					logger.Logger.Println("harp / create_adaptiveip_server: " + err.Error())
