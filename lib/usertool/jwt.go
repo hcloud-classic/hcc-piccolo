@@ -9,7 +9,6 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
-	"strings"
 	"time"
 )
 
@@ -109,9 +108,9 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (isAdmin boo
 		queryArgs["id"] = id
 		user, err := queryparserext.User(queryArgs)
 
-		var userIsAdminOrMaster = user.(model.User).Authentication == "admin" ||
-			user.(model.User).Authentication == "master"
-		if checkForAdmin && !userIsAdminOrMaster {
+		var userIsAdmin = user.(model.User).Authentication == "admin"
+		var userIsMaster = user.(model.User).Authentication == "master"
+		if checkForAdmin && !userIsAdmin && !userIsMaster {
 			return false, false, "", 0, errors.New("hey there, you are not the admin or a master")
 		}
 
@@ -137,11 +136,7 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (isAdmin boo
 			}
 		}
 
-		if strings.ToLower(id) == "master" {
-			return false, true, "", 0, nil
-		}
-
-		return userIsAdminOrMaster, false, id, int64(_groupID), nil
+		return userIsAdmin, userIsMaster, id, int64(_groupID), nil
 	}
 
 	return false, false, "", 0, errors.New("invalid token")
