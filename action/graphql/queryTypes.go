@@ -704,6 +704,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.SubnetListType,
 				Description: "Get available subnet list",
 				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
