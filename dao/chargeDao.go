@@ -17,6 +17,7 @@ func ReadCharge(groupID int64) (*pb.Charge, error) {
 	var chargeAdaptiveIPPerCnt int64
 	var chargeSSDPerGB int64
 	var chargeHDDPerGB int64
+	var chargeTrafficPerKB int64
 
 	sql := "select * from piccolo.charge where group_id = ?"
 	row := mysql.Db.QueryRow(sql, groupID)
@@ -28,7 +29,8 @@ func ReadCharge(groupID int64) (*pb.Charge, error) {
 		&chargeSubnetPerCnt,
 		&chargeAdaptiveIPPerCnt,
 		&chargeSSDPerGB,
-		&chargeHDDPerGB)
+		&chargeHDDPerGB,
+		&chargeTrafficPerKB)
 	if err != nil {
 		errStr := "ReadCharge(): " + err.Error()
 		logger.Logger.Println(errStr)
@@ -44,6 +46,7 @@ func ReadCharge(groupID int64) (*pb.Charge, error) {
 	charge.ChargeAdaptiveIPPerCnt = chargeAdaptiveIPPerCnt
 	charge.ChargeSSDPerGB = chargeSSDPerGB
 	charge.ChargeHDDPerGB = chargeHDDPerGB
+	charge.ChargeTrafficPerKB = chargeTrafficPerKB
 
 	return &charge, nil
 }
