@@ -17,7 +17,7 @@ func ReadCharge(groupID int64) (*pb.Charge, error) {
 	var chargeAdaptiveIPPerCnt int64
 	var chargeSSDPerGB int64
 	var chargeHDDPerGB int64
-	var chargeTrafficPerKB int64
+	var chargeTrafficPerKB float32
 
 	sql := "select * from piccolo.charge where group_id = ?"
 	row := mysql.Db.QueryRow(sql, groupID)
