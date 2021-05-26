@@ -8,6 +8,7 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/model"
 	"strings"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"innogrid.com/hcloud-classic/hcc_errors"
@@ -361,9 +362,12 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		Errors = errconv.ReturnHccEmptyErrorPiccolo()
 	}
 
-	_createdAt, err := ptypes.Timestamp(resGetAdaptiveIPServer.AdaptiveipServer.CreatedAt)
-	if err != nil {
-		return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil
+	var _createdAt time.Time
+	if resGetAdaptiveIPServer.AdaptiveipServer.CreatedAt != nil {
+		_createdAt, err = ptypes.Timestamp(resGetAdaptiveIPServer.AdaptiveipServer.CreatedAt)
+		if err != nil {
+			return model.AdaptiveIPServerList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil
+		}
 	}
 
 	modelAdaptiveIPServer := model.AdaptiveIPServer{
