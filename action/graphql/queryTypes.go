@@ -9,6 +9,7 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
+	"strconv"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
 
@@ -1242,11 +1243,11 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"billing_data": &graphql.Field{
-				Type:        graphqlType.TelegrafType,
+				Type:        graphqlType.BillingType,
 				Description: "Get the billing data",
 				Args: graphql.FieldConfigArgument{
-					"group_id": &graphql.ArgumentConfig{
-						Type: graphql.Int,
+					"group_ids": &graphql.ArgumentConfig{
+						Type: graphql.String,
 					},
 					"billing_type": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -1268,14 +1269,14 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+					isAdmin, isMaster, _, loginGroupID, err := usertool.ValidateToken(params.Args, true)
 					if err != nil {
 						return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
-						params.Args["group_id"] = int(groupID)
+						params.Args["group_ids"] = strconv.Itoa(int(loginGroupID))
 					}
-					data, err := queryparser.GetBillingData(params.Args, isAdmin, isMaster)
+					data, err := queryparser.GetBillingData(params.Args, isAdmin, isMaster, loginGroupID)
 					if err != nil {
 						logger.Logger.Println("piano / billing_data: " + err.Error())
 					}

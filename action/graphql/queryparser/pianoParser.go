@@ -64,21 +64,26 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 }
 
 // GetBillingData : Get billing data with provided options
-func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool, loginGroupID int64) (interface{}, error) {
 	if !isMaster && !isAdmin {
 		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
-	groupID, groupIDOk := args["group_id"].(string)
+	groupIDs, groupIDsOk := args["group_ids"].(string)
 	billingType, _ := args["billing_type"].(string)
 	dateStart, _ := args["date_start"].(int)
 	dateEnd, _ := args["date_end"].(int)
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
 
-	if !groupIDOk {
+	if !groupIDsOk {
 		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need a group_id argument")}, nil
+			"need a group_ids argument")}, nil
+	}
+
+	if !isMaster && groupIDs != strconv.Itoa(int(loginGroupID)) {
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"you can't get other group's billing list if you are not a master")}, nil
 	}
 
 	var reqBillingData = pb.ReqBillingData{
@@ -93,15 +98,15 @@ func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool) (i
 		reqBillingData.Page = int64(page)
 	}
 
-	var groupIDs []int32
-	groupIDsStr := strings.Split(groupID, ".")
-	for _, groupIDStr := range groupIDsStr {
+	var groupIDsInt []int32
+	groupIDsSplited := strings.Split(groupIDs, ".")
+	for _, groupIDStr := range groupIDsSplited {
 		gid, err := strconv.Atoi(groupIDStr)
 		if err == nil {
-			groupIDs = append(groupIDs, int32(gid))
+			groupIDsInt = append(groupIDsInt, int32(gid))
 		}
 	}
-	reqBillingData.GroupID = groupIDs
+	reqBillingData.GroupID = groupIDsInt
 
 	resBillingData, err := client.RC.GetBillingData(&reqBillingData)
 	if err != nil {
