@@ -71,8 +71,8 @@ func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool, lo
 
 	groupIDs, _ := args["group_ids"].(string)
 	billingType, billingTypeOk := args["billing_type"].(string)
-	dateStart, dateStartOk := args["date_start"].(int)
-	dateEnd, dateEndOk := args["date_end"].(int)
+	dateStart, dateStartOk := args["date_start"].(string)
+	dateEnd, dateEndOk := args["date_end"].(string)
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
 
@@ -88,8 +88,8 @@ func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool, lo
 
 	var reqBillingData = pb.ReqBillingData{
 		BillingType: billingType,
-		DateStart:   int32(dateStart),
-		DateEnd:     int32(dateEnd),
+		DateStart:   dateStart,
+		DateEnd:     dateEnd,
 		Row:         int64(row),
 		Page:        int64(page),
 	}

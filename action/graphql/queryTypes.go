@@ -1253,10 +1253,10 @@ var queryTypes = graphql.NewObject(
 						Type: graphql.String,
 					},
 					"date_start": &graphql.ArgumentConfig{
-						Type: graphql.Int,
+						Type: graphql.String,
 					},
 					"date_end": &graphql.ArgumentConfig{
-						Type: graphql.Int,
+						Type: graphql.String,
 					},
 					"row": &graphql.ArgumentConfig{
 						Type: graphql.Int,
