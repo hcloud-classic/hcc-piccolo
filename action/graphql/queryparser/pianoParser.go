@@ -69,17 +69,12 @@ func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool, lo
 		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
-	groupIDs, groupIDsOk := args["group_ids"].(string)
+	groupIDs, _ := args["group_ids"].(string)
 	billingType, _ := args["billing_type"].(string)
 	dateStart, _ := args["date_start"].(int)
 	dateEnd, _ := args["date_end"].(int)
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
-
-	if !groupIDsOk {
-		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need a group_ids argument")}, nil
-	}
 
 	if !isMaster && groupIDs != strconv.Itoa(int(loginGroupID)) {
 		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
