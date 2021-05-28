@@ -70,27 +70,28 @@ func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool, lo
 	}
 
 	groupIDs, _ := args["group_ids"].(string)
-	billingType, _ := args["billing_type"].(string)
-	dateStart, _ := args["date_start"].(int)
-	dateEnd, _ := args["date_end"].(int)
+	billingType, billingTypeOk := args["billing_type"].(string)
+	dateStart, dateStartOk := args["date_start"].(int)
+	dateEnd, dateEndOk := args["date_end"].(int)
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
 
 	if !isMaster && groupIDs != strconv.Itoa(int(loginGroupID)) {
 		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"you can't get other group's billing list if you are not a master")}, nil
+			"You can't get other group's billing list if you are not a master")}, nil
+	}
+
+	if !billingTypeOk || !dateStartOk || !dateEndOk || !rowOk || !pageOk {
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"Need billing_type and date_start, date_end, row, page arguments")}, nil
 	}
 
 	var reqBillingData = pb.ReqBillingData{
 		BillingType: billingType,
 		DateStart:   int32(dateStart),
 		DateEnd:     int32(dateEnd),
-	}
-	if rowOk {
-		reqBillingData.Row = int64(row)
-	}
-	if pageOk {
-		reqBillingData.Page = int64(page)
+		Row:         int64(row),
+		Page:        int64(page),
 	}
 
 	var groupIDsInt []int32
