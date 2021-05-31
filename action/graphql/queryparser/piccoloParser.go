@@ -195,7 +195,9 @@ func NumUser(args map[string]interface{}) (interface{}, error) {
 }
 
 // ReadGroupList : Get list of groups
-func ReadGroupList(isMaster bool) (interface{}, error) {
+func ReadGroupList(args map[string]interface{}, isMaster bool) (interface{}, error) {
+	includeMaster, includeMasterOk := args["include_master"].(bool)
+
 	if !isMaster {
 		return model.GroupList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
@@ -209,6 +211,10 @@ func ReadGroupList(isMaster bool) (interface{}, error) {
 
 	for i := range resGetGroupList.Group {
 		group := pbtomodel.PbGroupToModelGroup(resGetGroupList.Group[i])
+		if !includeMasterOk || (includeMasterOk && !includeMaster) &&
+			group.ID == 1 {
+			continue
+		}
 		groupList = append(groupList, *group)
 	}
 

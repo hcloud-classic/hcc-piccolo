@@ -137,6 +137,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.GroupListType,
 				Description: "Get the group list from piccolo",
 				Args: graphql.FieldConfigArgument{
+					"include_master": &graphql.ArgumentConfig{
+						Type: graphql.Boolean,
+					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -146,7 +149,7 @@ var queryTypes = graphql.NewObject(
 					if err != nil {
 						return model.GroupList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
-					data, err := queryparser.ReadGroupList(isMaster)
+					data, err := queryparser.ReadGroupList(params.Args, isMaster)
 					if err != nil {
 						logger.Logger.Println("piccolo / all_group: " + err.Error())
 					}
