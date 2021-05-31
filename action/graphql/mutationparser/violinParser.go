@@ -17,6 +17,7 @@ import (
 func CreateServer(args map[string]interface{}) (interface{}, error) {
 	tokenString, _ := args["token"].(string)
 
+	groupID, groupIDOk := args["group_id"].(int)
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
 	os, osOK := args["os"].(string)
 	serverName, serverNameOk := args["server_name"].(string)
@@ -31,6 +32,9 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 	var reqServer pb.Server
 	reqCreateServer.Server = &reqServer
 
+	if groupIDOk {
+		reqCreateServer.Server.GroupID = int64(groupID)
+	}
 	if subnetUUIDOk {
 		reqCreateServer.Server.SubnetUUID = subnetUUID
 	}

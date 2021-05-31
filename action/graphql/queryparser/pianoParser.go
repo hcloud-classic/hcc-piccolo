@@ -64,44 +64,45 @@ func Telegraf(args map[string]interface{}) (interface{}, error) {
 }
 
 // GetBillingData : Get billing data with provided options
-func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
+func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool, loginGroupID int64) (interface{}, error) {
 	if !isMaster && !isAdmin {
 		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
-	groupID, groupIDOk := args["group_id"].(string)
-	billingType, _ := args["billing_type"].(string)
-	dateStart, _ := args["date_start"].(int)
-	dateEnd, _ := args["date_end"].(int)
+	groupIDs, _ := args["group_ids"].(string)
+	billingType, billingTypeOk := args["billing_type"].(string)
+	dateStart, dateStartOk := args["date_start"].(string)
+	dateEnd, dateEndOk := args["date_end"].(string)
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
 
-	if !groupIDOk {
+	if !isMaster && groupIDs != strconv.Itoa(int(loginGroupID)) {
 		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need a group_id argument")}, nil
+			"You can't get other group's billing list if you are not a master")}, nil
+	}
+
+	if !billingTypeOk || !dateStartOk || !dateEndOk || !rowOk || !pageOk {
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"Need billing_type and date_start, date_end, row, page arguments")}, nil
 	}
 
 	var reqBillingData = pb.ReqBillingData{
 		BillingType: billingType,
-		DateStart:   int32(dateStart),
-		DateEnd:     int32(dateEnd),
-	}
-	if rowOk {
-		reqBillingData.Row = int64(row)
-	}
-	if pageOk {
-		reqBillingData.Page = int64(page)
+		DateStart:   dateStart,
+		DateEnd:     dateEnd,
+		Row:         int64(row),
+		Page:        int64(page),
 	}
 
-	var groupIDs []int32
-	groupIDsStr := strings.Split(groupID, ".")
-	for _, groupIDStr := range groupIDsStr {
+	var groupIDsInt []int64
+	groupIDsSplit := strings.Split(groupIDs, ".")
+	for _, groupIDStr := range groupIDsSplit {
 		gid, err := strconv.Atoi(groupIDStr)
 		if err == nil {
-			groupIDs = append(groupIDs, int32(gid))
+			groupIDsInt = append(groupIDsInt, int64(gid))
 		}
 	}
-	reqBillingData.GroupID = groupIDs
+	reqBillingData.GroupID = groupIDsInt
 
 	resBillingData, err := client.RC.GetBillingData(&reqBillingData)
 	if err != nil {

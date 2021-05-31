@@ -113,9 +113,6 @@ func CreateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
 	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
-	chargeCPU, chargeCPUOk := args["charge_cpu"].(int)
-	chargeMemory, chargeMemoryOk := args["charge_memory"].(int)
-	chargeNIC, chargeNICOk := args["charge_nic"].(int)
 
 	nicDetailData, nicDetailDataOk := args["nic_detail_data"].(string)
 
@@ -123,11 +120,9 @@ func CreateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	var reqNode pb.Node
 	reqCreateNode.Node = &reqNode
 
-	if !nodeNameOk || !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !chargeCPUOk || !chargeMemoryOk || !chargeNICOk ||
-		!nicDetailDataOk {
+	if !nodeNameOk || !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !nicDetailDataOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, charge_cpu, charge_memory, charge_nic, nic_detail_data, "+
-				"nic_detail_data arguments")}, nil
+			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, nic_detail_data arguments")}, nil
 	}
 
 	reqCreateNode.Node.NodeName = nodeName
@@ -135,9 +130,6 @@ func CreateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	reqCreateNode.Node.BmcIP = bmcIP
 	reqCreateNode.Node.NicSpeedMbps = int32(nicSpeedMbps)
 	reqCreateNode.Node.Description = description
-	reqCreateNode.Node.ChargeCPU = int32(chargeCPU)
-	reqCreateNode.Node.ChargeMemory = int32(chargeMemory)
-	reqCreateNode.Node.ChargeNIC = int32(chargeNIC)
 
 	reqCreateNode.NicDetailData = nicDetailData
 
@@ -175,7 +167,6 @@ func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	}
 
 	nodeName, nodeNameOk := args["node_name"].(string)
-	groupID, groupIDOk := args["group_id"].(int)
 	nodeNum, nodeNumOk := args["node_num"].(int)
 	nodeIP, nodeIPOk := args["node_ip"].(string)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
@@ -188,9 +179,6 @@ func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
 	rackNumber, rackNumberOk := args["rack_number"].(int)
-	chargeCPU, chargeCPUOk := args["charge_cpu"].(int)
-	chargeMemory, chargeMemoryOk := args["charge_memory"].(int)
-	chargeNIC, chargeNICOk := args["charge_nic"].(int)
 	active, activeOk := args["active"].(int)
 
 	var reqUpdateNode pb.ReqUpdateNode
@@ -200,9 +188,6 @@ func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	reqUpdateNode.Node.UUID = requestedUUID
 	if nodeNameOk {
 		reqUpdateNode.Node.NodeName = nodeName
-	}
-	if groupIDOk {
-		reqUpdateNode.Node.GroupID = int64(groupID)
 	}
 	if nodeNumOk {
 		reqUpdateNode.Node.NodeNum = int32(nodeNum)
@@ -239,15 +224,6 @@ func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	}
 	if rackNumberOk {
 		reqUpdateNode.Node.RackNumber = int32(rackNumber)
-	}
-	if chargeCPUOk {
-		reqUpdateNode.Node.ChargeCPU = int32(chargeCPU)
-	}
-	if chargeMemoryOk {
-		reqUpdateNode.Node.ChargeMemory = int32(chargeMemory)
-	}
-	if chargeNICOk {
-		reqUpdateNode.Node.ChargeNIC = int32(chargeNIC)
 	}
 	if activeOk {
 		reqUpdateNode.Node.Active = int32(active)

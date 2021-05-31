@@ -74,9 +74,6 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
 	rackNumber, rackNumberOk := args["rack_number"].(int)
-	chargeCPU, chargeCPUOk := args["charge_cpu"].(int)
-	chargeMemory, chargeMemoryOk := args["charge_memory"].(int)
-	chargeNIC, chargeNICOk := args["charge_nic"].(int)
 	active, activeOk := args["active"].(int)
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
@@ -129,15 +126,6 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	}
 	if rackNumberOk {
 		reqListNode.Node.RackNumber = int32(rackNumber)
-	}
-	if chargeCPUOk {
-		reqListNode.Node.ChargeCPU = int32(chargeCPU)
-	}
-	if chargeMemoryOk {
-		reqListNode.Node.ChargeMemory = int32(chargeMemory)
-	}
-	if chargeNICOk {
-		reqListNode.Node.ChargeNIC = int32(chargeNIC)
 	}
 	if activeOk {
 		reqListNode.Node.Active = int32(active)

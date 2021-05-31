@@ -6,7 +6,6 @@ import (
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
-	"hcc/piccolo/lib/iputil"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/lib/usertool"
@@ -196,7 +195,9 @@ func NumUser(args map[string]interface{}) (interface{}, error) {
 }
 
 // ReadGroupList : Get list of groups
-func ReadGroupList(isMaster bool) (interface{}, error) {
+func ReadGroupList(args map[string]interface{}, isMaster bool) (interface{}, error) {
+	includeMaster, includeMasterOk := args["include_master"].(bool)
+
 	if !isMaster {
 		return model.GroupList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
@@ -210,6 +211,10 @@ func ReadGroupList(isMaster bool) (interface{}, error) {
 
 	for i := range resGetGroupList.Group {
 		group := pbtomodel.PbGroupToModelGroup(resGetGroupList.Group[i])
+		if !includeMasterOk || (includeMasterOk && !includeMaster) &&
+			group.ID == 1 {
+			continue
+		}
 		groupList = append(groupList, *group)
 	}
 
@@ -319,7 +324,7 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 
 	limitCPUCores, limitCPUCoresOk := args["limit_cpu_cores"].(int)
 	limitMemoryGB, limitMemoryGBOk := args["limit_memory_gb"].(int)
-	limitSubnetHostBits, limitSubnetHostBitsOk := args["limit_subnet_host_bits"].(int)
+	limitSubnetCnt, limitSubnetCntOk := args["limit_subnet_cnt"].(int)
 	limitAdaptiveIPCnt, limitAdaptiveIPCntOk := args["limit_adaptive_ip_cnt"].(int)
 	poolName, poolNameOk := args["pool_name"].(string)
 	limitSSDGB, limitSSDGBOk := args["limit_ssd_gb"].(int)
@@ -337,7 +342,7 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 
 	sqlSelect := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
 		"piccolo.quota.limit_cpu_cores, piccolo.quota.limit_memory_gb, " +
-		"piccolo.quota.limit_subnet_host_bits, piccolo.quota.limit_adaptive_ip_cnt, " +
+		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, " +
 		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb"
 	sqlCount := "select count(*)"
 	sql := " from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id"
@@ -359,8 +364,8 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	if limitMemoryGBOk && limitMemoryGB != 0 {
 		sql += " and piccolo.quota.limit_memory_gb = " + strconv.Itoa(limitMemoryGB)
 	}
-	if limitSubnetHostBitsOk && limitSubnetHostBits != 0 {
-		sql += " and piccolo.quota.limit_subnet_host_bits = " + strconv.Itoa(limitSubnetHostBits)
+	if limitSubnetCntOk && limitSubnetCnt != 0 {
+		sql += " and piccolo.quota.limit_subnet_cnt = " + strconv.Itoa(limitSubnetCnt)
 	}
 	if limitAdaptiveIPCntOk && limitAdaptiveIPCnt != 0 {
 		sql += " and piccolo.quota.limit_adaptive_ip_cnt = " + strconv.Itoa(limitAdaptiveIPCnt)
@@ -404,20 +409,20 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	}()
 
 	for stmt.Next() {
-		err := stmt.Scan(&groupID, &groupName, &limitCPUCores, &limitMemoryGB, &limitSubnetHostBits, &limitAdaptiveIPCnt, &poolName, &limitSSDGB, &limitHDDGB)
+		err := stmt.Scan(&groupID, &groupName, &limitCPUCores, &limitMemoryGB, &limitSubnetCnt, &limitAdaptiveIPCnt, &poolName, &limitSSDGB, &limitHDDGB)
 		if err != nil {
 			logger.Logger.Println(err)
 		}
 		quota := model.Quota{
-			GroupID:             int64(groupID),
-			GroupName:           groupName,
-			LimitCPUCores:       limitCPUCores,
-			LimitMemoryGB:       limitMemoryGB,
-			LimitSubnetHostBits: limitSubnetHostBits,
-			LimitAdaptiveIPCnt:  limitAdaptiveIPCnt,
-			PoolName:            poolName,
-			LimitSSDGB:          limitSSDGB,
-			LimitHDDGB:          limitHDDGB,
+			GroupID:            int64(groupID),
+			GroupName:          groupName,
+			LimitCPUCores:      limitCPUCores,
+			LimitMemoryGB:      limitMemoryGB,
+			LimitSubnetCnt:     limitSubnetCnt,
+			LimitAdaptiveIPCnt: limitAdaptiveIPCnt,
+			PoolName:           poolName,
+			LimitSSDGB:         limitSSDGB,
+			LimitHDDGB:         limitHDDGB,
 		}
 		quotas = append(quotas, quota)
 	}
@@ -482,24 +487,12 @@ func QuotaDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (inte
 	quataDetail.TotalCPUCores = totalCPUCores
 	quataDetail.TotalMemoryGB = totalMemoryGB
 
-	// TotalSubnetHostBits
-	var totalSubnetHostBits = 0
+	// TotalSubnetNum
 	subnets, err := ListSubnet(queryArgs)
 	if err != nil {
 		return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "Failed to get info of subnets!")}, nil
 	}
-	for _, subnet := range subnets.(model.SubnetList).Subnets {
-		mask, err := iputil.CheckNetmask(subnet.Netmask)
-		if err != nil {
-			return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError,
-				"error occurred while getting length of the subnet mask (uuid="+subnet.UUID+", error: "+err.Error()+")")}, nil
-		}
-		maskLen, _ := mask.Size()
-		hostBits := 32 - maskLen
-
-		totalSubnetHostBits += hostBits
-	}
-	quataDetail.TotalSubnetHostBits = totalSubnetHostBits
+	quataDetail.TotalSubnetNum = len(subnets.(model.SubnetList).Subnets)
 
 	// TotalAdaptiveIPNum
 	adaptiveIPNum, err := NumAdaptiveIPServer(queryArgs)

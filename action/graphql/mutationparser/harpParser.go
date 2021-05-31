@@ -85,7 +85,6 @@ func UpdateSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 		}
 	}
 
-	groupID, groupIDOk := args["group_id"].(int)
 	networkIP, networkIPOk := args["network_ip"].(string)
 	netmask, netmaskOk := args["netmask"].(string)
 	gateway, gatewayOk := args["gateway"].(string)
@@ -99,9 +98,6 @@ func UpdateSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 
 	var subnet pb.Subnet
 	subnet.UUID = requestedUUID
-	if groupIDOk {
-		subnet.GroupID = int64(groupID)
-	}
 	if networkIPOk {
 		subnet.NetworkIP = networkIP
 	}
@@ -177,12 +173,11 @@ func DeleteSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 // CreateDHCPDConf : Create the configuration of the DHCP server
 func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
-	nodeUUIDs, nodeUUIDsOk := args["nodeUUIDs"].(string)
-	if !subnetUUIDOk || !nodeUUIDsOk {
-		return model.CreateDHCPConfResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need subnet_uuid and nodeUUIDs arguments")}, nil
+	if !subnetUUIDOk {
+		return model.CreateDHCPConfResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a subnet_uuid argument")}, nil
 	}
 
-	resCreateDHCPDConfig, err := client.RC.CreateDHCPDConfig(subnetUUID, nodeUUIDs)
+	resCreateDHCPDConfig, err := client.RC.CreateDHCPDConfig(subnetUUID)
 	if err != nil {
 		return model.CreateDHCPConfResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
@@ -200,14 +195,10 @@ func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
 func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	tokenString, _ := args["token"].(string)
 
-	groupID, groupIDOk := args["group_id"].(int)
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	publicIP, publicIPOk := args["public_ip"].(string)
 
 	var reqCreateAdaptiveIPServer pb.ReqCreateAdaptiveIPServer
-	if groupIDOk {
-		reqCreateAdaptiveIPServer.GroupID = int64(groupID)
-	}
 	if serverUUIDOk {
 		reqCreateAdaptiveIPServer.ServerUUID = serverUUID
 	}
@@ -377,16 +368,29 @@ func CreatePortForwarding(args map[string]interface{}) (interface{}, error) {
 	tokenString, _ := args["token"].(string)
 
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	forwardTCP, forwardTCPOk := args["forwarding_tcp"].(bool)
-	forwardUDP, forwardUDPOk := args["forwarding_udp"].(bool)
+	protocol, protocolOk := args["protocol"].(string)
 	externalPort, externalPortOk := args["external_port"].(int)
 	internalPort, internalPortOk := args["internal_port"].(int)
 	description, descriptionOk := args["description"].(string)
 
-	if !serverUUIDOk || (!forwardTCPOk && !forwardUDPOk) || !externalPortOk || !internalPortOk || !descriptionOk {
+	if !serverUUIDOk || !protocolOk || !externalPortOk || !internalPortOk || !descriptionOk {
 		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need ServerUUID and ForwardTCP/ForwardUDP,"+
-				"ExternalPort, InternalPort, Description arguments")}, nil
+			"need server_uuid and protocol,"+
+				"external_port, internal_port, description arguments")}, nil
+	}
+
+	var forwardTCP = false
+	var forwardUDP = false
+
+	if protocol == "tcp" {
+		forwardTCP = true
+	} else if protocol == "udp" {
+		forwardUDP = true
+	} else if protocol == "all" {
+		forwardTCP = true
+		forwardUDP = true
+	} else {
+		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Unknown protocol")}, nil
 	}
 
 	reqCreatePortForwarding := &pb.ReqCreatePortForwarding{
@@ -408,13 +412,11 @@ func CreatePortForwarding(args map[string]interface{}) (interface{}, error) {
 	hccErrStack := errconv.GrpcStackToHcc(resCreatePortForwarding.HccErrorStack)
 
 	resPortForwarding := resCreatePortForwarding.PortForwarding
-
-	var protocol string
 	if resPortForwarding.ForwardTCP && resPortForwarding.ForwardUDP {
 		protocol = "all"
-	} else if forwardTCPOk {
+	} else if resPortForwarding.ForwardTCP {
 		protocol = "tcp"
-	} else if forwardUDPOk {
+	} else if resPortForwarding.ForwardUDP {
 		protocol = "udp"
 	}
 
@@ -477,7 +479,7 @@ func DeletePortForwarding(args map[string]interface{}) (interface{}, error) {
 
 	resDeletePortForwarding, err := client.RC.DeletePortForwarding(&pb.ReqDeletePortForwarding{
 		PortForwarding: &pb.PortForwarding{
-			ServerUUID: serverUUID,
+			ServerUUID:   serverUUID,
 			ExternalPort: int64(externalPort),
 		},
 	})

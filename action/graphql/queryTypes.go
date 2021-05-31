@@ -9,6 +9,7 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
+	"strconv"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
 
@@ -136,6 +137,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.GroupListType,
 				Description: "Get the group list from piccolo",
 				Args: graphql.FieldConfigArgument{
+					"include_master": &graphql.ArgumentConfig{
+						Type: graphql.Boolean,
+					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -145,7 +149,7 @@ var queryTypes = graphql.NewObject(
 					if err != nil {
 						return model.GroupList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
-					data, err := queryparser.ReadGroupList(isMaster)
+					data, err := queryparser.ReadGroupList(params.Args, isMaster)
 					if err != nil {
 						logger.Logger.Println("piccolo / all_group: " + err.Error())
 					}
@@ -259,7 +263,7 @@ var queryTypes = graphql.NewObject(
 					"limit_memory_gb": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
-					"limit_subnet_host_bits": &graphql.ArgumentConfig{
+					"limit_subnet_cnt": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
 					"limit_adaptive_ip_cnt": &graphql.ArgumentConfig{
@@ -704,6 +708,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.SubnetListType,
 				Description: "Get available subnet list",
 				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -742,6 +749,35 @@ var queryTypes = graphql.NewObject(
 					data, err := queryparser.NumSubnet(params.Args)
 					if err != nil {
 						logger.Logger.Println("harp / num_subnet: " + err.Error())
+					}
+					return data, err
+				},
+			},
+			"valid_check_subnet": &graphql.Field{
+				Type:        graphqlType.SubnetValidType,
+				Description: "Check if we can create the subnet",
+				Args: graphql.FieldConfigArgument{
+					"network_ip": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"netmask": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"gateway": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.ValidCheckSubnet(params.Args)
+					if err != nil {
+						logger.Logger.Println("harp / valid_check_subnet: " + err.Error())
 					}
 					return data, err
 				},
@@ -1051,15 +1087,6 @@ var queryTypes = graphql.NewObject(
 					"rack_number": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
-					"charge_cpu": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
-					"charge_memory": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
-					"charge_nic": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
 					"active": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
@@ -1219,20 +1246,20 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"billing_data": &graphql.Field{
-				Type:        graphqlType.TelegrafType,
+				Type:        graphqlType.BillingType,
 				Description: "Get the billing data",
 				Args: graphql.FieldConfigArgument{
-					"group_id": &graphql.ArgumentConfig{
-						Type: graphql.Int,
+					"group_ids": &graphql.ArgumentConfig{
+						Type: graphql.String,
 					},
 					"billing_type": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 					"date_start": &graphql.ArgumentConfig{
-						Type: graphql.Int,
+						Type: graphql.String,
 					},
 					"date_end": &graphql.ArgumentConfig{
-						Type: graphql.Int,
+						Type: graphql.String,
 					},
 					"row": &graphql.ArgumentConfig{
 						Type: graphql.Int,
@@ -1245,14 +1272,14 @@ var queryTypes = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+					isAdmin, isMaster, _, loginGroupID, err := usertool.ValidateToken(params.Args, true)
 					if err != nil {
 						return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
-						params.Args["group_id"] = int(groupID)
+						params.Args["group_ids"] = strconv.Itoa(int(loginGroupID))
 					}
-					data, err := queryparser.GetBillingData(params.Args, isAdmin, isMaster)
+					data, err := queryparser.GetBillingData(params.Args, isAdmin, isMaster, loginGroupID)
 					if err != nil {
 						logger.Logger.Println("piano / billing_data: " + err.Error())
 					}

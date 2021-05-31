@@ -40,6 +40,13 @@ type SubnetNum struct {
 	Errors []errconv.PiccoloHccError `json:"errors"`
 }
 
+// SubnetValid : Contain the result of the valid subnet
+type SubnetValid struct {
+	Valid  bool                      `json:"valid"`
+	ErrMsg string                    `json:"err_msg"`
+	Errors []errconv.PiccoloHccError `json:"errors"`
+}
+
 // CreateDHCPConfResult : Contain result of creating DHCP configuration
 type CreateDHCPConfResult struct {
 	Result string                    `json:"result"`

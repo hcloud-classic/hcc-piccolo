@@ -142,6 +142,19 @@ func (rc *RPCClient) GetSubnetNum(in *pb.ReqGetSubnetNum) (*pb.ResGetSubnetNum, 
 	return resGetSubnetNum, nil
 }
 
+// ValidCheckSubnet : Check if we can create the subnet
+func (rc *RPCClient) ValidCheckSubnet(in *pb.ReqValidCheckSubnet) (*pb.ResValidCheckSubnet, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resValidCheckSubnet, err := rc.harp.ValidCheckSubnet(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resValidCheckSubnet, nil
+}
+
 // UpdateSubnet : Update infos of the subnet
 func (rc *RPCClient) UpdateSubnet(in *pb.ReqUpdateSubnet) (*pb.ResUpdateSubnet, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
@@ -312,13 +325,12 @@ func (rc *RPCClient) DeletePortForwarding(in *pb.ReqDeletePortForwarding) (*pb.R
 }
 
 // CreateDHCPDConfig : Do dhcpd config file creation works
-func (rc *RPCClient) CreateDHCPDConfig(subnetUUID string, nodeUUIDs string) (*pb.ResCreateDHCPDConf, error) {
+func (rc *RPCClient) CreateDHCPDConfig(subnetUUID string) (*pb.ResCreateDHCPDConf, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	resCreateDHCPDConf, err := rc.harp.CreateDHCPDConf(ctx, &pb.ReqCreateDHCPDConf{
 		SubnetUUID: subnetUUID,
-		NodeUUIDs:  nodeUUIDs,
 	})
 	if err != nil {
 		return nil, err

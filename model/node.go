@@ -25,9 +25,6 @@ type Node struct {
 	NICSpeed        string                    `json:"nic_speed"`
 	Description     string                    `json:"description"`
 	RackNumber      int                       `json:"rack_number"`
-	ChargeCPU       int                       `json:"charge_cpu"`
-	ChargeMemory    int                       `json:"charge_memory"`
-	ChargeNIC       int                       `json:"charge_nic"`
 	Active          int                       `json:"active"`
 	CreatedAt       time.Time                 `json:"created_at"`
 	ForceOff        bool                      `json:"force_off"`

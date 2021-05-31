@@ -83,6 +83,24 @@ var SubnetListType = graphql.NewObject(
 	},
 )
 
+// SubnetValidType : Graphql object type of SubnetValid
+var SubnetValidType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "SubnetValidType",
+		Fields: graphql.Fields{
+			"valid": &graphql.Field{
+				Type: graphql.Boolean,
+			},
+			"err_msg": &graphql.Field{
+				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
 // CreateDHCPConfResultType : Graphql object type of CreateDHCPConfResult
 var CreateDHCPConfResultType = graphql.NewObject(
 	graphql.ObjectConfig{
