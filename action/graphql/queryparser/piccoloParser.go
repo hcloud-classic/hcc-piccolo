@@ -211,7 +211,7 @@ func ReadGroupList(args map[string]interface{}, isMaster bool) (interface{}, err
 
 	for i := range resGetGroupList.Group {
 		group := pbtomodel.PbGroupToModelGroup(resGetGroupList.Group[i])
-		if !includeMasterOk || (includeMasterOk && !includeMaster) &&
+		if (!includeMasterOk || (includeMasterOk && !includeMaster)) &&
 			group.ID == 1 {
 			continue
 		}
