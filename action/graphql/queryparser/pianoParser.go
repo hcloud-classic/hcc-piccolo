@@ -94,12 +94,12 @@ func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool, lo
 		Page:        int64(page),
 	}
 
-	var groupIDsInt []int32
-	groupIDsSplited := strings.Split(groupIDs, ".")
-	for _, groupIDStr := range groupIDsSplited {
+	var groupIDsInt []int64
+	groupIDsSplit := strings.Split(groupIDs, ".")
+	for _, groupIDStr := range groupIDsSplit {
 		gid, err := strconv.Atoi(groupIDStr)
 		if err == nil {
-			groupIDsInt = append(groupIDsInt, int32(gid))
+			groupIDsInt = append(groupIDsInt, int64(gid))
 		}
 	}
 	reqBillingData.GroupID = groupIDsInt

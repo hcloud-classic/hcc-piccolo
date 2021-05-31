@@ -12,6 +12,9 @@ var BillingType = graphql.NewObject(
 			"result": &graphql.Field{
 				Type: graphql.String,
 			},
+			"total_num": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},

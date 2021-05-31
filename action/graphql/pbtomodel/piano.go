@@ -35,6 +35,7 @@ func PbBillingDataToModelBillingData(billingData *pb.ResBillingData) *model.Bill
 		BillingType: billingData.BillingType,
 		GroupID:     billingData.GroupID,
 		Result:      string(billingData.Result),
+		TotalNum:    billingData.TotalNum,
 	}
 
 	if billingData.HccErrorStack != nil {
