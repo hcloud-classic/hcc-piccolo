@@ -113,3 +113,39 @@ func GetBillingData(args map[string]interface{}, isAdmin bool, isMaster bool, lo
 
 	return modelBillingData, nil
 }
+
+// GetBillingDetail : Get billingDetail data with provided options
+func GetBillingDetail(args map[string]interface{}, isAdmin bool, isMaster bool, loginGroupID int64) (interface{}, error) {
+	if !isMaster && !isAdmin {
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	groupID, _ := args["group_id"].(int)
+	billingType, billingTypeOk := args["billing_type"].(string)
+	dateStart, dateStartOk := args["date_start"].(string)
+
+	if !isMaster && groupID != int(loginGroupID) {
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"You can't get other group's billing list if you are not a master")}, nil
+	}
+
+	if !billingTypeOk || !dateStartOk {
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"Need billing_type and date_start arguments")}, nil
+	}
+
+	var reqBillingData = pb.ReqBillingData{
+		GroupID:     []int64{int64(groupID)},
+		BillingType: billingType,
+		DateStart:   dateStart,
+	}
+
+	resBillingData, err := client.RC.GetBillingDetail(&reqBillingData)
+	if err != nil {
+		return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	modelBillingData := pbtomodel.PbBillingDataToModelBillingData(resBillingData)
+
+	return modelBillingData, nil
+}

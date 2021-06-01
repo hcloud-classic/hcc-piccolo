@@ -102,3 +102,16 @@ func (rc *RPCClient) GetBillingData(in *pb.ReqBillingData) (*pb.ResBillingData, 
 
 	return resGetBillingData, nil
 }
+
+// GetBillingDetail : Get billingDetail data of the group
+func (rc *RPCClient) GetBillingDetail(in *pb.ReqBillingData) (*pb.ResBillingData, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Piano.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resGetBillingDetail, err := rc.piano.GetBillingDetail(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resGetBillingDetail, nil
+}
