@@ -81,12 +81,17 @@ func parseGraphQL() {
 	}
 
 	GraphQL = graphql{}
-	GraphQL.Port, err = config.GraphQLConfig.Int("port")
+	GraphQL.ProductionListenPort, err = config.GraphQLConfig.Int("production_listen_port")
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
 
-	GraphQL.UsePlayground, _ = config.GraphQLConfig.Bool("use_playground")
+	GraphQL.DevInternalListenPort, err = config.GraphQLConfig.Int("dev_internal_listen_port")
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
+	GraphQL.DevInternalUsePlayground, _ = config.GraphQLConfig.Bool("dev_internal_use_playground")
 
 	GraphQL.SubscriptionInterval, err = config.GraphQLConfig.Int("subscription_interval_ms")
 	if err != nil {
