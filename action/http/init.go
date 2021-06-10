@@ -10,26 +10,45 @@ import (
 	"strconv"
 )
 
-// Init : Initialize GraphQL server
-func Init() {
-	logger.Logger.Println("Opening GraphQL server on port " + strconv.Itoa(int(config.GraphQL.Port)) + "...")
+func initGraphQLServer(isProduction bool) {
+	var serveType string
+	var listenPort int
+
+	serveMux := http.NewServeMux()
+
+	if isProduction {
+		serveType = "Production"
+		listenPort = int(config.GraphQL.ProductionListenPort)
+	} else {
+		serveType = "Dev Internal"
+		listenPort = int(config.GraphQL.DevInternalListenPort)
+	}
+
+	logger.Logger.Println("Opening " + serveType + " GraphQL server on port " + strconv.Itoa(listenPort) + "...")
 
 	var graphqlHandler = handler.New(&handler.Config{
 		Schema:     &graphql.Schema,
 		Pretty:     true,
-		GraphiQL:   !config.GraphQL.UsePlayground,
-		Playground: config.GraphQL.UsePlayground,
+		GraphiQL:   !isProduction && !config.GraphQL.DevInternalUsePlayground,
+		Playground: !isProduction && config.GraphQL.DevInternalUsePlayground,
 	})
-	http.Handle("/graphql", graphqlHandler)
-	logger.Logger.Println("Serving GraphQL requests on /graphql")
+	serveMux.Handle("/graphql", graphqlHandler)
+	serveMux.Handle("/subscriptions", subscription.NewSubscriptionHandler())
 
-	http.Handle("/subscriptions", subscription.NewSubscriptionHandler())
-	logger.Logger.Println("Serving GraphQL's subscription websocket requests on /subscriptions")
+	server := http.Server{
+		Addr:    ":" + strconv.Itoa(listenPort),
+		Handler: serveMux,
+	}
 
-	err := http.ListenAndServe(":"+strconv.Itoa(int(config.GraphQL.Port)), nil)
+	err := server.ListenAndServe()
 	if err != nil {
 		logger.Logger.Println(err)
-		logger.Logger.Println("Failed to prepare GraphQL server!")
-		return
+		logger.Logger.Println("Failed to prepare " + serveType + "GraphQL server!")
 	}
+}
+
+// Init : Initialize GraphQL server
+func Init() {
+	go initGraphQLServer(false)
+	initGraphQLServer(true)
 }

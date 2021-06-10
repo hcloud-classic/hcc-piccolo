@@ -7,7 +7,6 @@ import (
 	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"innogrid.com/hcloud-classic/hcc_errors"
-
 	"innogrid.com/hcloud-classic/pb"
 )
 
@@ -51,6 +50,19 @@ func (s *piccoloServer) GetGroupList(_ context.Context, _ *pb.Empty) (*pb.ResGet
 	}
 
 	return groupList, nil
+}
+
+// GetQuota : Get the quota of the group
+func (s *piccoloServer) GetQuota(_ context.Context, in *pb.ReqGetQuota) (*pb.ResGetQuota, error) {
+	// logger.Logger.Println("Request received: GetGroupList()")
+
+	quota, err := dao.ReadQuota(in.GroupID)
+	if err != nil {
+		errStack := hcc_errors.NewHccErrorStack(hcc_errors.NewHccError(hcc_errors.PiccoloMySQLExecuteError, err.Error()))
+		return &pb.ResGetQuota{Quota: &pb.GroupQuota{}, HccErrorStack: errconv.HccStackToGrpc(errStack)}, nil
+	}
+
+	return &pb.ResGetQuota{Quota: quota}, nil
 }
 
 // GetCharge : Get the charge info of the group

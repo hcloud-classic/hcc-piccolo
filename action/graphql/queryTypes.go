@@ -1287,6 +1287,39 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"billing_detail": &graphql.Field{
+				Type:        graphqlType.BillingType,
+				Description: "Get the billingDetail data",
+				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"billing_type": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"date_start": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					isAdmin, isMaster, _, loginGroupID, err := usertool.ValidateToken(params.Args, true)
+					if err != nil {
+						return model.BillingData{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					if !isMaster {
+						params.Args["group_ids"] = strconv.Itoa(int(loginGroupID))
+					}
+					data, err := queryparser.GetBillingDetail(params.Args, isAdmin, isMaster, loginGroupID)
+					if err != nil {
+						logger.Logger.Println("piano / billing_detail: " + err.Error())
+					}
+
+					return data, err
+				},
+			},
 			// volume_list
 			"volume_list": &graphql.Field{
 				Type:        graphqlType.VolumeListType,

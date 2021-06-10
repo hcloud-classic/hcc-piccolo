@@ -7,7 +7,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/functionalfoundry/graphqlws v0.0.0-20200611113535-7bc58903ce7b
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/golang/protobuf v1.4.3
+	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/graphql-go/graphql v0.7.8
 	github.com/graphql-go/handler v0.2.3
@@ -21,8 +21,7 @@ require (
 	golang.org/x/sys v0.0.0-20210110051926-789bb1bd4061 // indirect
 	golang.org/x/text v0.3.5 // indirect
 	google.golang.org/genproto v0.0.0-20210111234610-22ae2b108f89 // indirect
-	google.golang.org/grpc v1.34.1
-	google.golang.org/protobuf v1.25.0 // indirect
+	google.golang.org/grpc v1.38.0
 	innogrid.com/hcloud-classic/hcc_errors v0.0.0
 	innogrid.com/hcloud-classic/pb v0.0.0
 )
