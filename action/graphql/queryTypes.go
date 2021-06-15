@@ -1356,7 +1356,7 @@ var queryTypes = graphql.NewObject(
 			// pool_list
 			"pool_list": &graphql.Field{
 				Type:        graphqlType.PoolListType,
-				Description: "Get server by uuid",
+				Description: "Get disk pool list",
 				Args: graphql.FieldConfigArgument{
 					"user_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
