@@ -1377,7 +1377,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
-						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
