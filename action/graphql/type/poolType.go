@@ -13,22 +13,25 @@ var PoolType = graphql.NewObject(
 			"size": &graphql.Field{
 				Type: graphql.String,
 			},
-			"Capacity": &graphql.Field{
+			"free": &graphql.Field{
 				Type: graphql.String,
 			},
-			"Health": &graphql.Field{
+			"capacity": &graphql.Field{
 				Type: graphql.String,
 			},
-			"Name": &graphql.Field{
+			"health": &graphql.Field{
 				Type: graphql.String,
 			},
-			"AvailableSize": &graphql.Field{
+			"name": &graphql.Field{
 				Type: graphql.String,
 			},
-			"Used": &graphql.Field{
+			"availableSize": &graphql.Field{
 				Type: graphql.String,
 			},
-			"Action": &graphql.Field{
+			"used": &graphql.Field{
+				Type: graphql.String,
+			},
+			"action": &graphql.Field{
 				Type: graphql.String,
 			},
 			"errors": &graphql.Field{
