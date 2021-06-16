@@ -48,7 +48,7 @@ func Node(args map[string]interface{}) (interface{}, error) {
 	modelNode := pbtomodel.PbNodeToModelNode(resGetNode.Node, resGetNode.HccErrorStack)
 
 	// group_name
-	if modelNode.GroupID != 0 {
+	if modelNode.GroupID != -1 {
 		group, err := dao.ReadGroup(int(modelNode.GroupID))
 		if err != nil {
 			return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
@@ -164,7 +164,7 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 		modelNode := pbtomodel.PbNodeToModelNode(pNode, nil)
 
 		// group_name
-		if modelNode.GroupID != 0 {
+		if modelNode.GroupID != -1 {
 			group, err := dao.ReadGroup(int(modelNode.GroupID))
 			if err != nil {
 				return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil

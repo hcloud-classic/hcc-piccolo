@@ -1160,6 +1160,7 @@ var queryTypes = graphql.NewObject(
 					if err != nil {
 						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
+					params.Args["group_id"] = -1
 					data, err := queryparser.AllNode(params.Args)
 					if err != nil {
 						logger.Logger.Println("flute / all_quota_prepared_node: " + err.Error())
