@@ -34,6 +34,9 @@ var QuotaType = graphql.NewObject(
 			"limit_hdd_gb": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

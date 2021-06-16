@@ -48,11 +48,15 @@ func Node(args map[string]interface{}) (interface{}, error) {
 	modelNode := pbtomodel.PbNodeToModelNode(resGetNode.Node, resGetNode.HccErrorStack)
 
 	// group_name
-	group, err := dao.ReadGroup(int(modelNode.GroupID))
-	if err != nil {
-		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	if modelNode.GroupID != 0 {
+		group, err := dao.ReadGroup(int(modelNode.GroupID))
+		if err != nil {
+			return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		}
+		modelNode.GroupName = group.Name
+	} else {
+		modelNode.GroupName = "Not allocated"
 	}
-	modelNode.GroupName = group.Name
 
 	return *modelNode, nil
 }
@@ -160,11 +164,15 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 		modelNode := pbtomodel.PbNodeToModelNode(pNode, nil)
 
 		// group_name
-		group, err := dao.ReadGroup(int(modelNode.GroupID))
-		if err != nil {
-			return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		if modelNode.GroupID != 0 {
+			group, err := dao.ReadGroup(int(modelNode.GroupID))
+			if err != nil {
+				return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+			}
+			modelNode.GroupName = group.Name
+		} else {
+			modelNode.GroupName = "Not allocated"
 		}
-		modelNode.GroupName = group.Name
 
 		nodeList = append(nodeList, *modelNode)
 	}

@@ -6,15 +6,16 @@ import (
 
 // Quota : Contain infos of the quota
 type Quota struct {
-	GroupID            int64  `json:"group_id"`
-	GroupName          string `json:"group_name"`
-	LimitCPUCores      int    `json:"limit_cpu_cores"`
-	LimitMemoryGB      int    `json:"limit_memory_gb"`
-	LimitSubnetCnt     int    `json:"limit_subnet_cnt"`
-	LimitAdaptiveIPCnt int    `json:"limit_adaptive_ip_cnt"`
-	PoolName           string `json:"pool_name"`
-	LimitSSDGB         int    `json:"limit_ssd_gb"`
-	LimitHDDGB         int    `json:"limit_hdd_gb"`
+	GroupID            int64                     `json:"group_id"`
+	GroupName          string                    `json:"group_name"`
+	LimitCPUCores      int                       `json:"limit_cpu_cores"`
+	LimitMemoryGB      int                       `json:"limit_memory_gb"`
+	LimitSubnetCnt     int                       `json:"limit_subnet_cnt"`
+	LimitAdaptiveIPCnt int                       `json:"limit_adaptive_ip_cnt"`
+	PoolName           string                    `json:"pool_name"`
+	LimitSSDGB         int                       `json:"limit_ssd_gb"`
+	LimitHDDGB         int                       `json:"limit_hdd_gb"`
+	Errors             []errconv.PiccoloHccError `json:"errors"`
 }
 
 // QuotaList : Contain list of quotas

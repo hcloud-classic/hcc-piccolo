@@ -1147,6 +1147,26 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"all_quota_prepared_node": &graphql.Field{
+				Type:        graphqlType.NodeListType,
+				Description: "Get quota prepared all node list",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.AllNode(params.Args)
+					if err != nil {
+						logger.Logger.Println("flute / all_quota_prepared_node: " + err.Error())
+					}
+					return data, err
+				},
+			},
 			"num_node": &graphql.Field{
 				Type:        graphqlType.NodeNumType,
 				Description: "Get the number of nodes",

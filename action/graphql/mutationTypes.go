@@ -4,6 +4,7 @@ import (
 	"hcc/piccolo/action/graphql/mutationparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
@@ -118,6 +119,50 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				data, err := mutationparser.UpdateUser(params.Args, isAdmin, isMaster, int(groupID))
 				if err != nil {
 					logger.Logger.Println("piccolo / update_user: " + err.Error())
+				}
+				return data, err
+			},
+		},
+		"create_quota": &graphql.Field{
+			Type:        graphqlType.QuotaType,
+			Description: "Create quota",
+			Args: graphql.FieldConfigArgument{
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"pool_name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"ssd_size": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"hdd_size": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"selected_nodes": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"subnet_cnt": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"adaptive_cnt": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+				if err != nil {
+					return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+				}
+				data, err := dao.CreateQuota(params.Args, isAdmin, isMaster, int(groupID))
+				if err != nil {
+					logger.Logger.Println("piccolo / create_quota: " + err.Error())
 				}
 				return data, err
 			},
@@ -680,9 +725,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"node_name": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"group_id": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
 				"bmc_ip": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -700,14 +742,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+				_, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				if !isMaster {
-					params.Args["group_id"] = int(groupID)
-				}
-				data, err := mutationparser.CreateNode(params.Args, isAdmin, isMaster)
+				data, err := mutationparser.CreateNode(params.Args, isMaster)
 				if err != nil {
 					logger.Logger.Println("flute / create_node: " + err.Error())
 				}
