@@ -167,6 +167,50 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return data, err
 			},
 		},
+		"update_quota": &graphql.Field{
+			Type:        graphqlType.QuotaType,
+			Description: "Update quota",
+			Args: graphql.FieldConfigArgument{
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"pool_name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"ssd_size": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"hdd_size": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"selected_nodes": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"subnet_cnt": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"adaptive_cnt": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+				if err != nil {
+					return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+				}
+				data, err := dao.UpdateQuota(params.Args, isAdmin, isMaster, int(groupID))
+				if err != nil {
+					logger.Logger.Println("piccolo / update_quota: " + err.Error())
+				}
+				return data, err
+			},
+		},
 		// violin
 		"create_server": &graphql.Field{
 			Type:        graphqlType.ServerType,
