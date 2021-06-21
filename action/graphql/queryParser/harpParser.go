@@ -111,7 +111,7 @@ func AdaptiveIP(args map[string]interface{}) (interface{}, error) {
 	}
 
 	var adaptiveIPData data.AdaptiveIPData
-	query := "query { adaptiveip(uuid: \"" + uuid + "\") { uuid network_address netmask gateway start_ip_address end_ip_address created_at} }"
+	query := "query { adaptiveip(uuid: \"" + uuid + "\") { uuid network_addres netmask gateway start_ip_address end_ip_address created_at} }"
 
 	return http.DoHTTPRequest("harp", true, "AdaptiveIPData", adaptiveIPData, query)
 }
@@ -148,7 +148,7 @@ func ListAdaptiveIP(args map[string]interface{}) (interface{}, error) {
 	arguments = arguments[0 : len(arguments)-1]
 
 	var listAdaptiveIPData data.ListAdaptiveIPData
-	query := "query { list_adaptiveip(" + arguments + ") { uuid network_address netmask gateway start_ip_address end_ip_address created_at} }"
+	query := "query { list_adaptiveip(" + arguments + ") { uuid network_addres netmask gateway start_ip_address end_ip_address created_at} }"
 
 	return http.DoHTTPRequest("harp", true, "ListAdaptiveIPData", listAdaptiveIPData, query)
 }
@@ -159,10 +159,10 @@ func AllAdaptiveIP(args map[string]interface{}) (interface{}, error) {
 	var query string
 
 	if !rowOk && !pageOk {
-		query = "query { all_adaptiveip { uuid network_address netmask gateway start_ip_address end_ip_address created_at} }"
+		query = "query { all_adaptiveip { uuid network_addres netmask gateway start_ip_address end_ip_address created_at} }"
 	} else if rowOk && pageOk {
 		query = "query { all_adaptiveip(row:" + strconv.Itoa(row) + ", page:" + strconv.Itoa(page) +
-			") { uuid network_address netmask gateway start_ip_address end_ip_address created_at} }"
+			") { uuid network_addres netmask gateway start_ip_address end_ip_address created_at} }"
 	} else {
 		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
 	}

@@ -33,10 +33,6 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 		timeout = time.Duration(config.Violin.RequestTimeoutMs)
 		url += config.Violin.ServerAddress + ":" + strconv.Itoa(int(config.Violin.ServerPort))
 		break
-	case "violin-novnc":
-		timeout = time.Duration(config.ViolinNoVnc.RequestTimeoutMs)
-		url += config.ViolinNoVnc.ServerAddress + ":" + strconv.Itoa(int(config.ViolinNoVnc.ServerPort))
-		break
 	case "piano":
 		timeout = time.Duration(config.Piano.RequestTimeoutMs)
 		url += config.Piano.ServerAddress + ":" + strconv.Itoa(int(config.Piano.ServerPort))
@@ -252,14 +248,6 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					}
 
 					return allServerNodeData.Data.AllServerNode, nil
-				case "NumNodesServerData":
-					numNodesServerData := data.(hccGatewayData.NumNodesServerData)
-					err = json.Unmarshal([]byte(result), &numNodesServerData)
-					if err != nil {
-						return nil, err
-					}
-
-					return numNodesServerData.Data.NumNodesServer, nil
 				case "SubnetData":
 					subnetData := data.(hccGatewayData.SubnetData)
 					err = json.Unmarshal([]byte(result), &subnetData)
@@ -540,22 +528,6 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					}
 
 					return telegrafData.Data.Telegraf, nil
-				case "ControlVncData":
-					controlVncData := data.(hccGatewayData.ControlVncData)
-					err = json.Unmarshal([]byte(result), &controlVncData)
-					if err != nil {
-						return nil, err
-					}
-
-					return controlVncData.Data.Vnc, nil
-				case "CreateVncData":
-					createVncData := data.(hccGatewayData.CreateVncData)
-					err = json.Unmarshal([]byte(result), &createVncData)
-					if err != nil {
-						return nil, err
-					}
-
-					return createVncData.Data.Vnc, nil
 				default:
 					return nil, errors.New("unknown data type")
 				}

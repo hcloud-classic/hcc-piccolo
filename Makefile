@@ -34,6 +34,18 @@ coverhtml: coverage ## Generate global code coverage report in HTML
 gofmt: ## Run gofmt for go files
 	@find -name '*.go' -exec $(GOROOT)/bin/gofmt -s -w {} \;
 
+goreport_dep: ## Get the dependencies for goreport
+	@$(GOROOT)/bin/go get -u github.com/gojp/goreportcard/cmd/goreportcard-cli
+	@$(GOROOT)/bin/go install github.com/gojp/goreportcard/cmd/goreportcard-cli
+
+goreport: goreport_dep ## Make goreport
+	@git submodule sync --recursive
+	@git submodule update --init --recursive
+	@git --git-dir=$(PWD)/hcloud-badge/.git fetch --all
+	@git --git-dir=$(PWD)/hcloud-badge/.git checkout feature/dev
+	@git --git-dir=$(PWD)/hcloud-badge/.git pull origin feature/dev
+	@./hcloud-badge/hcloud_badge.sh $(PROJECT_NAME)
+
 build: ## Build the binary file
 	@$(GOROOT)/bin/go build -o $(PROJECT_NAME) main.go
 

@@ -142,29 +142,6 @@ func parseViolin() {
 	}
 }
 
-func parseViolinNoVnc() {
-	config.ViolinNoVncConfig = conf.Get("violinnovnc")
-	if config.ViolinNoVncConfig == nil {
-		logger.Logger.Panicln("no violinnovnc section")
-	}
-
-	ViolinNoVnc = violinNoVnc{}
-	ViolinNoVnc.ServerAddress, err = config.ViolinNoVncConfig.String("violinnovnc_server_address")
-	if err != nil {
-		logger.Logger.Panicln(err)
-	}
-
-	ViolinNoVnc.ServerPort, err = config.ViolinNoVncConfig.Int("violinnovnc_server_port")
-	if err != nil {
-		logger.Logger.Panicln(err)
-	}
-
-	ViolinNoVnc.RequestTimeoutMs, err = config.ViolinNoVncConfig.Int("violinnovnc_request_timeout_ms")
-	if err != nil {
-		logger.Logger.Panicln(err)
-	}
-}
-
 func parsePiano() {
 	config.PianoConfig = conf.Get("piano")
 	if config.PianoConfig == nil {
@@ -200,6 +177,5 @@ func Parser() {
 	parseHarp()
 	parseViola()
 	parseViolin()
-	parseViolinNoVnc()
 	parsePiano()
 }
