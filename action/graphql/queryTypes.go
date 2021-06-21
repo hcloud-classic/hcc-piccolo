@@ -1,10 +1,15 @@
 package graphql
 
 import (
-	"github.com/graphql-go/graphql"
 	"hcc/piccolo/action/graphql/queryparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
+	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/sqlite/serveractions"
+	"hcc/piccolo/lib/usertool"
+	"hcc/piccolo/model"
+
+	"github.com/graphql-go/graphql"
 )
 
 var queryTypes = graphql.NewObject(
@@ -28,6 +33,154 @@ var queryTypes = graphql.NewObject(
 					return queryparser.Login(params.Args)
 				},
 			},
+			"user": &graphql.Field{
+				Type:        graphqlType.UserType,
+				Description: "Get the user list from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.User{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / user")
+					return queryparser.User(params.Args)
+				},
+			},
+			"list_user": &graphql.Field{
+				Type:        graphqlType.UserListType,
+				Description: "Get the user list from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"email": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.UserList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / list_user")
+					return queryparser.UserList(params.Args)
+				},
+			},
+			"num_user": &graphql.Field{
+				Type:        graphqlType.UserNumType,
+				Description: "Get the number of users",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.UserNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / num_user")
+					return queryparser.NumUser()
+				},
+			},
+			"check_token": &graphql.Field{
+				Type:        graphqlType.IsValid,
+				Description: "Check validation of the token for piccolo",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					logger.Logger.Println("Resolving: piccolo / check_token")
+					return queryparser.CheckToken(params.Args)
+				},
+			},
+			"resource_usage": &graphql.Field{
+				Type:        graphqlType.ResourceUsageType,
+				Description: "Get resource usage",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ResourceUsage{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / resource_usage")
+					return queryparser.ResourceUsage()
+				},
+			},
+			"server_log": &graphql.Field{
+				Type:        serveractions.ServerActionsType,
+				Description: "Get the server's log",
+				Args: graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return serveractions.ServerActions{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / server_log")
+					return serveractions.ShowServerActions(params.Args)
+				},
+			},
+			"num_server_log": &graphql.Field{
+				Type:        serveractions.ServerActionsNumType,
+				Description: "Get the number of server's log",
+				Args: graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return serveractions.ServerActionsNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: piccolo / num_server_log")
+					return serveractions.ShowServerActionsNum(params.Args)
+				},
+			},
 			// violin
 			"server": &graphql.Field{
 				Type:        graphqlType.ServerType,
@@ -36,16 +189,26 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: violin / server")
 					return queryparser.Server(params.Args)
 				},
 			},
 			"list_server": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.ServerType),
+				Type:        graphqlType.ServerListType,
 				Description: "Get server list",
 				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"subnet_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -79,15 +242,21 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
-					"token":
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: violin / list_server")
 					return queryparser.ListServer(params.Args)
 				},
 			},
 			"all_server": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.ServerType),
+				Type:        graphqlType.ServerListType,
 				Description: "Get all server list",
 				Args: graphql.FieldConfigArgument{
 					"row": &graphql.ArgumentConfig{
@@ -96,16 +265,32 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: violin / all_server")
 					return queryparser.AllServer(params.Args)
 				},
 			},
 			"num_server": &graphql.Field{
 				Type:        graphqlType.ServerNumType,
-				Description: "Get the number of server",
+				Description: "Get the number of servers",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ServerNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: violin / num_server")
 					return queryparser.NumServer()
 				},
@@ -117,34 +302,55 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: violin / server_node")
 					return queryparser.ServerNode(params.Args)
 				},
 			},
 			"list_server_node": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.ServerNodeType),
+				Type:        graphqlType.ServerNodeListType,
 				Description: "Get server_node list",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: violin / list_server_node")
 					return queryparser.ListServerNode(params.Args)
 				},
 			},
 			"all_server_node": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.ServerNodeType),
+				Type:        graphqlType.ServerNodeListType,
 				Description: "Get all server_node list",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: violin / all_server_node")
 					return queryparser.AllServerNode(params.Args)
 				},
@@ -156,37 +362,39 @@ var queryTypes = graphql.NewObject(
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.ServerNodeNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: violin / num_nodes_server")
 					return queryparser.NumServerNode(params.Args)
 				},
 			},
 			// vnc
 			"control_vnc": &graphql.Field{
-				Type:        graphqlType.VncNodeType,
-				Description: "Create vnc",
+				Type:        graphqlType.VncPortType,
+				Description: "Control VNC",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"target_ip": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"target_port": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"target_pass": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"websocket_port": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 					"action": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.VncPort{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: violin-novnc: control_vnc")
 					return queryparser.ControlVnc(params.Args)
 				},
@@ -199,14 +407,21 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: harp / subnet")
 					return queryparser.Subnet(params.Args)
 				},
 			},
 			"list_subnet": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.SubnetType),
+				Type:        graphqlType.SubnetListType,
 				Description: "Get subnet list",
 				Args: graphql.FieldConfigArgument{
 					"uuid": &graphql.ArgumentConfig{
@@ -248,14 +463,21 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: harp / list_subnet")
 					return queryparser.ListSubnet(params.Args)
 				},
 			},
 			"all_subnet": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.SubnetType),
+				Type:        graphqlType.SubnetListType,
 				Description: "Get all subnet list",
 				Args: graphql.FieldConfigArgument{
 					"row": &graphql.ArgumentConfig{
@@ -264,24 +486,83 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: harp / all_subnet")
 					return queryparser.AllSubnet(params.Args)
 				},
 			},
+			"available_subnet": &graphql.Field{
+				Type:        graphqlType.SubnetListType,
+				Description: "Get available subnet list",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: harp / available_subnet")
+					return queryparser.AvailableSubnetList()
+				},
+			},
 			"num_subnet": &graphql.Field{
 				Type:        graphqlType.SubnetNumType,
-				Description: "Get the number of subnet",
+				Description: "Get the number of subnets",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.SubnetNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: harp / num_subnet")
 					return queryparser.NumSubnet()
+				},
+			},
+			"adaptiveip_available_ip_list": &graphql.Field{
+				Type:        graphqlType.AdaptiveIPAvailableIPListType,
+				Description: "Get available ip list for adaptive ip",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.AdaptiveIPAvailableIPList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: harp / adaptiveip_available_ip_list")
+					return queryparser.GetAdaptiveIPAvailableIPList()
 				},
 			},
 			"adaptiveip_setting": &graphql.Field{
 				Type:        graphqlType.AdaptiveIPSettingType,
 				Description: "Get settings of adaptiveip",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.AdaptiveIPSetting{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: harp / adaptiveip_setting")
 					return queryparser.GetAdaptiveIPSetting()
 				},
@@ -293,14 +574,21 @@ var queryTypes = graphql.NewObject(
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: harp / adaptiveip_server")
 					return queryparser.AdaptiveIPServer(params.Args)
 				},
 			},
 			"list_adaptiveip_server": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.AdaptiveIPServerType),
+				Type:        graphqlType.AdaptiveIPServerListType,
 				Description: "Get adaptiveip_server list",
 				Args: graphql.FieldConfigArgument{
 					"server_uuid": &graphql.ArgumentConfig{
@@ -315,14 +603,21 @@ var queryTypes = graphql.NewObject(
 					"private_gateway": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.AdaptiveIPServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: harp / list_adaptiveip_server")
 					return queryparser.ListAdaptiveIPServer(params.Args)
 				},
 			},
 			"all_adaptiveip_server": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.AdaptiveIPServerType),
+				Type:        graphqlType.AdaptiveIPServerListType,
 				Description: "Get all adaptiveip_server list",
 				Args: graphql.FieldConfigArgument{
 					"row": &graphql.ArgumentConfig{
@@ -331,30 +626,53 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.AdaptiveIPServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: harp / all_adaptiveip_server")
 					return queryparser.AllAdaptiveIPServer(params.Args)
 				},
 			},
 			"num_adaptiveip_server": &graphql.Field{
 				Type:        graphqlType.AdaptiveIPServerNumType,
-				Description: "Get the number of adaptiveip_server",
+				Description: "Get the number of AdaptiveIP Servers",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.AdaptiveIPServerNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: harp / num_adaptiveip_server")
 					return queryparser.NumAdaptiveIPServer()
 				},
 			},
 			// flute
 			"power_state_node": &graphql.Field{
-				Type:        graphql.String,
+				Type:        graphqlType.PowerStateNodeType,
 				Description: "Get the node's power state",
 				Args: graphql.FieldConfigArgument{
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.PowerStateNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: power_state_node")
 					return queryparser.PowerStateNode(params.Args)
 				},
@@ -366,16 +684,26 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.Node{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: flute / node")
 					return queryparser.Node(params.Args)
 				},
 			},
 			"list_node": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.NodeType),
+				Type:        graphqlType.NodeListType,
 				Description: "Get node list",
 				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -400,6 +728,9 @@ var queryTypes = graphql.NewObject(
 					"description": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"rack_number": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
 					"active": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
@@ -409,14 +740,21 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.NodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: flute / list_node")
 					return queryparser.ListNode(params.Args)
 				},
 			},
 			"all_node": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.NodeType),
+				Type:        graphqlType.NodeListType,
 				Description: "Get all node list",
 				Args: graphql.FieldConfigArgument{
 					"active": &graphql.ArgumentConfig{
@@ -428,16 +766,32 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.NodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: flute / all_node")
 					return queryparser.AllNode(params.Args)
 				},
 			},
 			"num_node": &graphql.Field{
 				Type:        graphqlType.NodeNumType,
-				Description: "Get the number of node",
+				Description: "Get the number of nodes",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.NodeNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: flute / num_node")
 					return queryparser.NumNode()
 				},
@@ -449,8 +803,15 @@ var queryTypes = graphql.NewObject(
 					"node_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.NodeDetail{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: flute / node_detail")
 					return queryparser.NodeDetail(params.Args)
 				},
@@ -478,10 +839,81 @@ var queryTypes = graphql.NewObject(
 					"uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.Telegraf{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
 					logger.Logger.Println("Resolving: piano / telegraf")
-					return queryparser.Telegraf(params.Args)
+					telegraf, err := queryparser.Telegraf(params.Args)
+
+					Publisher()
+
+					return telegraf, err
+				},
+			},
+			// volume_list
+			"volume_list": &graphql.Field{
+				Type:        graphqlType.VolumeListType,
+				Description: "Get server by uuid",
+				Args: graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"user_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: cello / volume_list")
+					return queryparser.GetVolumeList(params.Args)
+				},
+			},
+			// pool_list
+			"pool_list": &graphql.Field{
+				Type:        graphqlType.PoolListType,
+				Description: "Get server by uuid",
+				Args: graphql.FieldConfigArgument{
+					"user_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"action": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					err := usertool.ValidateToken(params.Args)
+					if err != nil {
+						return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					logger.Logger.Println("Resolving: cello / pool_list")
+					return queryparser.GetPoolList(params.Args)
 				},
 			},
 		},

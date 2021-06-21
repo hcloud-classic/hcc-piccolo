@@ -40,6 +40,24 @@ var ServerType = graphql.NewObject(
 			"created_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// ServerListType : Graphql object type of ServerList
+var ServerListType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "ServerList",
+		Fields: graphql.Fields{
+			"server_list": &graphql.Field{
+				Type: graphql.NewList(ServerType),
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

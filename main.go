@@ -2,39 +2,36 @@ package main
 
 import (
 	"fmt"
-	"hcc/piccolo/action/graphql"
 	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/server"
+	"hcc/piccolo/action/http"
 	"hcc/piccolo/lib/config"
+	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
-	"hcc/piccolo/lib/syscheck"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
 func init() {
-	err := syscheck.CheckRoot()
+	err := logger.Init()
 	if err != nil {
-		log.Fatalf("syscheck.CheckRoot(): %v", err.Error())
+		errors.SetErrLogger(logger.Logger)
+		errors.NewHccError(errors.PiccoloInternalInitFail, "logger.Init(): "+err.Error()).Fatal()
 	}
-
-	err = logger.Init()
-	if err != nil {
-		log.Fatalf("logger.Init(): %v", err.Error())
-	}
+	errors.SetErrLogger(logger.Logger)
 
 	config.Init()
 
 	err = mysql.Init()
 	if err != nil {
-		logger.Logger.Fatalf("mysql.Init(): %v", err.Error())
+		errors.NewHccError(errors.PiccoloInternalInitFail, "mysql.Init(): "+err.Error()).Fatal()
 	}
 
 	err = client.Init()
 	if err != nil {
-		logger.Logger.Fatalf("client.Init(): %v", err.Error())
+		errors.NewHccError(errors.PiccoloInternalInitFail, "client.Init(): "+err.Error()).Fatal()
 	}
 }
 
@@ -54,5 +51,6 @@ func main() {
 		os.Exit(0)
 	}()
 
-	graphql.Init()
+	go server.Init()
+	http.Init()
 }

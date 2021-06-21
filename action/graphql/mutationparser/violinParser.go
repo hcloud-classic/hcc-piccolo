@@ -1,54 +1,19 @@
 package mutationparser
 
 import (
-	"errors"
-	"github.com/golang/protobuf/ptypes"
+	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/pb/rpcviolin"
+	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/lib/logger"
+	"hcc/piccolo/lib/sqlite/serveractions"
 	"hcc/piccolo/model"
 )
 
-func pbServerToModelServer(server *rpcviolin.Server) (*model.Server, error) {
-	createdAt, err := ptypes.Timestamp(server.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	modelServer := &model.Server{
-		UUID:       server.UUID,
-		SubnetUUID: server.SubnetUUID,
-		OS:         server.OS,
-		ServerName: server.ServerName,
-		ServerDesc: server.ServerDesc,
-		CPU:        int(server.CPU),
-		Memory:     int(server.Memory),
-		DiskSize:   int(server.DiskSize),
-		Status:     server.Status,
-		UserUUID:   server.UserUUID,
-		CreatedAt:  createdAt,
-	}
-
-	return modelServer, nil
-}
-
-func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.ServerNode, error) {
-	createdAt, err := ptypes.Timestamp(serverNode.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	modelServerNode := &model.ServerNode{
-		UUID:       serverNode.UUID,
-		ServerUUID: serverNode.ServerUUID,
-		NodeUUID:   serverNode.NodeUUID,
-		CreatedAt:  createdAt,
-	}
-
-	return modelServerNode, nil
-}
-
 // CreateServer : Create a server
 func CreateServer(args map[string]interface{}) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
+
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
 	os, osOK := args["os"].(string)
 	serverName, serverNameOk := args["server_name"].(string)
@@ -77,9 +42,13 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 	}
 	if cpuOk {
 		reqCreateServer.Server.CPU = int32(cpu)
+	} else {
+		reqCreateServer.Server.CPU = 0
 	}
 	if memoryOk {
 		reqCreateServer.Server.Memory = int32(memory)
+	} else {
+		reqCreateServer.Server.Memory = 0
 	}
 	if diskSizeOk {
 		reqCreateServer.Server.DiskSize = int32(diskSize)
@@ -91,14 +60,23 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 		reqCreateServer.NrNode = int32(nrNode)
 	}
 
+	reqCreateServer.Token = tokenString
+
 	resCreateServer, err := client.RC.CreateServer(&reqCreateServer)
 	if err != nil {
-		return nil, err
+		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServer, err := pbServerToModelServer(resCreateServer.Server)
+	modelServer := pbtomodel.PbServerToModelServer(resCreateServer.Server, &resCreateServer.HccErrorStack)
+
+	err = serveractions.WriteServerAction(
+		resCreateServer.Server.UUID,
+		"violin / create_server",
+		"Success",
+		"",
+		tokenString)
 	if err != nil {
-		return nil, err
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
 	}
 
 	return *modelServer, nil
@@ -108,7 +86,7 @@ func CreateServer(args map[string]interface{}) (interface{}, error) {
 func UpdateServer(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
-		return nil, errors.New("need a uuid argument")
+		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
@@ -156,13 +134,10 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 
 	resUpdateServer, err := client.RC.UpdateServer(&reqUpdateServer)
 	if err != nil {
-		return nil, err
+		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServer, err := pbServerToModelServer(resUpdateServer.Server)
-	if err != nil {
-		return nil, err
-	}
+	modelServer := pbtomodel.PbServerToModelServer(resUpdateServer.Server, &resUpdateServer.HccErrorStack)
 
 	return *modelServer, nil
 }
@@ -171,17 +146,22 @@ func UpdateServer(args map[string]interface{}) (interface{}, error) {
 func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
-		return nil, errors.New("need a uuid argument")
+		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	var server model.Server
-	uuid, err := client.RC.DeleteServer(requestedUUID)
+	resDeleteServer, err := client.RC.DeleteServer(requestedUUID)
 	if err != nil {
-		return nil, err
+		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	server.UUID = uuid
 
-	return server, nil
+	modelServer := pbtomodel.PbServerToModelServer(resDeleteServer.Server, &resDeleteServer.HccErrorStack)
+
+	err = serveractions.DeleteServerAction(requestedUUID)
+	if err != nil {
+		logger.Logger.Println(err)
+	}
+
+	return *modelServer, nil
 }
 
 // CreateServerNode : Create a info of server's node
@@ -199,13 +179,10 @@ func CreateServerNode(args map[string]interface{}) (interface{}, error) {
 
 	resCreateServerNode, err := client.RC.CreateServerNode(&reqCreateServerNode)
 	if err != nil {
-		return nil, err
+		return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServerNode, err := pbServerNodeToModelServerNode(resCreateServerNode.ServerNode)
-	if err != nil {
-		return nil, err
-	}
+	modelServerNode := pbtomodel.PbServerNodeToModelServerNode(resCreateServerNode.ServerNode, nil, nil, &resCreateServerNode.HccErrorStack)
 
 	return *modelServerNode, nil
 }
@@ -214,15 +191,15 @@ func CreateServerNode(args map[string]interface{}) (interface{}, error) {
 func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
-		return nil, errors.New("need a uuid argument")
+		return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	var serverNode model.ServerNode
-	uuid, err := client.RC.DeleteServerNode(requestedUUID)
+	resDeleteServerNode, err := client.RC.DeleteServerNode(requestedUUID)
 	if err != nil {
-		return nil, err
+		return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
-	serverNode.UUID = uuid
 
-	return serverNode, nil
+	modelServerNode := pbtomodel.PbServerNodeToModelServerNode(resDeleteServerNode.ServerNode, nil, nil, &resDeleteServerNode.HccErrorStack)
+
+	return *modelServerNode, nil
 }

@@ -2,12 +2,13 @@ package client
 
 import (
 	"context"
-	"google.golang.org/grpc"
 	"hcc/piccolo/action/grpc/pb/rpcviolin"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"strconv"
 	"time"
+
+	"google.golang.org/grpc"
 )
 
 var violinConn *grpc.ClientConn
@@ -45,16 +46,16 @@ func (rc *RPCClient) CreateServer(in *rpcviolin.ReqCreateServer) (*rpcviolin.Res
 }
 
 // GetServer : Get infos of the server
-func (rc *RPCClient) GetServer(uuid string) (*rpcviolin.Server, error) {
+func (rc *RPCClient) GetServer(uuid string) (*rpcviolin.ResGetServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	server, err := rc.violin.GetServer(ctx, &rpcviolin.ReqGetServer{UUID: uuid})
+	resGetServer, err := rc.violin.GetServer(ctx, &rpcviolin.ReqGetServer{UUID: uuid})
 	if err != nil {
 		return nil, err
 	}
 
-	return server.Server, nil
+	return resGetServer, nil
 }
 
 // GetServerList : Get list of the server
@@ -62,25 +63,25 @@ func (rc *RPCClient) GetServerList(in *rpcviolin.ReqGetServerList) (*rpcviolin.R
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	serverList, err := rc.violin.GetServerList(ctx, in)
+	resGetServerList, err := rc.violin.GetServerList(ctx, in)
 	if err != nil {
 		return nil, err
 	}
 
-	return serverList, nil
+	return resGetServerList, nil
 }
 
 // GetServerNum : Get the number of servers
-func (rc *RPCClient) GetServerNum() (int, error) {
+func (rc *RPCClient) GetServerNum() (*rpcviolin.ResGetServerNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	num, err := rc.violin.GetServerNum(ctx, &rpcviolin.Empty{})
+	resGetServerNum, err := rc.violin.GetServerNum(ctx, &rpcviolin.Empty{})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return int(num.Num), nil
+	return resGetServerNum, nil
 }
 
 // UpdateServer : Update infos of the server
@@ -97,16 +98,16 @@ func (rc *RPCClient) UpdateServer(in *rpcviolin.ReqUpdateServer) (*rpcviolin.Res
 }
 
 // DeleteServer : Delete of the server
-func (rc *RPCClient) DeleteServer(uuid string) (string, error) {
+func (rc *RPCClient) DeleteServer(uuid string) (*rpcviolin.ResDeleteServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	resDeleteServer, err := rc.violin.DeleteServer(ctx, &rpcviolin.ReqDeleteServer{UUID: uuid})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resDeleteServer.UUID, nil
+	return resDeleteServer, nil
 }
 
 // CreateServerNode : Create a server node
@@ -123,16 +124,16 @@ func (rc *RPCClient) CreateServerNode(in *rpcviolin.ReqCreateServerNode) (*rpcvi
 }
 
 // GetServerNode : Get infos of the server
-func (rc *RPCClient) GetServerNode(uuid string) (*rpcviolin.ServerNode, error) {
+func (rc *RPCClient) GetServerNode(uuid string) (*rpcviolin.ResGetServerNode, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	server, err := rc.violin.GetServerNode(ctx, &rpcviolin.ReqGetServerNode{UUID: uuid})
+	resGetServerNode, err := rc.violin.GetServerNode(ctx, &rpcviolin.ReqGetServerNode{UUID: uuid})
 	if err != nil {
 		return nil, err
 	}
 
-	return server.ServerNode, nil
+	return resGetServerNode, nil
 }
 
 // GetServerNodeList : Get list of the server
@@ -149,40 +150,40 @@ func (rc *RPCClient) GetServerNodeList(in *rpcviolin.ReqGetServerNodeList) (*rpc
 }
 
 // GetServerNodeNum : Get the number of servers
-func (rc *RPCClient) GetServerNodeNum(serverUUID string) (int, error) {
+func (rc *RPCClient) GetServerNodeNum(serverUUID string) (*rpcviolin.ResGetServerNodeNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	num, err := rc.violin.GetServerNodeNum(ctx, &rpcviolin.ReqGetServerNodeNum{ServerUUID: serverUUID})
+	resGetServerNodeNum, err := rc.violin.GetServerNodeNum(ctx, &rpcviolin.ReqGetServerNodeNum{ServerUUID: serverUUID})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return int(num.Num), nil
+	return resGetServerNodeNum, nil
 }
 
 // DeleteServerNode : Delete of the serverNode
-func (rc *RPCClient) DeleteServerNode(uuid string) (string, error) {
+func (rc *RPCClient) DeleteServerNode(uuid string) (*rpcviolin.ResDeleteServerNode, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	resDeleteServerNode, err := rc.violin.DeleteServerNode(ctx, &rpcviolin.ReqDeleteServerNode{UUID: uuid})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resDeleteServerNode.UUID, nil
+	return resDeleteServerNode, nil
 }
 
 // DeleteServerNodeByServerUUID : Delete of the server
-func (rc *RPCClient) DeleteServerNodeByServerUUID(serverUUID string) (string, error) {
+func (rc *RPCClient) DeleteServerNodeByServerUUID(serverUUID string) (*rpcviolin.ResDeleteServerNodeByServerUUID, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	resDeleteServerNodeByServerUUID, err := rc.violin.DeleteServerNodeByServerUUID(ctx, &rpcviolin.ReqDeleteServerNodeByServerUUID{ServerUUID: serverUUID})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resDeleteServerNodeByServerUUID.ServerUUID, nil
+	return resDeleteServerNodeByServerUUID, nil
 }

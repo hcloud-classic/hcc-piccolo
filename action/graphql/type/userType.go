@@ -13,20 +13,35 @@ var UserType = graphql.NewObject(
 			"id": &graphql.Field{
 				Type: graphql.String,
 			},
-			"password": &graphql.Field{
-				Type: graphql.String,
-			},
 			"name": &graphql.Field{
 				Type: graphql.String,
 			},
 			"email": &graphql.Field{
 				Type: graphql.String,
 			},
+			"login_at": &graphql.Field{
+				Type: graphql.DateTime,
+			},
 			"created_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},
-			"login_at": &graphql.Field{
-				Type: graphql.DateTime,
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// UserListType : Graphql object type of UserList
+var UserListType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "UserList",
+		Fields: graphql.Fields{
+			"user_list": &graphql.Field{
+				Type: graphql.NewList(UserType),
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
 			},
 		},
 	},
@@ -39,6 +54,24 @@ var Token = graphql.NewObject(
 		Fields: graphql.Fields{
 			"token": &graphql.Field{
 				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// IsValid : Graphql object type of IsValid
+var IsValid = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "IsValid",
+		Fields: graphql.Fields{
+			"isvalid": &graphql.Field{
+				Type: graphql.Boolean,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
 			},
 		},
 	},

@@ -28,6 +28,9 @@ var AdaptiveIPType = graphql.NewObject(
 			"created_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )
@@ -51,6 +54,24 @@ var AdaptiveIPSettingType = graphql.NewObject(
 			},
 			"end_ip_address": &graphql.Field{
 				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// AdaptiveIPAvailableIPListType : Graphql object type of AdaptiveIPAvailableIPList
+var AdaptiveIPAvailableIPListType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "AdaptiveIP",
+		Fields: graphql.Fields{
+			"available_ip_list": &graphql.Field{
+				Type: graphql.NewList(graphql.String),
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
 			},
 		},
 	},

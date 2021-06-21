@@ -45,19 +45,19 @@ func (rc *RPCClient) CreateSubnet(in *rpcharp.ReqCreateSubnet) (*rpcharp.ResCrea
 }
 
 // GetSubnet : Get infos of the subnet
-func (rc *RPCClient) GetSubnet(uuid string) (*rpcharp.Subnet, error) {
+func (rc *RPCClient) GetSubnet(uuid string) (*rpcharp.ResGetSubnet, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	subnet, err := rc.harp.GetSubnet(ctx, &rpcharp.ReqGetSubnet{UUID: uuid})
+	resGetSubnet, err := rc.harp.GetSubnet(ctx, &rpcharp.ReqGetSubnet{UUID: uuid})
 	if err != nil {
 		return nil, err
 	}
 
-	return subnet.Subnet, nil
+	return resGetSubnet, nil
 }
 
-// GetSubnetList : Get list of the subnet
+// GetSubnetList : Get the list of subnets
 func (rc *RPCClient) GetSubnetList(in *rpcharp.ReqGetSubnetList) (*rpcharp.ResGetSubnetList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
@@ -70,17 +70,30 @@ func (rc *RPCClient) GetSubnetList(in *rpcharp.ReqGetSubnetList) (*rpcharp.ResGe
 	return subnetList, nil
 }
 
-// GetSubnetNum : Get the number of subnets
-func (rc *RPCClient) GetSubnetNum() (int, error) {
+// GetAvailableSubnetList : Get the list of available subnets
+func (rc *RPCClient) GetAvailableSubnetList() (*rpcharp.ResGetAvailableSubnetList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	num, err := rc.harp.GetSubnetNum(ctx, &rpcharp.Empty{})
+	subnetList, err := rc.harp.GetAvailableSubnetList(ctx, &rpcharp.Empty{})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return int(num.Num), nil
+	return subnetList, nil
+}
+
+// GetSubnetNum : Get the number of subnets
+func (rc *RPCClient) GetSubnetNum() (*rpcharp.ResGetSubnetNum, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resGetSubnetNum, err := rc.harp.GetSubnetNum(ctx, &rpcharp.Empty{})
+	if err != nil {
+		return nil, err
+	}
+
+	return resGetSubnetNum, nil
 }
 
 // UpdateSubnet : Update infos of the subnet
@@ -97,16 +110,16 @@ func (rc *RPCClient) UpdateSubnet(in *rpcharp.ReqUpdateSubnet) (*rpcharp.ResUpda
 }
 
 // DeleteSubnet : Delete of the subnet
-func (rc *RPCClient) DeleteSubnet(uuid string) (string, error) {
+func (rc *RPCClient) DeleteSubnet(uuid string) (*rpcharp.ResDeleteSubnet, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	resDeleteSubnet, err := rc.harp.DeleteSubnet(ctx, &rpcharp.ReqDeleteSubnet{UUID: uuid})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resDeleteSubnet.UUID, nil
+	return resDeleteSubnet, nil
 }
 
 // CreateAdaptiveIPSetting : Create settings of AdaptiveIP
@@ -120,6 +133,19 @@ func (rc *RPCClient) CreateAdaptiveIPSetting(in *rpcharp.ReqCreateAdaptiveIPSett
 	}
 
 	return resCreateAdaptiveIPSetting, nil
+}
+
+// GetAdaptiveIPAvailableIPList : Get available IP list of AdaptiveIP
+func (rc *RPCClient) GetAdaptiveIPAvailableIPList() (*rpcharp.ResGetAdaptiveIPAvailableIPList, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resGetAdaptiveIPAvailableIPList, err := rc.harp.GetAdaptiveIPAvailableIPList(ctx, &rpcharp.Empty{})
+	if err != nil {
+		return nil, err
+	}
+
+	return resGetAdaptiveIPAvailableIPList, nil
 }
 
 // GetAdaptiveIPSetting : Get settings of AdaptiveIP
@@ -149,16 +175,16 @@ func (rc *RPCClient) CreateAdaptiveIPServer(in *rpcharp.ReqCreateAdaptiveIPServe
 }
 
 // GetAdaptiveIPServer : Get infos of the adaptiveIP server
-func (rc *RPCClient) GetAdaptiveIPServer(serverUUID string) (*rpcharp.AdaptiveIPServer, error) {
+func (rc *RPCClient) GetAdaptiveIPServer(serverUUID string) (*rpcharp.ResGetAdaptiveIPServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	adaptiveipServer, err := rc.harp.GetAdaptiveIPServer(ctx, &rpcharp.ReqGetAdaptiveIPServer{ServerUUID: serverUUID})
+	resGetAdaptiveIPServer, err := rc.harp.GetAdaptiveIPServer(ctx, &rpcharp.ReqGetAdaptiveIPServer{ServerUUID: serverUUID})
 	if err != nil {
 		return nil, err
 	}
 
-	return adaptiveipServer.AdaptiveipServer, nil
+	return resGetAdaptiveIPServer, nil
 }
 
 // GetAdaptiveIPServerList : Get list of the adaptiveIP server
@@ -175,43 +201,43 @@ func (rc *RPCClient) GetAdaptiveIPServerList(in *rpcharp.ReqGetAdaptiveIPServerL
 }
 
 // GetAdaptiveIPServerNum : Get the number of adaptiveIP server
-func (rc *RPCClient) GetAdaptiveIPServerNum() (int, error) {
+func (rc *RPCClient) GetAdaptiveIPServerNum() (*rpcharp.ResGetAdaptiveIPServerNum, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	num, err := rc.harp.GetAdaptiveIPServerNum(ctx, &rpcharp.Empty{})
+	resGetAdaptiveIPServerNum, err := rc.harp.GetAdaptiveIPServerNum(ctx, &rpcharp.Empty{})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return int(num.Num), nil
+	return resGetAdaptiveIPServerNum, nil
 }
 
 // DeleteAdaptiveIPServer : Delete of the adaptiveIP server
-func (rc *RPCClient) DeleteAdaptiveIPServer(serverUUID string) (string, error) {
+func (rc *RPCClient) DeleteAdaptiveIPServer(serverUUID string) (*rpcharp.ResDeleteAdaptiveIPServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 	resDeleteAdaptiveIPServer, err := rc.harp.DeleteAdaptiveIPServer(ctx, &rpcharp.ReqDeleteAdaptiveIPServer{ServerUUID: serverUUID})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resDeleteAdaptiveIPServer.ServerUUID, nil
+	return resDeleteAdaptiveIPServer, nil
 }
 
 // CreateDHCPDConfig : Do dhcpd config file creation works
-func (rc *RPCClient) CreateDHCPDConfig(subnetUUID string, nodeUUIDs string) (string, error) {
+func (rc *RPCClient) CreateDHCPDConfig(subnetUUID string, nodeUUIDs string) (*rpcharp.ResCreateDHCPDConf, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Harp.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resCreateDHPCDConf, err := rc.harp.CreateDHPCDConf(ctx, &rpcharp.ReqCreateDHPCDConf{
+	resCreateDHCPDConf, err := rc.harp.CreateDHCPDConf(ctx, &rpcharp.ReqCreateDHCPDConf{
 		SubnetUUID: subnetUUID,
 		NodeUUIDs:  nodeUUIDs,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return resCreateDHPCDConf.Result, nil
+	return resCreateDHCPDConf, nil
 }

@@ -31,6 +31,30 @@ var VolumeType = graphql.NewObject(
 			"created_at": &graphql.Field{
 				Type: graphql.String,
 			},
+			"lun_num": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"pool": &graphql.Field{
+				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// VolumeListType : Graphql object type of ServerList
+var VolumeListType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "VolumeList",
+		Fields: graphql.Fields{
+			"volume_list": &graphql.Field{
+				Type: graphql.NewList(VolumeType),
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

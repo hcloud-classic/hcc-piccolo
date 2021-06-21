@@ -1,0 +1,20 @@
+query {
+  volume_list(uuid: "codex",token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6ImpvbGxhIiwiUGFzc3dvcmQiOiIkMnkkMTAkN0ZRWk01dDhTaDVKOW5zZlAuLjRXdWl6cEIwOEN1TzdqWW5OaU53QjY4aHB5N3J1RVFrQUciLCJleHAiOjE2MDQxMjcxMjUsImlhdCI6MTYwNDA0MDcyNSwiaXNzIjoicGljY29sbyIsInN1YiI6IkF1dGgifQ.mj_btox4EtCIeoTKqqKBAQSrrQMHV5XVlT32PHQUUB4") {
+	volume_list{
+    created_at
+filesystem
+lun_num
+network_ip
+pool
+server_uuid
+size
+use_type
+user_uuid
+uuid
+  }
+    errors{
+      errcode
+      errtext
+    }
+  }
+}

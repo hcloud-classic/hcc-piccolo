@@ -1,37 +1,46 @@
 package queryparser
 
 import (
-	"errors"
-	"hcc/piccolo/data"
-	"hcc/piccolo/http"
+	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/errconv"
+	rpcnovnc "hcc/piccolo/action/grpc/pb/rpcviolin_novnc"
+	"hcc/piccolo/lib/errors"
+	"hcc/piccolo/model"
 )
 
 func checkVncArgsAll(args map[string]interface{}) bool {
 	_, serverUUIDOk := args["server_uuid"].(string)
-	_, targetIPOk := args["target_ip"].(string)
-	_, targetPortOk := args["target_port"].(string)
-	_, targetPassOk := args["target_pass"].(string)
 	_, actionOk := args["action"].(string)
 
-	return serverUUIDOk && targetIPOk && targetPortOk && targetPassOk && actionOk
+	return serverUUIDOk && actionOk
 }
 
 // ControlVnc : Set VNC with provided options
 func ControlVnc(args map[string]interface{}) (interface{}, error) {
 	if !checkVncArgsAll(args) {
-		return nil, errors.New("check needed arguments (server_uuid, target_ip, target_port, target_pass, action)")
+		return model.VncPort{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "check needed arguments (server_uuid, action)")}, nil
 	}
 
 	serverUUID, _ := args["server_uuid"].(string)
-	targetIP, _ := args["target_ip"].(string)
-	targetPort, _ := args["target_port"].(string)
-	targetPass, _ := args["target_pass"].(string)
 	action, _ := args["action"].(string)
 
-	var controlVncData data.ControlVncData
-	query := "query { control_vnc(server_uuid: \"" + serverUUID + "\",target_ip:\"" + targetIP + "\", target_port:\"" +
-		targetPort + "\",target_pass:\"" + targetPass + "\", action:\"" + action + "\") {" +
-		"server_uuid target_ip target_port target_pass websocket_port action } }"
+	vnc := rpcnovnc.VNC{
+		ServerUUID: serverUUID,
+		Action:     action,
+	}
 
-	return http.DoHTTPRequest("violin-novnc", true, "ControlVncData", controlVncData, query)
+	resControlVNC, err := client.RC.ControlVNC(&rpcnovnc.ReqControlVNC{
+		Vnc: &vnc,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	hccErrStack := errconv.GrpcStackToHcc(&resControlVNC.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return model.VncPort{Port: resControlVNC.Port, Errors: Errors}, nil
 }

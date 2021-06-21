@@ -19,6 +19,27 @@ var AdaptiveIPServerType = graphql.NewObject(
 			"private_gateway": &graphql.Field{
 				Type: graphql.String,
 			},
+			"created_at": &graphql.Field{
+				Type: graphql.String,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)
+
+// AdaptiveIPServerListType : Graphql object type of AdaptiveIPServerList
+var AdaptiveIPServerListType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "AdaptiveIPServerList",
+		Fields: graphql.Fields{
+			"adaptiveip_server_list": &graphql.Field{
+				Type: graphql.NewList(AdaptiveIPServerType),
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

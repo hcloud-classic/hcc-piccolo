@@ -1,60 +1,36 @@
 package queryparser
 
 import (
-	"errors"
 	"github.com/golang/protobuf/ptypes"
+	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcharp"
+	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
 )
-
-func pbSubnetToModelSubnet(subnet *rpcharp.Subnet) (*model.Subnet, error) {
-	createdAt, err := ptypes.Timestamp(subnet.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	modelSubnet := &model.Subnet{
-		UUID:           subnet.UUID,
-		NetworkIP:      subnet.NetworkIP,
-		Netmask:        subnet.Netmask,
-		Gateway:        subnet.Gateway,
-		NextServer:     subnet.NextServer,
-		NameServer:     subnet.NameServer,
-		DomainName:     subnet.DomainName,
-		ServerUUID:     subnet.ServerUUID,
-		LeaderNodeUUID: subnet.LeaderNodeUUID,
-		OS:             subnet.OS,
-		SubnetName:     subnet.SubnetName,
-		CreatedAt:      createdAt,
-	}
-
-	return modelSubnet, err
-}
 
 // Subnet : Get infos of the subnet
 func Subnet(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
 	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	subnet, err := client.RC.GetSubnet(uuid)
+	resGetSubnet, err := client.RC.GetSubnet(uuid)
 	if err != nil {
-		return nil, err
+		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelSubnet, err := pbSubnetToModelSubnet(subnet)
-	if err != nil {
-		return nil, err
-	}
+	modelSubnet := pbtomodel.PbSubnetToModelSubnet(resGetSubnet.Subnet, &resGetSubnet.HccErrorStack)
 
 	return *modelSubnet, nil
 }
 
 // ListSubnet : Get subnet list with provided options
 func ListSubnet(args map[string]interface{}) (interface{}, error) {
+	uuid, uuidOk := args["uuid"].(string)
 	networkIP, networkIPOk := args["network_ip"].(string)
 	netmask, netmaskOk := args["netmask"].(string)
 	gateway, gatewayOk := args["gateway"].(string)
@@ -72,6 +48,9 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	var reqSubnet rpcharp.Subnet
 	reqListSubnet.Subnet = &reqSubnet
 
+	if uuidOk {
+		reqListSubnet.Subnet.UUID = uuid
+	}
 	if networkIPOk {
 		reqListSubnet.Subnet.NetworkIP = networkIP
 	}
@@ -111,19 +90,18 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 
 	resListSubnet, err := client.RC.GetSubnetList(&reqListSubnet)
 	if err != nil {
-		return nil, err
+		return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	var subnetList []model.Subnet
 	for _, pSubnet := range resListSubnet.Subnet {
-		modelSubnet, err := pbSubnetToModelSubnet(pSubnet)
-		if err != nil {
-			return nil, err
-		}
+		modelSubnet := pbtomodel.PbSubnetToModelSubnet(pSubnet, nil)
 		subnetList = append(subnetList, *modelSubnet)
 	}
 
-	return subnetList, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resListSubnet.HccErrorStack)
+
+	return model.SubnetList{Subnets: subnetList, Errors: *hccErrStack.ConvertReportForm()}, nil
 }
 
 // AllSubnet : Get subnet list with provided options (Just call ListSubnet())
@@ -131,33 +109,89 @@ func AllSubnet(args map[string]interface{}) (interface{}, error) {
 	return ListSubnet(args)
 }
 
+// AvailableSubnetList : Get available subnet list
+func AvailableSubnetList() (interface{}, error) {
+	resListSubnet, err := client.RC.GetAvailableSubnetList()
+	if err != nil {
+		return model.SubnetList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	var subnetList []model.Subnet
+	for _, pSubnet := range resListSubnet.Subnet {
+		modelSubnet := pbtomodel.PbSubnetToModelSubnet(pSubnet, nil)
+		subnetList = append(subnetList, *modelSubnet)
+	}
+
+	hccErrStack := errconv.GrpcStackToHcc(&resListSubnet.HccErrorStack)
+
+	return model.SubnetList{Subnets: subnetList, Errors: *hccErrStack.ConvertReportForm()}, nil
+}
+
 // NumSubnet : Get number of subnets
 func NumSubnet() (interface{}, error) {
-	num, err := client.RC.GetSubnetNum()
+	resGetSubnetNum, err := client.RC.GetSubnetNum()
 	if err != nil {
-		return nil, err
+		return model.Subnet{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	var modelSubnetNum model.SubnetNum
-	modelSubnetNum.Number = num
+	modelSubnetNum.Number = int(resGetSubnetNum.Num)
+
+	hccErrStack := errconv.GrpcStackToHcc(&resGetSubnetNum.HccErrorStack)
+	modelSubnetNum.Errors = *hccErrStack.ConvertReportForm()
+	if len(modelSubnetNum.Errors) != 0 && modelSubnetNum.Errors[0].ErrCode == 0 {
+		modelSubnetNum.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return modelSubnetNum, nil
+}
+
+// GetAdaptiveIPAvailableIPList : Get available IP list of AdaptiveIP
+func GetAdaptiveIPAvailableIPList() (interface{}, error) {
+	resGetAdaptiveIPAvailableIPList, err := client.RC.GetAdaptiveIPAvailableIPList()
+	if err != nil {
+		return model.AdaptiveIPAvailableIPList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	var adaptiveIPAvailableIPList []string
+
+	for _, availableIP := range resGetAdaptiveIPAvailableIPList.AdaptiveipAvailableipList.AvailableIp {
+		adaptiveIPAvailableIPList = append(adaptiveIPAvailableIPList, availableIP)
+	}
+
+	hccErrStack := errconv.GrpcStackToHcc(&resGetAdaptiveIPAvailableIPList.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return model.AdaptiveIPAvailableIPList{
+		AvailableIPList: adaptiveIPAvailableIPList,
+		Errors:          Errors,
+	}, nil
 }
 
 // GetAdaptiveIPSetting : Get infos of the adaptiveIP settings
 func GetAdaptiveIPSetting() (interface{}, error) {
 	resGetAdaptiveIPSetting, err := client.RC.GetAdaptiveIPSetting()
 	if err != nil {
-		return nil, err
+		return model.AdaptiveIPSetting{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	adaptiveipSetting := resGetAdaptiveIPSetting.AdaptiveipSetting
+	hccErrStack := errconv.GrpcStackToHcc(&resGetAdaptiveIPSetting.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
+
 	return model.AdaptiveIPSetting{
 		ExtIfaceIPAddress: adaptiveipSetting.ExtIfaceIPAddress,
 		Netmask:           adaptiveipSetting.Netmask,
 		GatewayAddress:    adaptiveipSetting.GatewayAddress,
 		StartIPAddress:    adaptiveipSetting.StartIPAddress,
 		EndIPAddress:      adaptiveipSetting.EndIPAddress,
+		Errors:            Errors,
 	}, nil
 }
 
@@ -165,19 +199,26 @@ func GetAdaptiveIPSetting() (interface{}, error) {
 func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
-		return nil, errors.New("need a server_uuid argument")
+		return model.AdaptiveIPServer{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
-	adaptiveIPServer, err := client.RC.GetAdaptiveIPServer(serverUUID)
+	resGetAdaptiveIPServer, err := client.RC.GetAdaptiveIPServer(serverUUID)
 	if err != nil {
-		return nil, err
+		return model.AdaptiveIPSetting{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	hccErrStack := errconv.GrpcStackToHcc(&resGetAdaptiveIPServer.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
 	}
 
 	return model.AdaptiveIPServer{
-		ServerUUID:     adaptiveIPServer.ServerUUID,
-		PublicIP:       adaptiveIPServer.PublicIP,
-		PrivateIP:      adaptiveIPServer.PrivateIP,
-		PrivateGateway: adaptiveIPServer.PrivateGateway,
+		ServerUUID:     resGetAdaptiveIPServer.AdaptiveipServer.ServerUUID,
+		PublicIP:       resGetAdaptiveIPServer.AdaptiveipServer.PublicIP,
+		PrivateIP:      resGetAdaptiveIPServer.AdaptiveipServer.PrivateIP,
+		PrivateGateway: resGetAdaptiveIPServer.AdaptiveipServer.PrivateGateway,
+		Errors:         Errors,
 	}, nil
 }
 
@@ -209,24 +250,35 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	if pageOk {
 		reqGetAdaptiveIPServerList.Page = int64(page)
 	}
-	reqGetAdaptiveIPServerList.AdaptiveipServer.ServerUUID = serverUUID
 
 	resAdaptiveIPServerList, err := client.RC.GetAdaptiveIPServerList(&reqGetAdaptiveIPServerList)
 	if err != nil {
-		return nil, err
+		return model.AdaptiveIPServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	var adaptiveIPServerList []model.AdaptiveIPServer
 	for _, adaptiveIPServer := range resAdaptiveIPServerList.AdaptiveipServer {
+		_createdAt, err := ptypes.Timestamp(adaptiveIPServer.CreatedAt)
+		if err != nil {
+			return model.AdaptiveIPServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLTimestampConversionError, err.Error())}, nil
+		}
+
 		adaptiveIPServerList = append(adaptiveIPServerList, model.AdaptiveIPServer{
 			ServerUUID:     adaptiveIPServer.ServerUUID,
 			PublicIP:       adaptiveIPServer.PublicIP,
 			PrivateIP:      adaptiveIPServer.PrivateIP,
 			PrivateGateway: adaptiveIPServer.PrivateGateway,
+			CreatedAt:      _createdAt,
 		})
 	}
 
-	return adaptiveIPServerList, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resAdaptiveIPServerList.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return model.AdaptiveIPServerList{AdaptiveIPServers: adaptiveIPServerList, Errors: Errors}, nil
 }
 
 // AllAdaptiveIPServer : Get adaptiveIP server list with provided options (Just call ListAdaptiveIPServer())
@@ -236,10 +288,16 @@ func AllAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 
 // NumAdaptiveIPServer : Get number of adaptiveIP servers
 func NumAdaptiveIPServer() (interface{}, error) {
-	num, err := client.RC.GetAdaptiveIPServerNum()
+	resGetAdaptiveIPServerNum, err := client.RC.GetAdaptiveIPServerNum()
 	if err != nil {
-		return nil, err
+		return model.AdaptiveIPServerNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return model.AdaptiveIPServerNum{Number: num}, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resGetAdaptiveIPServerNum.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return model.AdaptiveIPServerNum{Number: int(resGetAdaptiveIPServerNum.Num), Errors: Errors}, nil
 }

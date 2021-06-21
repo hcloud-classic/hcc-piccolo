@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -34,24 +35,16 @@ func closeNovnc() {
 }
 
 // ControlVNC : Set VNC with provided options
-func (rc *RPCClient) ControlVNC(reqData map[string]interface{}) (interface{}, error) {
-	//req data mapping
-	var req rpcnovnc.ReqControlVNC
-	req.Vnc = &rpcnovnc.VNC{
-		Token:      reqData["token"].(string),
-		ServerUUID: reqData["server_uuid"].(string),
-		Action:     reqData["action"].(string),
-	}
-
+func (rc *RPCClient) ControlVNC(in *rpcnovnc.ReqControlVNC) (*rpcnovnc.ResControlVNC, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.ViolinNoVnc.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
 
-	r, err := rc.novnc.ControlVNC(ctx, &req)
+	fmt.Println(in)
+	resControlVNC, err := rc.novnc.ControlVNC(ctx, in)
 	if err != nil {
 		return nil, err
 	}
-	logger.Logger.Println(r)
 
-	return r, nil
+	return resControlVNC, nil
 }

@@ -1,74 +1,33 @@
 package queryparser
 
 import (
-	"errors"
-	"github.com/golang/protobuf/ptypes"
+	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/grpc/client"
+	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/grpc/pb/rpcviolin"
+	"hcc/piccolo/lib/errors"
 	"hcc/piccolo/model"
 )
-
-func pbServerToModelServer(server *rpcviolin.Server) (*model.Server, error) {
-	createdAt, err := ptypes.Timestamp(server.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	modelServer := &model.Server{
-		UUID:       server.UUID,
-		SubnetUUID: server.SubnetUUID,
-		OS:         server.OS,
-		ServerName: server.ServerName,
-		ServerDesc: server.ServerDesc,
-		CPU:        int(server.CPU),
-		Memory:     int(server.Memory),
-		DiskSize:   int(server.DiskSize),
-		Status:     server.Status,
-		UserUUID:   server.UserUUID,
-		CreatedAt:  createdAt,
-	}
-
-	return modelServer, nil
-}
-
-func pbServerNodeToModelServerNode(serverNode *rpcviolin.ServerNode) (*model.ServerNode, error) {
-	createdAt, err := ptypes.Timestamp(serverNode.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	modelServerNode := &model.ServerNode{
-		UUID:       serverNode.UUID,
-		ServerUUID: serverNode.ServerUUID,
-		NodeUUID:   serverNode.NodeUUID,
-		CreatedAt:  createdAt,
-	}
-
-	return modelServerNode, nil
-}
 
 // Server : Get infos of the server
 func Server(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
 	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	server, err := client.RC.GetServer(uuid)
+	resGetServer, err := client.RC.GetServer(uuid)
 	if err != nil {
-		return nil, err
-	}
-	modelServer, err := pbServerToModelServer(server)
-	if err != nil {
-		return nil, err
+		return model.Server{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return *modelServer, nil
+	return *pbtomodel.PbServerToModelServer(resGetServer.Server, &resGetServer.HccErrorStack), nil
 }
 
 // ListServer : Get server list with provided options
 func ListServer(args map[string]interface{}) (interface{}, error) {
+	uuid, uuidOk := args["uuid"].(string)
 	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
 	os, osOk := args["os"].(string)
 	serverName, serverNameOk := args["server_name"].(string)
@@ -85,6 +44,9 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 	var reqServer rpcviolin.Server
 	reqListServer.Server = &reqServer
 
+	if uuidOk {
+		reqListServer.Server.UUID = uuid
+	}
 	if subnetUUIDOk {
 		reqListServer.Server.SubnetUUID = subnetUUID
 	}
@@ -121,19 +83,22 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 
 	resListServer, err := client.RC.GetServerList(&reqListServer)
 	if err != nil {
-		return nil, err
+		return model.ServerList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	var serverList []model.Server
 	for _, pServer := range resListServer.Server {
-		modelServer, err := pbServerToModelServer(pServer)
-		if err != nil {
-			return nil, err
-		}
+		modelServer := pbtomodel.PbServerToModelServer(pServer, nil)
 		serverList = append(serverList, *modelServer)
 	}
 
-	return serverList, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resListServer.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return model.ServerList{Servers: serverList, Errors: Errors}, nil
 }
 
 // AllServer : Get server list with provided options (Just call ListServer())
@@ -143,13 +108,19 @@ func AllServer(args map[string]interface{}) (interface{}, error) {
 
 // NumServer : Get number of servers
 func NumServer() (interface{}, error) {
-	num, err := client.RC.GetServerNum()
+	resGetServerNum, err := client.RC.GetServerNum()
 	if err != nil {
 		return nil, err
 	}
 
 	var modelServerNum model.ServerNum
-	modelServerNum.Number = num
+	modelServerNum.Number = int(resGetServerNum.Num)
+
+	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNum.HccErrorStack)
+	modelServerNum.Errors = *hccErrStack.ConvertReportForm()
+	if len(modelServerNum.Errors) != 0 && modelServerNum.Errors[0].ErrCode == 0 {
+		modelServerNum.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return modelServerNum, nil
 }
@@ -159,27 +130,33 @@ func ServerNode(args map[string]interface{}) (interface{}, error) {
 	uuid, uuidOk := args["uuid"].(string)
 
 	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+		return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	serverNode, err := client.RC.GetServerNode(uuid)
+	resGetServerNode, err := client.RC.GetServerNode(uuid)
 	if err != nil {
-		return nil, err
+		return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	modelServerNode, err := pbServerNodeToModelServerNode(serverNode)
+	resGetNode, err := client.RC.GetNode(resGetServerNode.ServerNode.NodeUUID)
 	if err != nil {
-		return nil, err
+		return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
-	return *modelServerNode, nil
+	resGetNodeDetail, err := client.RC.GetNodeDetail(resGetServerNode.ServerNode.NodeUUID)
+	if err != nil {
+		return model.ServerNode{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	return *pbtomodel.PbServerNodeToModelServerNode(resGetServerNode.ServerNode, resGetNode.Node, resGetNodeDetail.NodeDetail,
+		&resGetServerNode.HccErrorStack), nil
 }
 
 // ListServerNode : Get serverNode list with provided options
 func ListServerNode(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
-		return nil, errors.New("need a server_uuid argument")
+		return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
 	var reqListServerNode rpcviolin.ReqGetServerNodeList
@@ -187,19 +164,32 @@ func ListServerNode(args map[string]interface{}) (interface{}, error) {
 
 	resListServerNode, err := client.RC.GetServerNodeList(&reqListServerNode)
 	if err != nil {
-		return nil, err
+		return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	var serverNodeList []model.ServerNode
 	for _, pServerNode := range resListServerNode.ServerNode {
-		modelServerNode, err := pbServerNodeToModelServerNode(pServerNode)
+		resGetNode, err := client.RC.GetNode(pServerNode.NodeUUID)
 		if err != nil {
-			return nil, err
+			return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 		}
+
+		resGetNodeDetail, err := client.RC.GetNodeDetail(pServerNode.NodeUUID)
+		if err != nil {
+			return model.ServerNodeList{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
+		modelServerNode := pbtomodel.PbServerNodeToModelServerNode(pServerNode, resGetNode.Node, resGetNodeDetail.NodeDetail, nil)
 		serverNodeList = append(serverNodeList, *modelServerNode)
 	}
 
-	return serverNodeList, nil
+	hccErrStack := errconv.GrpcStackToHcc(&resListServerNode.HccErrorStack)
+	Errors := *hccErrStack.ConvertReportForm()
+	if len(Errors) != 0 && Errors[0].ErrCode == 0 {
+		Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return model.ServerNodeList{ServerNodes: serverNodeList, Errors: Errors}, nil
 }
 
 // AllServerNode : Get serverNode list with provided options (Just call ListServerNode())
@@ -211,16 +201,21 @@ func AllServerNode(args map[string]interface{}) (interface{}, error) {
 func NumServerNode(args map[string]interface{}) (interface{}, error) {
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
 	if !serverUUIDOk {
-		return nil, errors.New("need a server_uuid argument")
+		return model.ServerNodeNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
 	}
 
-	num, err := client.RC.GetServerNodeNum(serverUUID)
+	resGetServerNodeNum, err := client.RC.GetServerNodeNum(serverUUID)
 	if err != nil {
-		return nil, err
+		return model.ServerNodeNum{Errors: errors.ReturnHccErrorPiccolo(errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
 
 	var modelServerNodeNum model.ServerNodeNum
-	modelServerNodeNum.Number = num
+	modelServerNodeNum.Number = int(resGetServerNodeNum.Num)
+	hccErrStack := errconv.GrpcStackToHcc(&resGetServerNodeNum.HccErrorStack)
+	modelServerNodeNum.Errors = *hccErrStack.ConvertReportForm()
+	if len(modelServerNodeNum.Errors) != 0 && modelServerNodeNum.Errors[0].ErrCode == 0 {
+		modelServerNodeNum.Errors = errors.ReturnHccEmptyErrorPiccolo()
+	}
 
 	return modelServerNodeNum, nil
 }
