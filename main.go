@@ -1,33 +1,44 @@
 package main
 
 import (
+	"fmt"
 	"hcc/piccolo/action/graphql"
-	hccGatewayEnd "hcc/piccolo/end"
-	hccGatewayInit "hcc/piccolo/init"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
-	"net/http"
-	"strconv"
+	"hcc/piccolo/lib/syscheck"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func init() {
-	err := hccGatewayInit.MainInit()
+	err := syscheck.CheckRoot()
 	if err != nil {
 		panic(err)
 	}
+
+	err = logger.Init()
+	if err != nil {
+		panic(err)
+	}
+
+	config.Parser()
+}
+
+func end(){
+	logger.End()
 }
 
 func main() {
-	defer func() {
-		hccGatewayEnd.MainEnd()
+	// Catch the exit signal
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+	go func(){
+		<- sigChan
+		end()
+		fmt.Println("Exiting piccolo module...")
+		os.Exit(0)
 	}()
 
-	http.Handle("/graphql", graphql.GraphqlHandler)
-	logger.Logger.Println("Opening server on port " + strconv.Itoa(int(config.HTTP.Port)) + "...")
-	err := http.ListenAndServe(":"+strconv.Itoa(int(config.HTTP.Port)), nil)
-	if err != nil {
-		logger.Logger.Println(err)
-		logger.Logger.Println("Failed to prepare http server!")
-		return
-	}
+	graphql.Init()
 }

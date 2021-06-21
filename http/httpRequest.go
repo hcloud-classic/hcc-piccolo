@@ -76,6 +76,14 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 				}
 
 				switch dataType {
+				case "PowerStateNodeData":
+					powerStateNodeData := data.(hccGatewayData.PowerStateNodeData)
+					err = json.Unmarshal([]byte(result), &powerStateNodeData)
+					if err != nil {
+						return nil, err
+					}
+
+					return powerStateNodeData.Data.PowerStateNode, nil
 				case "NodeData":
 					nodeData := data.(hccGatewayData.NodeData)
 					err = json.Unmarshal([]byte(result), &nodeData)
@@ -84,6 +92,14 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					}
 
 					return nodeData.Data.Node, nil
+				case "ListNodeData":
+					listNodeData := data.(hccGatewayData.ListNodeData)
+					err = json.Unmarshal([]byte(result), &listNodeData)
+					if err != nil {
+						return nil, err
+					}
+
+					return listNodeData.Data.ListNode, nil
 				case "AllNodeData":
 					allNodeData := data.(hccGatewayData.AllNodeData)
 					err = json.Unmarshal([]byte(result), &allNodeData)
@@ -108,14 +124,6 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					}
 
 					return nodeDetailData.Data.NodeDetail, nil
-				case "OnNodeData":
-					onNodeData := data.(hccGatewayData.OnNodeData)
-					err = json.Unmarshal([]byte(result), &onNodeData)
-					if err != nil {
-						return nil, err
-					}
-
-					return onNodeData.Data.Result, nil
 				case "CreateNodeData":
 					createNodeData := data.(hccGatewayData.CreateNodeData)
 					err = json.Unmarshal([]byte(result), &createNodeData)

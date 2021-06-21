@@ -381,6 +381,19 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			// flute
+			"power_state_node": &graphql.Field{
+				Type:        graphql.String,
+				Description: "Get the node's power state",
+				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					logger.Logger.Println("Resolving: power_state_node")
+					return queryParser.PowerStateNode(params.Args)
+				},
+			},
 			"node": &graphql.Field{
 				Type:        graphqlType.NodeType,
 				Description: "Get a node by uuid",

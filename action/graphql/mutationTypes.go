@@ -96,6 +96,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"status": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: violin / delete_server")
@@ -375,13 +378,42 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphql.String,
 			Description: "On node",
 			Args: graphql.FieldConfigArgument{
-				"mac": &graphql.ArgumentConfig{
+				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				logger.Logger.Println("Resolving: flute / on_node")
 				return mutationParser.OnNode(params.Args)
+			},
+		},
+		"off_node": &graphql.Field{
+			Type:        graphql.String,
+			Description: "Off node",
+			Args: graphql.FieldConfigArgument{
+				"uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"force_off": &graphql.ArgumentConfig{
+					Type: graphql.Boolean,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				logger.Logger.Println("Resolving: flute / off_node")
+				return mutationParser.OffNode(params.Args)
+			},
+		},
+		"force_restart_node": &graphql.Field{
+			Type:        graphql.String,
+			Description: "Force restart node",
+			Args: graphql.FieldConfigArgument{
+				"uuid": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				logger.Logger.Println("Resolving: flute / force_restart_node")
+				return mutationParser.ForceRestartNode(params.Args)
 			},
 		},
 		"create_node": &graphql.Field{

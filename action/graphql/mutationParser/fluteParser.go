@@ -44,15 +44,42 @@ func checkNodeDetailArgsAll(args map[string]interface{}) bool {
 }
 
 func OnNode(args map[string]interface{}) (interface{}, error) {
-	mac, macOk := args["mac"].(string)
-	if !macOk {
-		return nil, errors.New("need a mac argument")
+	UUID, UUIDOk := args["uuid"].(string)
+	if !UUIDOk {
+		return nil, errors.New("need a UUID argument")
 	}
 
-	var onNodeData data.OnNodeData
-	query := "mutation _ { on_node(mac:\"" + mac + "\") }"
+	query := "mutation _ { on_node(uuid:\"" + UUID + "\") }"
 
-	return http.DoHTTPRequest("flute", true, "OnNodeData", onNodeData, query)
+	return http.DoHTTPRequest("flute", false, "", nil, query)
+}
+
+func OffNode(args map[string]interface{}) (interface{}, error) {
+	UUID, UUIDOk := args["uuid"].(string)
+	if !UUIDOk {
+		return nil, errors.New("need a UUID argument")
+	}
+
+	var forceOffStr = "false"
+	forceOff, _ := args["force_off"].(bool)
+	if forceOff {
+		forceOffStr = "true"
+	}
+
+	query := "mutation _ { off_node(uuid:\"" + UUID + "\", force_off: " + forceOffStr + ") }"
+
+	return http.DoHTTPRequest("flute", false, "", nil, query)
+}
+
+func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
+	UUID, UUIDOk := args["uuid"].(string)
+	if !UUIDOk {
+		return nil, errors.New("need a UUID argument")
+	}
+
+	query := "mutation _ { force_restart_node(uuid:\"" + UUID + ") }"
+
+	return http.DoHTTPRequest("flute", false, "", nil, query)
 }
 
 func CreateNode(args map[string]interface{}) (interface{}, error) {
