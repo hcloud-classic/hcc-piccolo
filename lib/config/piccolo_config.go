@@ -5,6 +5,7 @@ import "github.com/Terry-Mao/goconf"
 var configLocation = "/etc/hcc/piccolo/piccolo.conf"
 
 type piccoloConfig struct {
+	MysqlConfig       *goconf.Section
 	HTTPConfig        *goconf.Section
 	FluteConfig       *goconf.Section
 	CelloConfig       *goconf.Section
@@ -12,4 +13,5 @@ type piccoloConfig struct {
 	ViolinConfig      *goconf.Section
 	ViolinNoVncConfig *goconf.Section
 	PianoConfig       *goconf.Section
+	UserConfig        *goconf.Section
 }

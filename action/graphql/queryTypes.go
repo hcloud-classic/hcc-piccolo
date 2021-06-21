@@ -2,7 +2,7 @@ package graphql
 
 import (
 	"github.com/graphql-go/graphql"
-	"hcc/piccolo/action/graphql/queryParser"
+	"hcc/piccolo/action/graphql/queryparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/lib/logger"
 )
@@ -11,6 +11,23 @@ var queryTypes = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Query",
 		Fields: graphql.Fields{
+			// piccolo
+			"login": &graphql.Field{
+				Type:        graphqlType.Token,
+				Description: "Execute login process for piccolo",
+				Args: graphql.FieldConfigArgument{
+					"id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"password": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					logger.Logger.Println("Resolving: piccolo / login")
+					return queryparser.Login(params.Args)
+				},
+			},
 			// violin
 			"server": &graphql.Field{
 				Type:        graphqlType.ServerType,
@@ -22,7 +39,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / server")
-					return queryParser.Server(params.Args)
+					return queryparser.Server(params.Args)
 				},
 			},
 			"list_server": &graphql.Field{
@@ -62,10 +79,11 @@ var queryTypes = graphql.NewObject(
 					"page": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
+					"token":
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / list_server")
-					return queryParser.ListServer(params.Args)
+					return queryparser.ListServer(params.Args)
 				},
 			},
 			"all_server": &graphql.Field{
@@ -81,7 +99,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / all_server")
-					return queryParser.AllServer(params.Args)
+					return queryparser.AllServer(params.Args)
 				},
 			},
 			"num_server": &graphql.Field{
@@ -89,7 +107,7 @@ var queryTypes = graphql.NewObject(
 				Description: "Get the number of server",
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / num_server")
-					return queryParser.NumServer()
+					return queryparser.NumServer()
 				},
 			},
 			"server_node": &graphql.Field{
@@ -102,7 +120,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / server_node")
-					return queryParser.ServerNode(params.Args)
+					return queryparser.ServerNode(params.Args)
 				},
 			},
 			"list_server_node": &graphql.Field{
@@ -115,16 +133,20 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / list_server_node")
-					return queryParser.ListServerNode(params.Args)
+					return queryparser.ListServerNode(params.Args)
 				},
 			},
 			"all_server_node": &graphql.Field{
 				Type:        graphql.NewList(graphqlType.ServerNodeType),
 				Description: "Get all server_node list",
-				Args:        graphql.FieldConfigArgument{},
+				Args: graphql.FieldConfigArgument{
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / all_server_node")
-					return queryParser.AllServerNode()
+					return queryparser.AllServerNode(params.Args)
 				},
 			},
 			"num_nodes_server": &graphql.Field{
@@ -137,7 +159,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin / num_nodes_server")
-					return queryParser.NumNodesServer(params.Args)
+					return queryparser.NumServerNode(params.Args)
 				},
 			},
 			// vnc
@@ -166,7 +188,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: violin-novnc: control_vnc")
-					return queryParser.ControlVnc(params.Args)
+					return queryparser.ControlVnc(params.Args)
 				},
 			},
 			// harp
@@ -180,7 +202,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: harp / subnet")
-					return queryParser.Subnet(params.Args)
+					return queryparser.Subnet(params.Args)
 				},
 			},
 			"list_subnet": &graphql.Field{
@@ -229,7 +251,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: harp / list_subnet")
-					return queryParser.ListSubnet(params.Args)
+					return queryparser.ListSubnet(params.Args)
 				},
 			},
 			"all_subnet": &graphql.Field{
@@ -245,7 +267,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: harp / all_subnet")
-					return queryParser.AllSubnet(params.Args)
+					return queryparser.AllSubnet(params.Args)
 				},
 			},
 			"num_subnet": &graphql.Field{
@@ -253,85 +275,28 @@ var queryTypes = graphql.NewObject(
 				Description: "Get the number of subnet",
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: harp / num_subnet")
-					return queryParser.NumSubnet()
+					return queryparser.NumSubnet()
 				},
 			},
-			"adaptiveip": &graphql.Field{
-				Type:        graphqlType.AdaptiveIPType,
-				Description: "Get adaptiveip by uuid",
-				Args: graphql.FieldConfigArgument{
-					"uuid": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-				},
+			"adaptiveip_setting": &graphql.Field{
+				Type:        graphqlType.AdaptiveIPSettingType,
+				Description: "Get settings of adaptiveip",
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					logger.Logger.Println("Resolving: harp / adaptiveip")
-					return queryParser.AdaptiveIP(params.Args)
-				},
-			},
-			"list_adaptiveip": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.AdaptiveIPType),
-				Description: "Get adaptiveip list",
-				Args: graphql.FieldConfigArgument{
-					"network_address": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"netmask": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"gateway": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"start_ip_address": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"end_ip_address": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-				},
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					logger.Logger.Println("Resolving: harp / list_adaptiveip")
-					return queryParser.ListAdaptiveIP(params.Args)
-				},
-			},
-			"all_adaptiveip": &graphql.Field{
-				Type:        graphql.NewList(graphqlType.AdaptiveIPType),
-				Description: "Get all adaptiveip list",
-				Args: graphql.FieldConfigArgument{
-					"row": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
-					"page": &graphql.ArgumentConfig{
-						Type: graphql.Int,
-					},
-				},
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					logger.Logger.Println("Resolving: harp / all_adaptiveip")
-					return queryParser.AllAdaptiveIP(params.Args)
-				},
-			},
-			"num_adaptiveip": &graphql.Field{
-				Type:        graphqlType.AdaptiveIPNumType,
-				Description: "Get the number of adaptiveip",
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					logger.Logger.Println("Resolving: harp / num_adaptiveip")
-					return queryParser.NumAdaptiveIP()
+					logger.Logger.Println("Resolving: harp / adaptiveip_setting")
+					return queryparser.GetAdaptiveIPSetting()
 				},
 			},
 			"adaptiveip_server": &graphql.Field{
 				Type:        graphqlType.AdaptiveIPServerType,
 				Description: "Get adaptiveip by uuid",
 				Args: graphql.FieldConfigArgument{
-					"adaptiveip_uuid": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
 					"server_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: harp / adaptiveip_server")
-					return queryParser.AdaptiveIPServer(params.Args)
+					return queryparser.AdaptiveIPServer(params.Args)
 				},
 			},
 			"list_adaptiveip_server": &graphql.Field{
@@ -353,7 +318,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: harp / list_adaptiveip_server")
-					return queryParser.ListAdaptiveIPServer(params.Args)
+					return queryparser.ListAdaptiveIPServer(params.Args)
 				},
 			},
 			"all_adaptiveip_server": &graphql.Field{
@@ -369,7 +334,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: harp / all_adaptiveip_server")
-					return queryParser.AllAdaptiveIPServer(params.Args)
+					return queryparser.AllAdaptiveIPServer(params.Args)
 				},
 			},
 			"num_adaptiveip_server": &graphql.Field{
@@ -377,7 +342,7 @@ var queryTypes = graphql.NewObject(
 				Description: "Get the number of adaptiveip_server",
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: harp / num_adaptiveip_server")
-					return queryParser.NumAdaptiveIPServer()
+					return queryparser.NumAdaptiveIPServer()
 				},
 			},
 			// flute
@@ -391,7 +356,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: power_state_node")
-					return queryParser.PowerStateNode(params.Args)
+					return queryparser.PowerStateNode(params.Args)
 				},
 			},
 			"node": &graphql.Field{
@@ -404,7 +369,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: flute / node")
-					return queryParser.Node(params.Args)
+					return queryparser.Node(params.Args)
 				},
 			},
 			"list_node": &graphql.Field{
@@ -447,7 +412,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: flute / list_node")
-					return queryParser.ListNode(params.Args)
+					return queryparser.ListNode(params.Args)
 				},
 			},
 			"all_node": &graphql.Field{
@@ -466,7 +431,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: flute / all_node")
-					return queryParser.AllNode(params.Args)
+					return queryparser.AllNode(params.Args)
 				},
 			},
 			"num_node": &graphql.Field{
@@ -474,7 +439,7 @@ var queryTypes = graphql.NewObject(
 				Description: "Get the number of node",
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: flute / num_node")
-					return queryParser.NumNode()
+					return queryparser.NumNode()
 				},
 			},
 			"detail_node": &graphql.Field{
@@ -487,7 +452,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: flute / node_detail")
-					return queryParser.NodeDetail(params.Args)
+					return queryparser.NodeDetail(params.Args)
 				},
 			},
 			// piano
@@ -516,7 +481,7 @@ var queryTypes = graphql.NewObject(
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					logger.Logger.Println("Resolving: piano / telegraf")
-					return queryParser.Telegraf(params.Args)
+					return queryparser.Telegraf(params.Args)
 				},
 			},
 		},

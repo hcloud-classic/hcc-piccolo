@@ -1,4 +1,4 @@
-package grpccli
+package client
 
 import (
 	"context"
@@ -7,33 +7,34 @@ import (
 
 	"google.golang.org/grpc"
 
-	rpcnovnc "hcc/piccolo/action/grpc/rpcviolin_novnc"
+	rpcnovnc "hcc/piccolo/action/grpc/pb/rpcviolin_novnc"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 )
 
-var novncconn grpc.ClientConn
+var novncConn *grpc.ClientConn
 
 func initNovnc() error {
+	var err error
+
 	addr := config.ViolinNoVnc.ServerAddress + ":" + strconv.FormatInt(config.ViolinNoVnc.ServerPort, 10)
-	logger.Logger.Println("Try connect to violin-novnc " + addr)
-	novncconn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
+	novncConn, err = grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
-		logger.Logger.Fatalf("Connect Violin-Novnc failed: %v", err)
 		return err
 	}
 
-	RC.novnc = rpcnovnc.NewNovncClient(novncconn)
-	logger.Logger.Println("GRPC connected to violin-novnc")
+	RC.novnc = rpcnovnc.NewNovncClient(novncConn)
+	logger.Logger.Println("gRPC novnc client ready")
 
 	return nil
 }
 
-func cleanNovnc() {
-	novncconn.Close()
+func closeNovnc() {
+	_ = novncConn.Close()
 }
 
-func (rc *RpcClient) ControlVNC(reqData map[string]interface{}) (interface{}, error) {
+// ControlVNC : Set VNC with provided options
+func (rc *RPCClient) ControlVNC(reqData map[string]interface{}) (interface{}, error) {
 	//req data mapping
 	var req rpcnovnc.ReqControlVNC
 	req.Vnc = &rpcnovnc.VNC{

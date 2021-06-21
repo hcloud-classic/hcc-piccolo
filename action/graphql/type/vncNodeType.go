@@ -1,10 +1,10 @@
-package graphqlType
+package graphqltype
 
 import (
 	"github.com/graphql-go/graphql"
 )
 
-// VncNodeType: Form
+// VncNodeType : Form
 var VncNodeType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Novnc",
