@@ -106,7 +106,7 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 	status, statusOk := args["status"].(string)
 	userUUID, userUUIDOk := args["user_uuid"].(string)
 
-	if !isMaster && !isAdmin {
+	if !isMaster || !isAdmin {
 		server, err := queryparser.Server(args)
 		if err != nil {
 			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
@@ -119,9 +119,9 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other group's server if you are not a master")}, nil
 			}
 		}
-		if !isAdmin {
+		if !isMaster && !isAdmin {
 			if server.(model.Server).UserUUID != id {
-				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other server if you are not the admin")}, nil
+				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other server if you are not a master or the admin")}, nil
 			}
 		}
 	}
@@ -176,7 +176,7 @@ func DeleteServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	if !isMaster && !isAdmin {
+	if !isMaster || !isAdmin {
 		server, err := queryparser.Server(args)
 		if err != nil {
 			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
@@ -189,9 +189,9 @@ func DeleteServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't delete the other group's server if you are not a master")}, nil
 			}
 		}
-		if !isAdmin {
+		if !isMaster && !isAdmin {
 			if server.(model.Server).UserUUID != id {
-				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't delete the other server if you are not the admin")}, nil
+				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't delete the other server if you are not a master or the admin")}, nil
 			}
 		}
 	}

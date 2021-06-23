@@ -103,13 +103,12 @@ func ForceRestartNode(args map[string]interface{}) (interface{}, error) {
 }
 
 // CreateNode : Create a node
-func CreateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (interface{}, error) {
-	if !isMaster && !isAdmin {
+func CreateNode(args map[string]interface{}, isMaster bool) (interface{}, error) {
+	if !isMaster {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
 	nodeName, nodeNameOk := args["node_name"].(string)
-	groupID, groupIDOk := args["group_id"].(int)
 	bmcIP, bmcIPOk := args["bmc_ip"].(string)
 	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
@@ -120,13 +119,12 @@ func CreateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	var reqNode pb.Node
 	reqCreateNode.Node = &reqNode
 
-	if !nodeNameOk || !groupIDOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !nicDetailDataOk {
+	if !nodeNameOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !nicDetailDataOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need node_name, group_id and bmc_ip, nic_speed_mbps, description, nic_detail_data arguments")}, nil
+			"need node_name and bmc_ip, nic_speed_mbps, description, nic_detail_data arguments")}, nil
 	}
 
 	reqCreateNode.Node.NodeName = nodeName
-	reqCreateNode.Node.GroupID = int64(groupID)
 	reqCreateNode.Node.BmcIP = bmcIP
 	reqCreateNode.Node.NicSpeedMbps = int32(nicSpeedMbps)
 	reqCreateNode.Node.Description = description

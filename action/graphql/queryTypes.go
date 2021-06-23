@@ -1147,6 +1147,27 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"all_quota_prepared_node": &graphql.Field{
+				Type:        graphqlType.NodeListType,
+				Description: "Get quota prepared all node list",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					params.Args["group_id"] = -1
+					data, err := queryparser.AllNode(params.Args)
+					if err != nil {
+						logger.Logger.Println("flute / all_quota_prepared_node: " + err.Error())
+					}
+					return data, err
+				},
+			},
 			"num_node": &graphql.Field{
 				Type:        graphqlType.NodeNumType,
 				Description: "Get the number of nodes",
@@ -1356,7 +1377,7 @@ var queryTypes = graphql.NewObject(
 			// pool_list
 			"pool_list": &graphql.Field{
 				Type:        graphqlType.PoolListType,
-				Description: "Get server by uuid",
+				Description: "Get disk pool list",
 				Args: graphql.FieldConfigArgument{
 					"user_uuid": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -1377,7 +1398,7 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
-						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
