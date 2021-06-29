@@ -1367,7 +1367,7 @@ var queryTypes = graphql.NewObject(
 					if err != nil {
 						return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
-					data, err := queryparser.GetVolumeList(params.Args)
+					data, err := queryparserext.GetVolumeList(params.Args)
 					if err != nil {
 						logger.Logger.Println("cello / volume_list: " + err.Error())
 					}

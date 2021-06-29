@@ -3,6 +3,7 @@ package queryparser
 import (
 	dbsql "database/sql"
 	"hcc/piccolo/action/graphql/pbtomodel"
+	"hcc/piccolo/action/graphql/queryparserext"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
@@ -507,7 +508,7 @@ func QuotaDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (inte
 		queryArgs := make(map[string]interface{})
 		queryArgs["server_uuid"] = serverUUID
 
-		volumeList, err := GetVolumeList(queryArgs)
+		volumeList, err := queryparserext.GetVolumeList(queryArgs)
 		if err == nil {
 			volumes = append(volumes, volumeList.(model.VolumeList).Volumes...)
 		}
