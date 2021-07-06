@@ -505,3 +505,54 @@ func UpdateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 
 	return &quota, nil
 }
+
+// DeleteQuota : Delete the quota of the group
+func DeleteQuota(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserGroupID int) (interface{}, error) {
+	if !isMaster && !isAdmin {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	groupID, groupIDOk := args["group_id"].(int)
+
+	if isMaster && !groupIDOk {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"need a group_id argument")}, nil
+	}
+
+	if !isMaster && loginUserGroupID != groupID {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't create the other group's quota if you are not a master")}, nil
+	}
+
+	group, err := ReadGroup(groupID)
+	if err != nil {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError,
+			"Failed to get the group's info")}, nil
+	}
+
+	quota := model.Quota{
+		GroupID:   int64(groupID),
+		GroupName: group.Name,
+	}
+
+	// TODO DELETE QUOTA
+	//sql := "insert into quota(group_id, limit_cpu_cores, limit_memory_gb, limit_subnet_cnt, limit_adaptive_ip_cnt, pool_name, limit_ssd_gb, limit_hdd_gb) values (?, ?, ?, ?, ?, ?, ?, ?)"
+	//stmt, err := mysql.Prepare(sql)
+	//if err != nil {
+	//	errStr := "CreateQuota(): " + err.Error()
+	//	logger.Logger.Println(errStr)
+	//
+	//	return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, errStr)}, nil
+	//}
+	//defer func() {
+	//	_ = stmt.Close()
+	//}()
+	//_, err = stmt.Exec(quota.GroupID, quota.LimitCPUCores, quota.LimitMemoryGB, quota.LimitSubnetCnt, quota.LimitAdaptiveIPCnt, quota.PoolName, quota.LimitSSDGB, quota.LimitHDDGB)
+	//if err != nil {
+	//	errStr := "CreateQuota(): " + err.Error()
+	//	logger.Logger.Println(errStr)
+	//
+	//	return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, errStr)}, nil
+	//}
+
+	return &quota, nil
+}

@@ -211,6 +211,32 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return data, err
 			},
 		},
+		"delete_quota": &graphql.Field{
+			Type:        graphqlType.QuotaType,
+			Description: "Delete quota",
+			Args: graphql.FieldConfigArgument{
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+				if err != nil {
+					return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+				}
+				data, err := dao.DeleteQuota(params.Args, isAdmin, isMaster, int(groupID))
+				if err != nil {
+					logger.Logger.Println("piccolo / delete_quota: " + err.Error())
+				}
+				return data, err
+			},
+		},
 		// violin
 		"create_server": &graphql.Field{
 			Type:        graphqlType.ServerType,
