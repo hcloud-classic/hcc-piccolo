@@ -1,6 +1,8 @@
 package dao
 
 import (
+	"errors"
+	"hcc/piccolo/action/graphql/queryparserext"
 	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/logger"
@@ -45,6 +47,9 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	if err != nil {
 		errStr := "ReadGroup(): " + err.Error()
 		logger.Logger.Println(errStr)
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return nil, errors.New("quota is not exist")
+		}
 
 		return nil, err
 	}
@@ -62,6 +67,61 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	}
 
 	return &quota, nil
+}
+
+func checkPoolSize(quota model.Quota, resGetServerList *pb.ResGetServerList) error {
+	if resGetServerList == nil {
+		_resGetServerList, err := client.RC.GetServerList(
+			&pb.ReqGetServerList{
+				Server: &pb.Server{
+					GroupID: quota.GroupID,
+				},
+			})
+		if err != nil {
+			return errors.New("failed to get server list")
+		}
+
+		resGetServerList = _resGetServerList
+	}
+
+	resPoolList, err := client.RC.GetPoolList(&pb.ReqGetPoolList{
+		Pool: &pb.Pool{
+			Action: "read",
+		},
+	})
+	if err != nil {
+		return errors.New("failed to get pool list")
+	}
+
+	var volumesSize int
+	for _, server := range resGetServerList.Server {
+		queryArgs := make(map[string]interface{})
+		queryArgs["server_uuid"] = server.UUID
+
+		resGetVolumeList, err := queryparserext.GetVolumeList(queryArgs)
+		if err == nil {
+			for _, volume := range resGetVolumeList.(model.VolumeList).Volumes {
+				volumesSize += volume.Size
+			}
+		}
+	}
+
+	if quota.LimitSSDGB+quota.LimitHDDGB < volumesSize {
+		return errors.New("allocated volumes size is bigger than the quota limitation")
+	}
+
+	for _, pool := range resPoolList.Pool {
+		if pool.Name == quota.PoolName {
+			poolAvailableSize, _ := strconv.Atoi(pool.AvailableSize)
+			if quota.LimitSSDGB+quota.LimitHDDGB-volumesSize > poolAvailableSize {
+				return errors.New("not enough available size left for the pool")
+			}
+
+			break
+		}
+	}
+
+	return nil
 }
 
 // CreateQuota : Create the quota of the group
@@ -167,6 +227,12 @@ func CreateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 		LimitHDDGB:         hddSize,
 	}
 
+	err = checkPoolSize(quota, nil)
+	if err != nil {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			err.Error())}, nil
+	}
+
 	sql := "insert into quota(group_id, limit_cpu_cores, limit_memory_gb, limit_subnet_cnt, limit_adaptive_ip_cnt, pool_name, limit_ssd_gb, limit_hdd_gb) values (?, ?, ?, ?, ?, ?, ?, ?)"
 	stmt, err := mysql.Prepare(sql)
 	if err != nil {
@@ -187,6 +253,63 @@ func CreateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 	}
 
 	return &quota, nil
+}
+
+func checkQuotaUpdate(quota model.Quota) error {
+	var allocatedCPUCores = 0
+	var allocatedMemoryGB = 0
+
+	resGetServerList, err := client.RC.GetServerList(
+		&pb.ReqGetServerList{
+			Server: &pb.Server{
+				GroupID: quota.GroupID,
+			},
+		})
+	if err != nil {
+		return errors.New("failed to get server list")
+	}
+	for _, server := range resGetServerList.Server {
+		allocatedCPUCores += int(server.CPU)
+		allocatedMemoryGB += int(server.Memory)
+	}
+
+	if quota.LimitCPUCores < allocatedCPUCores {
+		return errors.New("allocated CPU cores to the group are bigger than the quota limitation")
+	}
+	if quota.LimitMemoryGB < allocatedMemoryGB {
+		return errors.New("allocated memory to the group is bigger than the quota limitation")
+	}
+
+	resGetSubnetNum, err := client.RC.GetSubnetNum(
+		&pb.ReqGetSubnetNum{
+			GroupID: quota.GroupID,
+		})
+	if err != nil {
+		return errors.New("failed to get subnets count")
+	}
+
+	if quota.LimitSubnetCnt < int(resGetSubnetNum.Num) {
+		return errors.New("allocated subnets count is bigger than the quota limitation")
+	}
+
+	resGetAdaptiveIPServerNum, err := client.RC.GetAdaptiveIPServerNum(
+		&pb.ReqGetAdaptiveIPServerNum{
+			GroupID: quota.GroupID,
+		})
+	if err != nil {
+		return errors.New("failed to get AdaptiveIPs count")
+	}
+
+	if quota.LimitSubnetCnt < int(resGetAdaptiveIPServerNum.Num) {
+		return errors.New("allocated AdaptiveIPs count is bigger than the quota limitation")
+	}
+
+	err = checkPoolSize(quota, resGetServerList)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // UpdateQuota : Update the quota of the group
@@ -343,6 +466,12 @@ func UpdateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 		PoolName:           poolName,
 		LimitSSDGB:         ssdSize,
 		LimitHDDGB:         hddSize,
+	}
+
+	err = checkQuotaUpdate(quota)
+	if err != nil {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			err.Error())}, nil
 	}
 
 	sql := "update quota set"

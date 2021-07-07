@@ -652,11 +652,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				_, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.CreatePortForwarding(params.Args)
+				data, err := mutationparser.CreatePortForwarding(params.Args, isMaster)
 				if err != nil {
 					logger.Logger.Println("harp / create_port_forwarding: " + err.Error())
 				}
@@ -678,11 +678,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				_, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.AdaptiveIPServer{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
-				data, err := mutationparser.DeletePortForwarding(params.Args)
+				data, err := mutationparser.DeletePortForwarding(params.Args, isMaster)
 				if err != nil {
 					logger.Logger.Println("harp / delete_port_forwarding: " + err.Error())
 				}

@@ -364,7 +364,7 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 }
 
 // CreatePortForwarding : Create the AdaptiveIP Port Forwarding
-func CreatePortForwarding(args map[string]interface{}) (interface{}, error) {
+func CreatePortForwarding(args map[string]interface{}, isMaster bool) (interface{}, error) {
 	tokenString, _ := args["token"].(string)
 
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
@@ -377,6 +377,18 @@ func CreatePortForwarding(args map[string]interface{}) (interface{}, error) {
 		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
 			"need server_uuid and protocol,"+
 				"external_port, internal_port, description arguments")}, nil
+	}
+
+	if serverUUID == "master" {
+		if isMaster {
+			if internalPort != 0 {
+				return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+					"Master Node is not using port forwarding method. Please set internal port as 0.")}, nil
+			}
+		} else {
+			return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+				"Only master can change the Master Node's input setting")}, nil
+		}
 	}
 
 	var forwardTCP = false
@@ -467,7 +479,7 @@ func CreatePortForwarding(args map[string]interface{}) (interface{}, error) {
 }
 
 // DeletePortForwarding : Delete the AdaptiveIP Port Forwarding
-func DeletePortForwarding(args map[string]interface{}) (interface{}, error) {
+func DeletePortForwarding(args map[string]interface{}, isMaster bool) (interface{}, error) {
 	tokenString, _ := args["token"].(string)
 
 	serverUUID, serverUUIDOk := args["server_uuid"].(string)
@@ -475,6 +487,11 @@ func DeletePortForwarding(args map[string]interface{}) (interface{}, error) {
 
 	if !serverUUIDOk || !externalPortOk {
 		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need server_uuid and external_port arguments")}, nil
+	}
+
+	if serverUUID == "master" && !isMaster {
+		return model.PortForwarding{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"Only master can change the Master Node's input setting")}, nil
 	}
 
 	resDeletePortForwarding, err := client.RC.DeletePortForwarding(&pb.ReqDeletePortForwarding{
