@@ -13,6 +13,9 @@ var GroupType = graphql.NewObject(
 			"group_name": &graphql.Field{
 				Type: graphql.String,
 			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
 		},
 	},
 )

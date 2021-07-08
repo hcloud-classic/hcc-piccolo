@@ -123,6 +123,81 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return data, err
 			},
 		},
+		"create_group": &graphql.Field{
+			Type:        graphqlType.GroupType,
+			Description: "Get the group info",
+			Args: graphql.FieldConfigArgument{
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"group_name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				_, isMaster, _, _, err := usertool.ValidateToken(params.Args, true)
+				if err != nil {
+					return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				data, err := mutationparser.CreateGroup(params.Args, isMaster)
+				if err != nil {
+					logger.Logger.Println("piccolo / create_group: " + err.Error())
+				}
+				return data, err
+			},
+		},
+		"update_group": &graphql.Field{
+			Type:        graphqlType.GroupType,
+			Description: "Update the group info",
+			Args: graphql.FieldConfigArgument{
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"group_name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+				if err != nil {
+					return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				data, err := mutationparser.UpdateGroup(params.Args, isAdmin, isMaster, int(groupID))
+				if err != nil {
+					logger.Logger.Println("piccolo / update_group: " + err.Error())
+				}
+				return data, err
+			},
+		},
+		"delete_group": &graphql.Field{
+			Type:        graphqlType.GroupType,
+			Description: "Delete the group info",
+			Args: graphql.FieldConfigArgument{
+				"group_id": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				_, isMaster, _, _, err := usertool.ValidateToken(params.Args, true)
+				if err != nil {
+					return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				data, err := mutationparser.DeleteGroup(params.Args, isMaster)
+				if err != nil {
+					logger.Logger.Println("piccolo / delete_group: " + err.Error())
+				}
+				return data, err
+			},
+		},
 		"create_quota": &graphql.Field{
 			Type:        graphqlType.QuotaType,
 			Description: "Create quota",

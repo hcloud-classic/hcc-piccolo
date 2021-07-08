@@ -1,6 +1,7 @@
 package mutationparser
 
 import (
+	"fmt"
 	"hcc/piccolo/action/graphql/queryparserext"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
@@ -216,4 +217,141 @@ func UpdateUser(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 	user.Errors = errconv.ReturnHccEmptyErrorPiccolo()
 
 	return &user, nil
+}
+
+func CreateGroup(args map[string]interface{}, isMaster bool) (interface{}, error) {
+	if !isMaster {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	groupID, groupIDOk := args["group_id"].(int)
+	groupName, groupNameOk := args["group_name"].(string)
+
+	if !groupIDOk || !groupNameOk {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need group_id and group_name arguments")}, nil
+	}
+
+	sql := "select id from piccolo.group where id = ?"
+	row := mysql.Db.QueryRow(sql, groupID)
+	err := mysql.QueryRowScan(row, &groupID)
+	if err == nil {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided Group ID is in use")}, nil
+	}
+
+	group := model.Group{
+		ID:   int64(groupID),
+		Name: groupName,
+	}
+
+	sql = "insert into piccolo.group(id, name) values (?, ?)"
+	stmt, err := mysql.Prepare(sql)
+	if err != nil {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, err.Error())}, nil
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+	_, err = stmt.Exec(group.ID, group.Name)
+	if err != nil {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
+	group.Errors = errconv.ReturnHccEmptyErrorPiccolo()
+
+	return &group, nil
+}
+
+func UpdateGroup(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserGroupID int) (interface{}, error) {
+	if !isMaster && !isAdmin {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	groupID, groupIDOk := args["group_id"].(int)
+	groupName, groupNameOk := args["group_name"].(string)
+
+	if !groupIDOk || !groupNameOk {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need group_id and group_name arguments")}, nil
+	}
+
+	if !isMaster && loginUserGroupID != groupID {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other group if you are not a master")}, nil
+	}
+
+	if groupID == 1 {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the master group")}, nil
+	}
+
+	sql := "update piccolo.group set name = ? where id = ?"
+
+	stmt, err := mysql.Prepare(sql)
+	if err != nil {
+		errStr := "UpdateGroup(): " + err.Error()
+		logger.Logger.Println(errStr)
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, errStr)}, nil
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+
+	_, err2 := stmt.Exec(groupName, groupID)
+	if err2 != nil {
+		errStr := "UpdateGroup(): " + err2.Error()
+		logger.Logger.Println(errStr)
+		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, errStr)}, nil
+	}
+
+	_group, err := dao.ReadGroup(groupID)
+	if err != nil {
+		logger.Logger.Println("UpdateGroup(): " + err.Error())
+	}
+
+	if _group != nil {
+		_group.Errors = errconv.ReturnHccEmptyErrorPiccolo()
+	}
+
+	return _group, nil
+}
+
+func DeleteGroup(args map[string]interface{}, isMaster bool) (interface{}, error) {
+	if !isMaster {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	groupID, groupIDOk := args["group_id"].(int)
+
+	if !groupIDOk {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a group_id argument")}, nil
+	}
+
+	var userCount int
+	sql := "select count(*) from piccolo.user where group_id = ?"
+	row := mysql.Db.QueryRow(sql, groupID)
+	err := mysql.QueryRowScan(row, &userCount)
+	if err != nil {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "Failed to get user count")}, nil
+	}
+	if userCount > 0 {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided Group ID is in use by some users")}, nil
+	}
+
+	group := model.Group{
+		ID: int64(groupID),
+	}
+
+	sql = "delete from piccolo.group where id = ?"
+	stmt, err := mysql.Prepare(sql)
+	if err != nil {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, err.Error())}, nil
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+	_, err = stmt.Exec(group.ID)
+	if err != nil {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
+	group.Errors = errconv.ReturnHccEmptyErrorPiccolo()
+
+	return &group, nil
 }
