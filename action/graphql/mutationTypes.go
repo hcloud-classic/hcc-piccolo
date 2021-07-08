@@ -89,9 +89,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"id": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"group_id": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
 				"authentication": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -112,9 +109,6 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
 				if err != nil {
 					return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
-				}
-				if !isMaster {
-					params.Args["group_id"] = int(groupID)
 				}
 				data, err := mutationparser.UpdateUser(params.Args, isAdmin, isMaster, int(groupID))
 				if err != nil {
