@@ -164,7 +164,13 @@ func UpdateUser(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 	sql := "update user set"
 	var updateSet = ""
 	if authenticationOk {
-		if authentication != "admin" && authentication != "user" {
+		isWrongAuthentication := false
+		if isMaster {
+			isWrongAuthentication = authentication != "master"
+		} else {
+			isWrongAuthentication = authentication != "admin" && authentication != "user"
+		}
+		if isWrongAuthentication {
 			return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Wrong authentication provided!")}, nil
 		}
 		updateSet += " authentication = '" + authentication + "', "
