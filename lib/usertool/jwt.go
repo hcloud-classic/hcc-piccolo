@@ -70,7 +70,6 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (isAdmin boo
 	var _groupID int
 
 	tokenString, tokenStringOk := args["token"].(string)
-	_groupID, _groupIDOk := args["group_id"].(int)
 
 	if !tokenStringOk {
 		return false, false, "", 0, errors.New("need a token argument")
@@ -129,11 +128,9 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (isAdmin boo
 			return false, false, "", 0, errLoginMismatch
 		}
 
-		if !_groupIDOk {
-			group := getGroupOfUser(claims["ID"].(string))
-			if group != nil {
-				_groupID = int(group.ID)
-			}
+		group := getGroupOfUser(claims["ID"].(string))
+		if group != nil {
+			_groupID = int(group.ID)
 		}
 
 		return userIsAdmin, userIsMaster, id, int64(_groupID), nil
