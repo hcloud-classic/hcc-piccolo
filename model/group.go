@@ -4,8 +4,9 @@ import "hcc/piccolo/action/grpc/errconv"
 
 // Group : Contain infos of the group
 type Group struct {
-	ID   int64  `json:"group_id"`
-	Name string `json:"group_name"`
+	ID     int64                     `json:"group_id"`
+	Name   string                    `json:"group_name"`
+	Errors []errconv.PiccoloHccError `json:"errors"`
 }
 
 // GroupList : Contain list of groups

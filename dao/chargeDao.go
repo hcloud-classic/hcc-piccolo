@@ -4,6 +4,7 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"innogrid.com/hcloud-classic/pb"
+	"strings"
 )
 
 // ReadCharge : Get infos of the charge
@@ -33,7 +34,9 @@ func ReadCharge(groupID int64) (*pb.Charge, error) {
 		&chargeTrafficPerKB)
 	if err != nil {
 		errStr := "ReadCharge(): " + err.Error()
-		logger.Logger.Println(errStr)
+		if !strings.Contains(errStr, "no rows in result set") {
+			logger.Logger.Println(errStr)
+		}
 
 		return nil, err
 	}
