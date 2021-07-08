@@ -1,14 +1,12 @@
 package mutationparser
 
 import (
-	"fmt"
 	"hcc/piccolo/action/graphql/queryparserext"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
-	"strconv"
 	"strings"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
@@ -144,34 +142,27 @@ func UpdateUser(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a id argument")}, nil
 	}
 
-	groupID, groupIDOk := args["group_id"].(int)
 	authentication, authenticationOk := args["authentication"].(string)
 	password, passwordOk := args["password"].(string)
 	name, nameOk := args["name"].(string)
 	email, emailOk := args["email"].(string)
 
-	if !groupIDOk && !authenticationOk && !passwordOk && !nameOk && !emailOk {
+	if !authenticationOk && !passwordOk && !nameOk && !emailOk {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need some arguments")}, nil
 	}
 
-	if !isMaster && loginUserGroupID != groupID {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other group's user if you are not a master")}, nil
-	}
-
-	_, err := dao.ReadGroup(groupID)
-	if err != nil {
-		if strings.Contains(err.Error(), "no rows in result set") {
-			return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "Provided Group ID is not exist")}, nil
+	if !isMaster {
+		user, err := queryparserext.User(args)
+		if err != nil {
+			return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, "Failed to get user info")}, nil
 		}
-
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		if loginUserGroupID != int(user.(model.User).GroupID) {
+			return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other group's user if you are not a master")}, nil
+		}
 	}
 
 	sql := "update user set"
 	var updateSet = ""
-	if isMaster && groupIDOk {
-		updateSet += " group_id = " + strconv.Itoa(groupID) + ", "
-	}
 	if authenticationOk {
 		if authentication != "admin" && authentication != "user" {
 			return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Wrong authentication provided!")}, nil
