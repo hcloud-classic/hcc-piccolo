@@ -145,7 +145,7 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	result := mysql.Db.QueryRow(sqlCount + sql)
 	err = mysql.QueryRowScan(result, &userNum)
 	if err != nil {
-		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
 	if noLimit {
