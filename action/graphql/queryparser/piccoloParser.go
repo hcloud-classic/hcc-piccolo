@@ -140,10 +140,6 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 		sql += " and piccolo.user.email like '%" + email + "%'"
 	}
 
-	if !noLimit {
-		sql += " order by piccolo.user.created_at desc limit ? offset ?"
-	}
-
 	var stmt *dbsql.Rows
 	var err error
 
@@ -157,6 +153,7 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	if noLimit {
 		stmt, err = mysql.Query(sqlSelect + sql)
 	} else {
+		sql += " order by piccolo.user.created_at desc limit ? offset ?"
 		stmt, err = mysql.Query(sqlSelect+sql, row, row*(page-1))
 	}
 
@@ -403,13 +400,10 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 		return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
 	}
 
-	if !noLimit {
-		sql += " order by piccolo.quota.group_id asc limit ? offset ?"
-	}
-
 	if noLimit {
 		stmt, err = mysql.Query(sqlSelect + sql)
 	} else {
+		sql += " order by piccolo.quota.group_id asc limit ? offset ?"
 		stmt, err = mysql.Query(sqlSelect+sql, row, row*(page-1))
 	}
 
