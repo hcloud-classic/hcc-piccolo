@@ -98,6 +98,9 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	authentication, authenticationOk := args["authentication"].(string)
 	name, nameOk := args["name"].(string)
 	groupID, groupIDOk := args["group_id"].(int)
+	if groupID == 0 {
+		groupIDOk = false
+	}
 	groupName, groupNameOk := args["group_name"].(string)
 	email, emailOk := args["email"].(string)
 
@@ -320,6 +323,9 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	var noLimit bool
 
 	groupID, groupIDOk := args["group_id"].(int)
+	if groupID == 0 {
+		groupIDOk = false
+	}
 	groupName, groupNameOk := args["group_name"].(string)
 
 	if !isMaster && (groupIDOk || groupNameOk) {
