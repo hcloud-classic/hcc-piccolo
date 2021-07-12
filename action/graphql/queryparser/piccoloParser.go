@@ -109,10 +109,10 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 	if !rowOk && !pageOk {
 		noLimit = true
 	} else if rowOk && pageOk {
+		noLimit = false
 		if row == 0 && page == 0 {
 			noLimit = true
 		}
-		noLimit = false
 	} else {
 		return model.UserList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
 	}
@@ -342,10 +342,10 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	if !rowOk && !pageOk {
 		noLimit = true
 	} else if rowOk && pageOk {
+		noLimit = false
 		if row == 0 && page == 0 {
 			noLimit = true
 		}
-		noLimit = false
 	} else {
 		return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
 	}
