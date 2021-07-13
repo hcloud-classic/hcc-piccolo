@@ -113,13 +113,18 @@ func CreateNode(args map[string]interface{}, isMaster bool) (interface{}, error)
 	nicSpeedMbps, nicSpeedMbpsOk := args["nic_speed_mbps"].(int)
 	description, descriptionOk := args["description"].(string)
 
+	ipmiUserID, ipmiUserIDOk := args["ipmi_user_id"].(string)
+	ipmiUserPassword, ipmiUserPasswordOk := args["ipmi_user_password"].(string)
+
 	nicDetailData, nicDetailDataOk := args["nic_detail_data"].(string)
 
 	var reqCreateNode pb.ReqCreateNode
 	var reqNode pb.Node
 	reqCreateNode.Node = &reqNode
 
-	if !nodeNameOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk || !nicDetailDataOk {
+	if !nodeNameOk || !bmcIPOk || !nicSpeedMbpsOk || !descriptionOk ||
+		!ipmiUserIDOk || !ipmiUserPasswordOk ||
+		!nicDetailDataOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
 			"need node_name and bmc_ip, nic_speed_mbps, description, nic_detail_data arguments")}, nil
 	}
@@ -128,6 +133,9 @@ func CreateNode(args map[string]interface{}, isMaster bool) (interface{}, error)
 	reqCreateNode.Node.BmcIP = bmcIP
 	reqCreateNode.Node.NicSpeedMbps = int32(nicSpeedMbps)
 	reqCreateNode.Node.Description = description
+
+	reqCreateNode.Node.IpmiUserID = ipmiUserID
+	reqCreateNode.Node.IpmiUserPassword = ipmiUserPassword
 
 	reqCreateNode.NicDetailData = nicDetailData
 
@@ -179,6 +187,9 @@ func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	rackNumber, rackNumberOk := args["rack_number"].(int)
 	active, activeOk := args["active"].(int)
 
+	ipmiUserID, ipmiUserIDOk := args["ipmi_user_id"].(string)
+	ipmiUserPassword, ipmiUserPasswordOk := args["ipmi_user_password"].(string)
+
 	var reqUpdateNode pb.ReqUpdateNode
 	var reqNode pb.Node
 	reqUpdateNode.Node = &reqNode
@@ -225,6 +236,13 @@ func UpdateNode(args map[string]interface{}, isAdmin bool, isMaster bool) (inter
 	}
 	if activeOk {
 		reqUpdateNode.Node.Active = int32(active)
+	}
+
+	if ipmiUserIDOk {
+		reqUpdateNode.Node.IpmiUserID = ipmiUserID
+	}
+	if ipmiUserPasswordOk {
+		reqUpdateNode.Node.IpmiUserPassword = ipmiUserPassword
 	}
 
 	resUpdateNode, err := client.RC.UpdateNode(&reqUpdateNode)
