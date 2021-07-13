@@ -232,7 +232,7 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 		return model.IsValid{IsValid: false, Authentication: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a token argument")}, nil
 	}
 
-	isAdmin, isMaster, _, _, err := usertool.ValidateToken(args, false)
+	isAdmin, isMaster, id, groupID, err := usertool.ValidateToken(args, false)
 	if err != nil {
 		return model.IsValid{IsValid: false, Authentication: "", Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 	}
@@ -244,7 +244,19 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 		authentication = "master"
 	}
 
-	return model.IsValid{IsValid: true, Authentication: authentication, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+	group, err := dao.ReadGroup(int(groupID))
+	if err != nil {
+		return model.IsValid{IsValid: false, Authentication: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
+	return model.IsValid{
+		IsValid:        true,
+		UserID:         id,
+		GroupID:        group.ID,
+		GroupName:      group.Name,
+		Authentication: authentication,
+		Errors:         errconv.ReturnHccEmptyErrorPiccolo(),
+	}, nil
 }
 
 // ResourceUsage : Get usage of resources
