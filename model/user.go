@@ -40,6 +40,9 @@ type Token struct {
 // IsValid : Contain the validation of the token
 type IsValid struct {
 	IsValid        bool                      `json:"isvalid"`
+	UserID         string                    `json:"user_id"`
+	GroupID        int64                     `json:"group_id"`
+	GroupName      string                    `json:"group_name"`
 	Authentication string                    `json:"authentication"`
 	Errors         []errconv.PiccoloHccError `json:"errors"`
 }

@@ -79,6 +79,15 @@ var IsValid = graphql.NewObject(
 			"isvalid": &graphql.Field{
 				Type: graphql.Boolean,
 			},
+			"user_id": &graphql.Field{
+				Type: graphql.String,
+			},
+			"group_id": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"group_name": &graphql.Field{
+				Type: graphql.String,
+			},
 			"authentication": &graphql.Field{
 				Type: graphql.String,
 			},
