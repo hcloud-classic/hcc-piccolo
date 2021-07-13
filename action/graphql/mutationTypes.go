@@ -876,6 +876,12 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"nic_detail_data": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"ipmi_user_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"ipmi_user_password": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
 				"token": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
@@ -937,6 +943,12 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 				"active": &graphql.ArgumentConfig{
 					Type: graphql.Int,
+				},
+				"ipmi_user_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"ipmi_user_password": &graphql.ArgumentConfig{
+					Type: graphql.String,
 				},
 				"token": &graphql.ArgumentConfig{
 					Type: graphql.String,
