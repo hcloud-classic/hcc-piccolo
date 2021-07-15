@@ -1,12 +1,14 @@
 package mutationparser
 
 import (
+	"errors"
 	"hcc/piccolo/action/graphql/queryparserext"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
+	"math/bits"
 	"strings"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
@@ -216,31 +218,78 @@ func UpdateUser(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 	return &user, nil
 }
 
+func generateGroupID() (int64, error) {
+	var groupID int64
+	var groupIDmax int64
+
+	sql := "select id from piccolo.group where id = 1000"
+	row := mysql.Db.QueryRow(sql)
+	err := mysql.QueryRowScan(row, &groupID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return 1000, nil
+		}
+
+		return 0, err
+	}
+
+	sql = "select max(id) from piccolo.group"
+	row = mysql.Db.QueryRow(sql)
+	err = mysql.QueryRowScan(row, &groupIDmax)
+	if err != nil {
+		return 0, err
+	}
+
+	if groupIDmax == (1<<bits.UintSize)/2-1 {
+		return 0, errors.New("possible max group ID exceeded. You can also specify Group ID manually")
+	}
+
+	groupID = groupIDmax + 1
+
+	return groupID, nil
+}
+
 func CreateGroup(args map[string]interface{}, isMaster bool) (interface{}, error) {
 	if !isMaster {
 		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
 	}
 
-	groupID, groupIDOk := args["group_id"].(int)
+	var groupID int64
+	var err error
+
+	_groupID, _groupIDOk := args["group_id"].(int)
 	groupName, groupNameOk := args["group_name"].(string)
 
-	if !groupIDOk || !groupNameOk {
-		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need group_id and group_name arguments")}, nil
+	if !_groupIDOk || !groupNameOk {
+		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a group_name argument")}, nil
 	}
 
-	sql := "select id from piccolo.group where id = ?"
-	row := mysql.Db.QueryRow(sql, groupID)
-	err := mysql.QueryRowScan(row, &groupID)
-	if err == nil {
-		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided Group ID is in use")}, nil
+	if _groupIDOk && _groupID != 0 {
+		sql := "select id from piccolo.group where id = ?"
+		row := mysql.Db.QueryRow(sql, _groupID)
+		err := mysql.QueryRowScan(row, &_groupID)
+		if err == nil {
+			return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Provided Group ID is in use")}, nil
+		}
+
+		if _groupID <= 0 {
+			return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Wrong Group ID provided should be bigger than 0")}, nil
+		}
+
+		groupID = int64(_groupID)
+	} else {
+		groupID, err = generateGroupID()
+		if err != nil {
+			return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+		}
 	}
 
 	group := model.Group{
-		ID:   int64(groupID),
+		ID:   groupID,
 		Name: groupName,
 	}
 
-	sql = "insert into piccolo.group(id, name) values (?, ?)"
+	sql := "insert into piccolo.group(id, name) values (?, ?)"
 	stmt, err := mysql.Prepare(sql)
 	if err != nil {
 		return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, err.Error())}, nil
