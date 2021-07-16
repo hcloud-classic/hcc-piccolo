@@ -29,7 +29,7 @@ type Node struct {
 	CreatedAt        time.Time                 `json:"created_at"`
 	ForceOff         bool                      `json:"force_off"`
 	IPMIUserID       string                    `json:"ipmi_user_id"`
-	IPMIUserPassword string                    `json:"ipmi_user_password"`
+	IPMIUserPassword []byte                    `json:"ipmi_user_password"`
 	Errors           []errconv.PiccoloHccError `json:"errors"`
 }
 

@@ -71,7 +71,7 @@ var NodeType = graphql.NewObject(
 				Type: graphql.String,
 			},
 			"ipmi_user_password": &graphql.Field{
-				Type: graphql.String,
+				Type: graphql.NewList(graphql.Int),
 			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),

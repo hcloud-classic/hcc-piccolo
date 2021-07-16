@@ -50,7 +50,7 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 		CreatedAt:        node.CreatedAt.AsTime(),
 		ForceOff:         node.ForceOff,
 		IPMIUserID:       node.IpmiUserID,
-		IPMIUserPassword: node.IpmiUserPassword,
+		IPMIUserPassword: node.IpmiUserPasswordEncryptedBytes,
 		Errors:           nil,
 	}
 
