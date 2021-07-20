@@ -341,10 +341,11 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 		return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Only a master can search other group's quotas!")}, nil
 	}
 
-	limitCPUCores, limitCPUCoresOk := args["limit_cpu_cores"].(int)
-	limitMemoryGB, limitMemoryGBOk := args["limit_memory_gb"].(int)
+	totalCPUCores, totalCPUCoresOk := args["total_cpu_cores"].(int)
+	totalMemoryGB, totalMemoryGBOk := args["total_memory_gb"].(int)
 	limitSubnetCnt, limitSubnetCntOk := args["limit_subnet_cnt"].(int)
 	limitAdaptiveIPCnt, limitAdaptiveIPCntOk := args["limit_adaptive_ip_cnt"].(int)
+	limitNodeCnt, limitNodeCntOk := args["limit_node_cnt"].(int)
 	poolName, poolNameOk := args["pool_name"].(string)
 	limitSSDGB, limitSSDGBOk := args["limit_ssd_gb"].(int)
 	limitHDDGB, limitHDDGBOk := args["limit_hdd_gb"].(int)
@@ -363,9 +364,10 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	}
 
 	sqlSelect := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
-		"piccolo.quota.limit_cpu_cores, piccolo.quota.limit_memory_gb, " +
+		"piccolo.quota.total_cpu_cores, piccolo.quota.total_memory_gb, " +
 		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, " +
-		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb"
+		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb, " +
+		"piccolo.quota.limit_node_cnt"
 	sqlCount := "select count(*)"
 	sql := " from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id"
 
@@ -380,17 +382,20 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	if groupNameOk && len(groupName) != 0 {
 		sql += " and piccolo.group.name like '%" + groupName + "%'"
 	}
-	if limitCPUCoresOk && limitCPUCores != 0 {
-		sql += " and piccolo.quota.limit_cpu_cores = " + strconv.Itoa(limitCPUCores)
+	if totalCPUCoresOk && totalCPUCores != 0 {
+		sql += " and piccolo.quota.total_cpu_cores = " + strconv.Itoa(totalCPUCores)
 	}
-	if limitMemoryGBOk && limitMemoryGB != 0 {
-		sql += " and piccolo.quota.limit_memory_gb = " + strconv.Itoa(limitMemoryGB)
+	if totalMemoryGBOk && totalMemoryGB != 0 {
+		sql += " and piccolo.quota.total_memory_gb = " + strconv.Itoa(totalMemoryGB)
 	}
 	if limitSubnetCntOk && limitSubnetCnt != 0 {
 		sql += " and piccolo.quota.limit_subnet_cnt = " + strconv.Itoa(limitSubnetCnt)
 	}
 	if limitAdaptiveIPCntOk && limitAdaptiveIPCnt != 0 {
 		sql += " and piccolo.quota.limit_adaptive_ip_cnt = " + strconv.Itoa(limitAdaptiveIPCnt)
+	}
+	if limitNodeCntOk && limitNodeCnt != 0 {
+		sql += " and piccolo.quota.limit_node_cnt = " + strconv.Itoa(limitNodeCnt)
 	}
 	if poolNameOk && len(poolName) != 0 {
 		sql += " and piccolo.quota.pool_name like '%" + poolName + "%'"
@@ -400,6 +405,9 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	}
 	if limitHDDGBOk && limitHDDGB != 0 {
 		sql += " and piccolo.quota.limit_hdd_gb = " + strconv.Itoa(limitHDDGB)
+	}
+	if limitNodeCntOk && limitNodeCnt != 0 {
+		sql += " and piccolo.quota.limit_node_cnt = " + strconv.Itoa(limitNodeCnt)
 	}
 
 	var stmt *dbsql.Rows
@@ -428,20 +436,25 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	}()
 
 	for stmt.Next() {
-		err := stmt.Scan(&groupID, &groupName, &limitCPUCores, &limitMemoryGB, &limitSubnetCnt, &limitAdaptiveIPCnt, &poolName, &limitSSDGB, &limitHDDGB)
+		err := stmt.Scan(&groupID, &groupName,
+			&totalCPUCores, &totalMemoryGB,
+			&limitSubnetCnt, &limitAdaptiveIPCnt,
+			&poolName, &limitSSDGB, &limitHDDGB,
+			&limitNodeCnt)
 		if err != nil {
 			logger.Logger.Println(err)
 		}
 		quota := model.Quota{
 			GroupID:            int64(groupID),
 			GroupName:          groupName,
-			LimitCPUCores:      limitCPUCores,
-			LimitMemoryGB:      limitMemoryGB,
+			TotalCPUCores:      totalCPUCores,
+			TotalMemoryGB:      totalMemoryGB,
 			LimitSubnetCnt:     limitSubnetCnt,
 			LimitAdaptiveIPCnt: limitAdaptiveIPCnt,
 			PoolName:           poolName,
 			LimitSSDGB:         limitSSDGB,
 			LimitHDDGB:         limitHDDGB,
+			LimitNodeCnt:       limitNodeCnt,
 		}
 		quotas = append(quotas, quota)
 	}

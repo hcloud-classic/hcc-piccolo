@@ -13,16 +13,19 @@ var QuotaType = graphql.NewObject(
 			"group_name": &graphql.Field{
 				Type: graphql.String,
 			},
-			"limit_cpu_cores": &graphql.Field{
+			"total_cpu_cores": &graphql.Field{
 				Type: graphql.Int,
 			},
-			"limit_memory_gb": &graphql.Field{
+			"total_memory_gb": &graphql.Field{
 				Type: graphql.Int,
 			},
 			"limit_subnet_cnt": &graphql.Field{
 				Type: graphql.Int,
 			},
 			"limit_adaptive_ip_cnt": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"limit_node_cnt": &graphql.Field{
 				Type: graphql.Int,
 			},
 			"pool_name": &graphql.Field{

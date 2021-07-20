@@ -208,13 +208,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"hdd_size": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
-				"selected_nodes": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
 				"subnet_cnt": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"adaptive_cnt": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"node_cnt": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"token": &graphql.ArgumentConfig{
@@ -252,13 +252,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"hdd_size": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
-				"selected_nodes": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
 				"subnet_cnt": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"adaptive_cnt": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"node_cnt": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"token": &graphql.ArgumentConfig{
