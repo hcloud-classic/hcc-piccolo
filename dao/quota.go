@@ -19,17 +19,18 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	var quota pb.GroupQuota
 
 	var groupName string
-	var limitCPUCores int
-	var limitMemoryGB int
+	var totalCPUCores int
+	var totalMemoryGB int
 	var limitSubnetCnt int
 	var limitAdaptiveIPCnt int
+	var limitNodeCnt int
 	var poolName string
 	var limitSSDGB int
 	var limitHDDGB int
 
 	sql := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
-		"piccolo.quota.limit_cpu_cores, piccolo.quota.limit_memory_gb, " +
-		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, " +
+		"piccolo.quota.total_cpu_cores, piccolo.quota.total_memory_gb, " +
+		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, piccolo.quota.limit_node_cnt, " +
 		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb" +
 		" from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id" +
 		" and piccolo.quota.group_id = ?"
@@ -37,10 +38,11 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	err := mysql.QueryRowScan(row,
 		&groupID,
 		&groupName,
-		&limitCPUCores,
-		&limitMemoryGB,
+		&totalCPUCores,
+		&totalMemoryGB,
 		&limitSubnetCnt,
 		&limitAdaptiveIPCnt,
+		&limitNodeCnt,
 		&poolName,
 		&limitSSDGB,
 		&limitHDDGB)
@@ -57,10 +59,11 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	quota = pb.GroupQuota{
 		GroupID:            groupID,
 		GroupName:          groupName,
-		LimitCPUCores:      int32(limitCPUCores),
-		LimitMemoryGB:      int32(limitMemoryGB),
+		LimitCPUCores:      int32(totalCPUCores),
+		LimitMemoryGB:      int32(totalMemoryGB),
 		LimitSubnetCnt:     int32(limitSubnetCnt),
 		LimitAdaptiveIPCnt: int32(limitAdaptiveIPCnt),
+		LimitNodeCnt:       int32(limitNodeCnt),
 		PoolName:           poolName,
 		LimitSSDGB:         int32(limitSSDGB),
 		LimitHDDGB:         int32(limitHDDGB),
