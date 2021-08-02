@@ -367,31 +367,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
-				"subnet_uuid": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"os": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
 				"server_name": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 				"server_desc": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"cpu": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
-				"memory": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
-				"disk_size": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
 				"status": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"user_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 				"token": &graphql.ArgumentConfig{

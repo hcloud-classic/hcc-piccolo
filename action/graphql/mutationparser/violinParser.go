@@ -96,15 +96,9 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
-	os, osOK := args["os"].(string)
 	serverName, serverNameOk := args["server_name"].(string)
 	serverDesc, serverDescOk := args["server_desc"].(string)
-	cpu, cpuOk := args["cpu"].(int)
-	memory, memoryOk := args["memory"].(int)
-	diskSize, diskSizeOk := args["disk_size"].(int)
 	status, statusOk := args["status"].(string)
-	userUUID, userUUIDOk := args["user_uuid"].(string)
 
 	if !isMaster || !isAdmin {
 		server, err := queryparser.Server(args)
@@ -131,32 +125,14 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 	reqUpdateServer.Server = &reqServer
 
 	reqUpdateServer.Server.UUID = requestedUUID
-	if subnetUUIDOk {
-		reqUpdateServer.Server.SubnetUUID = subnetUUID
-	}
-	if osOK {
-		reqUpdateServer.Server.OS = os
-	}
 	if serverNameOk {
 		reqUpdateServer.Server.ServerName = serverName
 	}
 	if serverDescOk {
 		reqUpdateServer.Server.ServerDesc = serverDesc
 	}
-	if cpuOk {
-		reqUpdateServer.Server.CPU = int32(cpu)
-	}
-	if memoryOk {
-		reqUpdateServer.Server.Memory = int32(memory)
-	}
-	if diskSizeOk {
-		reqUpdateServer.Server.DiskSize = int32(diskSize)
-	}
 	if statusOk {
 		reqUpdateServer.Server.Status = status
-	}
-	if userUUIDOk {
-		reqUpdateServer.Server.UserUUID = userUUID
 	}
 
 	resUpdateServer, err := client.RC.UpdateServer(&reqUpdateServer)
