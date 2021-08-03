@@ -67,6 +67,12 @@ var NodeType = graphql.NewObject(
 			"created_at": &graphql.Field{
 				Type: graphql.DateTime,
 			},
+			"ipmi_user_id": &graphql.Field{
+				Type: graphql.String,
+			},
+			"ipmi_user_password": &graphql.Field{
+				Type: graphql.NewList(graphql.Int),
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},

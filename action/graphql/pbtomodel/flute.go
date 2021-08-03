@@ -3,32 +3,12 @@ package pbtomodel
 import (
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
-	"time"
-
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
-	"innogrid.com/hcloud-classic/hcc_errors"
 	"innogrid.com/hcloud-classic/pb"
 )
 
 // PbNodeToModelNode : Change node of proto type to model
 func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.Node {
-	var createdAt time.Time
 	var nicSpeed = "Unknown"
-
-	if node.CreatedAt == nil {
-		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
-			Seconds: 0,
-			Nanos:   0,
-		})
-	} else {
-		var err error
-
-		createdAt, err = ptypes.Timestamp(node.CreatedAt)
-		if err != nil {
-			return &model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
-		}
-	}
 
 	switch node.NicSpeedMbps {
 	case 10:
@@ -50,26 +30,28 @@ func PbNodeToModelNode(node *pb.Node, hccGrpcErrStack *pb.HccErrorStack) *model.
 	}
 
 	modelNode := &model.Node{
-		UUID:            node.UUID,
-		NodeName:        node.NodeName,
-		GroupID:         node.GroupID,
-		NodeNum:         int64(node.NodeNum),
-		NodeIP:          node.NodeIP,
-		ServerUUID:      node.ServerUUID,
-		BmcMacAddr:      node.BmcMacAddr,
-		BmcIP:           node.BmcIP,
-		BmcIPSubnetMask: node.BmcIPSubnetMask,
-		PXEMacAddr:      node.PXEMacAddr,
-		Status:          node.Status,
-		CPUCores:        int(node.CPUCores),
-		Memory:          int(node.Memory),
-		NICSpeed:        nicSpeed,
-		Description:     node.Description,
-		RackNumber:      int(node.RackNumber),
-		Active:          int(node.Active),
-		CreatedAt:       createdAt,
-		ForceOff:        node.ForceOff,
-		Errors:          nil,
+		UUID:             node.UUID,
+		NodeName:         node.NodeName,
+		GroupID:          node.GroupID,
+		NodeNum:          int64(node.NodeNum),
+		NodeIP:           node.NodeIP,
+		ServerUUID:       node.ServerUUID,
+		BmcMacAddr:       node.BmcMacAddr,
+		BmcIP:            node.BmcIP,
+		BmcIPSubnetMask:  node.BmcIPSubnetMask,
+		PXEMacAddr:       node.PXEMacAddr,
+		Status:           node.Status,
+		CPUCores:         int(node.CPUCores),
+		Memory:           int(node.Memory),
+		NICSpeed:         nicSpeed,
+		Description:      node.Description,
+		RackNumber:       int(node.RackNumber),
+		Active:           int(node.Active),
+		CreatedAt:        node.CreatedAt.AsTime(),
+		ForceOff:         node.ForceOff,
+		IPMIUserID:       node.IpmiUserID,
+		IPMIUserPassword: node.IpmiUserPasswordEncryptedBytes,
+		Errors:           nil,
 	}
 
 	if hccGrpcErrStack != nil {

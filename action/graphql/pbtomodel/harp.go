@@ -3,31 +3,11 @@ package pbtomodel
 import (
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
-	"time"
-
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
-	"innogrid.com/hcloud-classic/hcc_errors"
 	"innogrid.com/hcloud-classic/pb"
 )
 
 // PbSubnetToModelSubnet : Change subnet of proto type to model
 func PbSubnetToModelSubnet(subnet *pb.Subnet, hccGrpcErrStack *pb.HccErrorStack) *model.Subnet {
-	var createdAt time.Time
-	if subnet.CreatedAt == nil {
-		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
-			Seconds: 0,
-			Nanos:   0,
-		})
-	} else {
-		var err error
-
-		createdAt, err = ptypes.Timestamp(subnet.CreatedAt)
-		if err != nil {
-			return &model.Subnet{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
-		}
-	}
-
 	modelSubnet := &model.Subnet{
 		UUID:           subnet.UUID,
 		GroupID:        subnet.GroupID,
@@ -41,7 +21,7 @@ func PbSubnetToModelSubnet(subnet *pb.Subnet, hccGrpcErrStack *pb.HccErrorStack)
 		LeaderNodeUUID: subnet.LeaderNodeUUID,
 		OS:             subnet.OS,
 		SubnetName:     subnet.SubnetName,
-		CreatedAt:      createdAt,
+		CreatedAt:      subnet.CreatedAt.AsTime(),
 	}
 
 	if hccGrpcErrStack != nil {

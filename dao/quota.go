@@ -19,17 +19,18 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	var quota pb.GroupQuota
 
 	var groupName string
-	var limitCPUCores int
-	var limitMemoryGB int
+	var totalCPUCores int
+	var totalMemoryGB int
 	var limitSubnetCnt int
 	var limitAdaptiveIPCnt int
+	var limitNodeCnt int
 	var poolName string
 	var limitSSDGB int
 	var limitHDDGB int
 
 	sql := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
-		"piccolo.quota.limit_cpu_cores, piccolo.quota.limit_memory_gb, " +
-		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, " +
+		"piccolo.quota.total_cpu_cores, piccolo.quota.total_memory_gb, " +
+		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, piccolo.quota.limit_node_cnt, " +
 		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb" +
 		" from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id" +
 		" and piccolo.quota.group_id = ?"
@@ -37,10 +38,11 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	err := mysql.QueryRowScan(row,
 		&groupID,
 		&groupName,
-		&limitCPUCores,
-		&limitMemoryGB,
+		&totalCPUCores,
+		&totalMemoryGB,
 		&limitSubnetCnt,
 		&limitAdaptiveIPCnt,
+		&limitNodeCnt,
 		&poolName,
 		&limitSSDGB,
 		&limitHDDGB)
@@ -57,10 +59,11 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	quota = pb.GroupQuota{
 		GroupID:            groupID,
 		GroupName:          groupName,
-		LimitCPUCores:      int32(limitCPUCores),
-		LimitMemoryGB:      int32(limitMemoryGB),
+		LimitCPUCores:      int32(totalCPUCores),
+		LimitMemoryGB:      int32(totalMemoryGB),
 		LimitSubnetCnt:     int32(limitSubnetCnt),
 		LimitAdaptiveIPCnt: int32(limitAdaptiveIPCnt),
+		LimitNodeCnt:       int32(limitNodeCnt),
 		PoolName:           poolName,
 		LimitSSDGB:         int32(limitSSDGB),
 		LimitHDDGB:         int32(limitHDDGB),
@@ -134,9 +137,9 @@ func CreateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 	poolName, poolNameOk := args["pool_name"].(string)
 	ssdSize, ssdSizeOk := args["ssd_size"].(int)
 	hddSize, hddSizeOk := args["hdd_size"].(int)
-	selectedNodes, selectedNodesOk := args["selected_nodes"].(string)
 	subnetCnt, subnetCntOk := args["subnet_cnt"].(int)
 	adaptiveCnt, adaptiveCntOk := args["adaptive_cnt"].(int)
+	nodeCnt, nodeCntOk := args["node_cnt"].(int)
 
 	if isMaster && !groupIDOk {
 		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
@@ -147,30 +150,48 @@ func CreateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't create the other group's quota if you are not a master")}, nil
 	}
 
-	if !poolNameOk || !ssdSizeOk || !hddSizeOk || !selectedNodesOk ||
-		!subnetCntOk || !adaptiveCntOk {
+	if !poolNameOk || !ssdSizeOk || !hddSizeOk ||
+		!subnetCntOk || !adaptiveCntOk || !nodeCntOk {
 		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need pool_name and ssd_size, hdd_size, selected_nodes, subnet_cnt, adaptive_cnt arguments")}, nil
+			"need pool_name and ssd_size, hdd_size, subnet_cnt, adaptive_cnt, node_cnt arguments")}, nil
 	}
 
-	selectedNodesSplit := strings.Split(selectedNodes, ",")
-	if len(selectedNodesSplit) == 0 {
+	if nodeCnt <= 0 {
 		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"nodes are not selected or invalid string is provided for selected_nodes argument")}, nil
+			"'Nodes' value must be start from 1.")}, nil
 	}
 
-	var limitCPUCores = 0
-	var limitMemoryGB = 0
+	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{
+		Node: &pb.Node{
+			GroupID: -1,
+			Active:  9,
+		},
+		Row:  0,
+		Page: 0,
+	})
+	if err != nil {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError,
+			err.Error())}, nil
+	}
 
-	for _, nodeUUID := range selectedNodesSplit {
-		resGetNode, err := client.RC.GetNode(nodeUUID)
+	var totalCPUCores = 0
+	var totalMemoryGB = 0
+
+	var selectedNodeUUIDs []string
+	for _, node := range resGetNodeList.Node {
+		resGetNode, err := client.RC.GetNode(node.UUID)
 		if err != nil {
 			return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError,
-				"Failed to get the node's info (nodeUUID="+nodeUUID+")")}, nil
+				"Failed to get the node's info (nodeUUID="+node.UUID+")")}, nil
 		}
 
-		limitCPUCores += int(resGetNode.Node.CPUCores)
-		limitMemoryGB += int(resGetNode.Node.Memory)
+		totalCPUCores += int(resGetNode.Node.CPUCores)
+		totalMemoryGB += int(resGetNode.Node.Memory)
+		selectedNodeUUIDs = append(selectedNodeUUIDs, node.UUID)
+
+		if len(selectedNodeUUIDs) == nodeCnt {
+			break
+		}
 	}
 
 	resPoolList, err := client.RC.GetPoolList(&pb.ReqGetPoolList{
@@ -202,7 +223,7 @@ func CreateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 			"Failed to get the group's info")}, nil
 	}
 
-	for _, nodeUUID := range selectedNodesSplit {
+	for _, nodeUUID := range selectedNodeUUIDs {
 		_, err := client.RC.UpdateNode(&pb.ReqUpdateNode{
 			Node: &pb.Node{
 				UUID:    nodeUUID,
@@ -218,10 +239,11 @@ func CreateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 	quota := model.Quota{
 		GroupID:            int64(groupID),
 		GroupName:          group.Name,
-		LimitCPUCores:      limitCPUCores,
-		LimitMemoryGB:      limitMemoryGB,
+		TotalCPUCores:      totalCPUCores,
+		TotalMemoryGB:      totalMemoryGB,
 		LimitSubnetCnt:     subnetCnt,
 		LimitAdaptiveIPCnt: adaptiveCnt,
+		LimitNodeCnt:       nodeCnt,
 		PoolName:           poolName,
 		LimitSSDGB:         ssdSize,
 		LimitHDDGB:         hddSize,
@@ -244,7 +266,7 @@ func CreateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 	defer func() {
 		_ = stmt.Close()
 	}()
-	_, err = stmt.Exec(quota.GroupID, quota.LimitCPUCores, quota.LimitMemoryGB, quota.LimitSubnetCnt, quota.LimitAdaptiveIPCnt, quota.PoolName, quota.LimitSSDGB, quota.LimitHDDGB)
+	_, err = stmt.Exec(quota.GroupID, quota.TotalCPUCores, quota.TotalMemoryGB, quota.LimitSubnetCnt, quota.LimitAdaptiveIPCnt, quota.PoolName, quota.LimitSSDGB, quota.LimitHDDGB)
 	if err != nil {
 		errStr := "CreateQuota(): " + err.Error()
 		logger.Logger.Println(errStr)
@@ -273,10 +295,10 @@ func checkQuotaUpdate(quota model.Quota) error {
 		allocatedMemoryGB += int(server.Memory)
 	}
 
-	if quota.LimitCPUCores < allocatedCPUCores {
+	if quota.TotalCPUCores < allocatedCPUCores {
 		return errors.New("allocated CPU cores to the group are bigger than the quota limitation")
 	}
-	if quota.LimitMemoryGB < allocatedMemoryGB {
+	if quota.TotalMemoryGB < allocatedMemoryGB {
 		return errors.New("allocated memory to the group is bigger than the quota limitation")
 	}
 
@@ -322,9 +344,9 @@ func UpdateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 	poolName, poolNameOk := args["pool_name"].(string)
 	ssdSize, ssdSizeOk := args["ssd_size"].(int)
 	hddSize, hddSizeOk := args["hdd_size"].(int)
-	selectedNodes, selectedNodesOk := args["selected_nodes"].(string)
 	subnetCnt, subnetCntOk := args["subnet_cnt"].(int)
 	adaptiveCnt, adaptiveCntOk := args["adaptive_cnt"].(int)
+	nodeCnt, nodeCntOk := args["node_cnt"].(int)
 
 	if isMaster && !groupIDOk {
 		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
@@ -335,30 +357,43 @@ func UpdateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other group's quota if you are not a master")}, nil
 	}
 
-	if !poolNameOk || !ssdSizeOk || !hddSizeOk || !selectedNodesOk ||
-		!subnetCntOk || !adaptiveCntOk {
+	if !poolNameOk || !ssdSizeOk || !hddSizeOk ||
+		!subnetCntOk || !adaptiveCntOk || !nodeCntOk {
 		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need pool_name and ssd_size, hdd_size, selected_nodes, subnet_cnt, adaptive_cnt arguments")}, nil
+			"need pool_name and ssd_size, hdd_size, subnet_cnt, adaptive_cnt, node_cnt arguments")}, nil
 	}
 
-	selectedNodesSplit := strings.Split(selectedNodes, ",")
-	if len(selectedNodesSplit) == 0 {
-		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"nodes are not selected or invalid string is provided for selected_nodes argument")}, nil
+	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{
+		Node: &pb.Node{
+			GroupID: -1,
+			Active:  9,
+		},
+		Row:  0,
+		Page: 0,
+	})
+	if err != nil {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError,
+			err.Error())}, nil
 	}
 
-	var limitCPUCores = 0
-	var limitMemoryGB = 0
+	var totalCPUCores = 0
+	var totalMemoryGB = 0
 
-	for _, nodeUUID := range selectedNodesSplit {
-		resGetNode, err := client.RC.GetNode(nodeUUID)
+	var selectedNodeUUIDs []string
+	for _, node := range resGetNodeList.Node {
+		resGetNode, err := client.RC.GetNode(node.UUID)
 		if err != nil {
 			return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError,
-				"Failed to get the node's info (nodeUUID="+nodeUUID+")")}, nil
+				"Failed to get the node's info (nodeUUID="+node.UUID+")")}, nil
 		}
 
-		limitCPUCores += int(resGetNode.Node.CPUCores)
-		limitMemoryGB += int(resGetNode.Node.Memory)
+		totalCPUCores += int(resGetNode.Node.CPUCores)
+		totalMemoryGB += int(resGetNode.Node.Memory)
+		selectedNodeUUIDs = append(selectedNodeUUIDs, node.UUID)
+
+		if len(selectedNodeUUIDs) == nodeCnt {
+			break
+		}
 	}
 
 	resPoolList, err := client.RC.GetPoolList(&pb.ReqGetPoolList{
@@ -403,7 +438,7 @@ func UpdateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 
 	var duplicatedNodeUUIDs []string
 
-	for _, nodeUUID := range selectedNodesSplit {
+	for _, nodeUUID := range selectedNodeUUIDs {
 		var skipUpdate = false
 
 		for _, previousNode := range previousNodeList.Node {
@@ -459,10 +494,11 @@ func UpdateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 	quota := model.Quota{
 		GroupID:            int64(groupID),
 		GroupName:          group.Name,
-		LimitCPUCores:      limitCPUCores,
-		LimitMemoryGB:      limitMemoryGB,
+		TotalCPUCores:      totalCPUCores,
+		TotalMemoryGB:      totalMemoryGB,
 		LimitSubnetCnt:     subnetCnt,
 		LimitAdaptiveIPCnt: adaptiveCnt,
+		LimitNodeCnt:       nodeCnt,
 		PoolName:           poolName,
 		LimitSSDGB:         ssdSize,
 		LimitHDDGB:         hddSize,
@@ -475,10 +511,11 @@ func UpdateQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 	}
 
 	sql := "update quota set"
-	sql += " limit_cpu_cores = " + strconv.Itoa(limitCPUCores) + ", "
-	sql += " limit_memory_gb = " + strconv.Itoa(limitMemoryGB) + ", "
+	sql += " total_cpu_cores = " + strconv.Itoa(totalCPUCores) + ", "
+	sql += " total_memory_gb = " + strconv.Itoa(totalMemoryGB) + ", "
 	sql += " limit_subnet_cnt = " + strconv.Itoa(subnetCnt) + ", "
 	sql += " limit_adaptive_ip_cnt = " + strconv.Itoa(adaptiveCnt) + ", "
+	sql += " limit_node_cnt = " + strconv.Itoa(nodeCnt) + ", "
 	sql += " pool_name = '" + poolName + "', "
 	sql += " limit_ssd_gb = " + strconv.Itoa(ssdSize) + ", "
 	sql += " limit_hdd_gb = " + strconv.Itoa(hddSize)
@@ -534,25 +571,40 @@ func DeleteQuota(args map[string]interface{}, isAdmin bool, isMaster bool, login
 		GroupName: group.Name,
 	}
 
-	// TODO DELETE QUOTA
-	//sql := "insert into quota(group_id, limit_cpu_cores, limit_memory_gb, limit_subnet_cnt, limit_adaptive_ip_cnt, pool_name, limit_ssd_gb, limit_hdd_gb) values (?, ?, ?, ?, ?, ?, ?, ?)"
-	//stmt, err := mysql.Prepare(sql)
-	//if err != nil {
-	//	errStr := "CreateQuota(): " + err.Error()
-	//	logger.Logger.Println(errStr)
-	//
-	//	return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, errStr)}, nil
-	//}
-	//defer func() {
-	//	_ = stmt.Close()
-	//}()
-	//_, err = stmt.Exec(quota.GroupID, quota.LimitCPUCores, quota.LimitMemoryGB, quota.LimitSubnetCnt, quota.LimitAdaptiveIPCnt, quota.PoolName, quota.LimitSSDGB, quota.LimitHDDGB)
-	//if err != nil {
-	//	errStr := "CreateQuota(): " + err.Error()
-	//	logger.Logger.Println(errStr)
-	//
-	//	return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, errStr)}, nil
-	//}
+	previousNodeList, err := client.RC.GetNodeList(
+		&pb.ReqGetNodeList{
+			Node: &pb.Node{
+				GroupID: int64(groupID),
+			},
+		})
+	if err != nil {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError,
+			"Failed to get the previous quota info")}, nil
+	}
+
+	if len(previousNodeList.Node) > 0 {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
+			"Some nodes are used by server in this group. Can't delete the quota.")}, nil
+	}
+
+	sql := "delete from quota where group_id = ?"
+	stmt, err := mysql.Prepare(sql)
+	if err != nil {
+		errStr := "DeleteQuota(): " + err.Error()
+		logger.Logger.Println(errStr)
+
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, errStr)}, nil
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+	_, err = stmt.Exec(quota.GroupID)
+	if err != nil {
+		errStr := "DeleteQuota(): " + err.Error()
+		logger.Logger.Println(errStr)
+
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, errStr)}, nil
+	}
 
 	return &quota, nil
 }

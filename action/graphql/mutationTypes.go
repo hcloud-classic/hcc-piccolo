@@ -208,13 +208,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"hdd_size": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
-				"selected_nodes": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
 				"subnet_cnt": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"adaptive_cnt": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"node_cnt": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"token": &graphql.ArgumentConfig{
@@ -252,13 +252,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"hdd_size": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
-				"selected_nodes": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
 				"subnet_cnt": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"adaptive_cnt": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"node_cnt": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"token": &graphql.ArgumentConfig{
@@ -367,31 +367,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"uuid": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
-				"subnet_uuid": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"os": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
 				"server_name": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 				"server_desc": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"cpu": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
-				"memory": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
-				"disk_size": &graphql.ArgumentConfig{
-					Type: graphql.Int,
-				},
 				"status": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"user_uuid": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 				"token": &graphql.ArgumentConfig{
@@ -407,6 +389,33 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				data, err := mutationparser.UpdateServer(params.Args, isAdmin, isMaster, id)
 				if err != nil {
 					logger.Logger.Println("violin / update_server: " + err.Error())
+				}
+				return data, err
+			},
+		},
+		"update_server_nodes": &graphql.Field{
+			Type:        graphqlType.ServerType,
+			Description: "Update nodes of the server",
+			Args: graphql.FieldConfigArgument{
+				"server_uuid": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"selected_nodes": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				isAdmin, isMaster, id, groupID, err := usertool.ValidateToken(params.Args, false)
+				if err != nil {
+					return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				params.Args["group_id"] = int(groupID)
+				data, err := mutationparser.UpdateServerNodes(params.Args, isAdmin, isMaster, id)
+				if err != nil {
+					logger.Logger.Println("violin / update_server_nodes: " + err.Error())
 				}
 				return data, err
 			},

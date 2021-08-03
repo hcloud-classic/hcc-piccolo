@@ -126,7 +126,9 @@ func CreateNode(args map[string]interface{}, isMaster bool) (interface{}, error)
 		!ipmiUserIDOk || !ipmiUserPasswordOk ||
 		!nicDetailDataOk {
 		return model.Node{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError,
-			"need node_name and bmc_ip, nic_speed_mbps, description, nic_detail_data arguments")}, nil
+			"need node_name and bmc_ip, nic_speed_mbps, description,"+
+				"ipmi_user_id, ipmi_user_password, "+
+				"nic_detail_data arguments")}, nil
 	}
 
 	reqCreateNode.Node.NodeName = nodeName

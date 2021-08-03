@@ -96,15 +96,9 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
 	}
 
-	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
-	os, osOK := args["os"].(string)
 	serverName, serverNameOk := args["server_name"].(string)
 	serverDesc, serverDescOk := args["server_desc"].(string)
-	cpu, cpuOk := args["cpu"].(int)
-	memory, memoryOk := args["memory"].(int)
-	diskSize, diskSizeOk := args["disk_size"].(int)
 	status, statusOk := args["status"].(string)
-	userUUID, userUUIDOk := args["user_uuid"].(string)
 
 	if !isMaster || !isAdmin {
 		server, err := queryparser.Server(args)
@@ -131,32 +125,14 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 	reqUpdateServer.Server = &reqServer
 
 	reqUpdateServer.Server.UUID = requestedUUID
-	if subnetUUIDOk {
-		reqUpdateServer.Server.SubnetUUID = subnetUUID
-	}
-	if osOK {
-		reqUpdateServer.Server.OS = os
-	}
 	if serverNameOk {
 		reqUpdateServer.Server.ServerName = serverName
 	}
 	if serverDescOk {
 		reqUpdateServer.Server.ServerDesc = serverDesc
 	}
-	if cpuOk {
-		reqUpdateServer.Server.CPU = int32(cpu)
-	}
-	if memoryOk {
-		reqUpdateServer.Server.Memory = int32(memory)
-	}
-	if diskSizeOk {
-		reqUpdateServer.Server.DiskSize = int32(diskSize)
-	}
 	if statusOk {
 		reqUpdateServer.Server.Status = status
-	}
-	if userUUIDOk {
-		reqUpdateServer.Server.UserUUID = userUUID
 	}
 
 	resUpdateServer, err := client.RC.UpdateServer(&reqUpdateServer)
@@ -165,6 +141,49 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 	}
 
 	modelServer := pbtomodel.PbServerToModelServer(resUpdateServer.Server, resUpdateServer.HccErrorStack)
+
+	return *modelServer, nil
+}
+
+// UpdateServerNodes : Update nodes of the server
+func UpdateServerNodes(args map[string]interface{}, isAdmin bool, isMaster bool, id string) (interface{}, error) {
+	requestedUUID, requestedUUIDOk := args["server_uuid"].(string)
+	selectedNodes, selectedNodesOk := args["selected_nodes"].(string)
+
+	if !requestedUUIDOk || !selectedNodesOk {
+		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need server_uuid and selected_nodes argument")}, nil
+	}
+
+	if !isMaster || !isAdmin {
+		server, err := queryparser.Server(args)
+		if err != nil {
+			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+
+		if !isMaster {
+			groupID, _ := args["group_id"].(int)
+
+			if int(server.(model.Server).GroupID) != groupID {
+				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other group's server if you are not a master")}, nil
+			}
+		}
+		if !isMaster && !isAdmin {
+			if server.(model.Server).UserUUID != id {
+				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other server if you are not a master or the admin")}, nil
+			}
+		}
+	}
+
+	var reqUpdateServerNodes pb.ReqUpdateServerNodes
+
+	reqUpdateServerNodes.ServerUUID = requestedUUID
+	reqUpdateServerNodes.SelectedNodes = selectedNodes
+	resUpdateServerNodes, err := client.RC.UpdateServerNodes(&reqUpdateServerNodes)
+	if err != nil {
+		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	modelServer := pbtomodel.PbServerToModelServer(resUpdateServerNodes.Server, resUpdateServerNodes.HccErrorStack)
 
 	return *modelServer, nil
 }

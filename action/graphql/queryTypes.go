@@ -257,16 +257,19 @@ var queryTypes = graphql.NewObject(
 					"group_name": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
-					"limit_cpu_cores": &graphql.ArgumentConfig{
+					"total_cpu_cores": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
-					"limit_memory_gb": &graphql.ArgumentConfig{
+					"total_memory_gb": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
 					"limit_subnet_cnt": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
 					"limit_adaptive_ip_cnt": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"limit_node_cnt": &graphql.ArgumentConfig{
 						Type: graphql.Int,
 					},
 					"pool_name": &graphql.ArgumentConfig{
@@ -1147,23 +1150,24 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
-			"all_quota_prepared_node": &graphql.Field{
+			"all_server_prepared_node": &graphql.Field{
 				Type:        graphqlType.NodeListType,
-				Description: "Get quota prepared all node list",
+				Description: "Get all node list prepared for server",
 				Args: graphql.FieldConfigArgument{
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					_, _, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
 						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
-					params.Args["group_id"] = -1
+					params.Args["group_id"] = int(groupID)
+					params.Args["server_uuid"] = "---"
 					data, err := queryparser.AllNode(params.Args)
 					if err != nil {
-						logger.Logger.Println("flute / all_quota_prepared_node: " + err.Error())
+						logger.Logger.Println("flute / all_server_prepared_node: " + err.Error())
 					}
 					return data, err
 				},

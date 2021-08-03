@@ -1,35 +1,22 @@
 package pbtomodel
 
 import (
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
 	"strconv"
 	"strings"
 	"time"
 
-	"innogrid.com/hcloud-classic/hcc_errors"
 	"innogrid.com/hcloud-classic/pb"
-
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 )
 
 // PbVolumeToModelVolume : Change volume of proto type to model
 func PbVolumeToModelVolume(volume *pb.Volume, hccGrpcErrStack *pb.HccErrorStack) *model.Volume {
-	var createdAt time.Time
 	if volume.CreatedAt == nil {
-		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
-			Seconds: 0,
-			Nanos:   0,
-		})
-	} else {
-		var err error
-
-		createdAt, err = ptypes.Timestamp(volume.CreatedAt)
-		if err != nil {
-			return &model.Volume{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
-		}
+		volume.CreatedAt = timestamppb.New(time.Time{})
 	}
+
 	convSize := strings.Split(volume.Size, "G")
 	onlySize, _ := strconv.Atoi(convSize[0])
 	modelVolume := &model.Volume{
@@ -43,7 +30,7 @@ func PbVolumeToModelVolume(volume *pb.Volume, hccGrpcErrStack *pb.HccErrorStack)
 		GatewayIP:  volume.GatewayIp,
 		LunNum:     int(volume.Lun),
 		Pool:       volume.Pool,
-		CreatedAt:  createdAt,
+		CreatedAt:  volume.CreatedAt.AsTime(),
 	}
 	if hccGrpcErrStack != nil {
 		hccErrStack := errconv.GrpcStackToHcc(hccGrpcErrStack)

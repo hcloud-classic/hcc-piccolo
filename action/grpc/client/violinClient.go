@@ -143,6 +143,19 @@ func (rc *RPCClient) UpdateServer(in *pb.ReqUpdateServer) (*pb.ResUpdateServer, 
 	return resUpdateServer, nil
 }
 
+// UpdateServerNodes : Update nodes of the server
+func (rc *RPCClient) UpdateServerNodes(in *pb.ReqUpdateServerNodes) (*pb.ResUpdateServerNodes, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resUpdateServerNodes, err := rc.violin.UpdateServerNodes(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resUpdateServerNodes, nil
+}
+
 // DeleteServer : Delete of the server
 func (rc *RPCClient) DeleteServer(uuid string) (*pb.ResDeleteServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),

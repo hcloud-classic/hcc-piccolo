@@ -14,21 +14,6 @@ import (
 
 // PbServerToModelServer : Change server of proto type to model
 func PbServerToModelServer(server *pb.Server, hccGrpcErrStack *pb.HccErrorStack) *model.Server {
-	var createdAt time.Time
-	if server.CreatedAt == nil {
-		createdAt, _ = ptypes.Timestamp(&timestamp.Timestamp{
-			Seconds: 0,
-			Nanos:   0,
-		})
-	} else {
-		var err error
-
-		createdAt, err = ptypes.Timestamp(server.CreatedAt)
-		if err != nil {
-			return &model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLTimestampConversionError, err.Error())}
-		}
-	}
-
 	modelServer := &model.Server{
 		UUID:       server.UUID,
 		GroupID:    server.GroupID,
@@ -41,7 +26,7 @@ func PbServerToModelServer(server *pb.Server, hccGrpcErrStack *pb.HccErrorStack)
 		DiskSize:   int(server.DiskSize),
 		Status:     server.Status,
 		UserUUID:   server.UserUUID,
-		CreatedAt:  createdAt,
+		CreatedAt:  server.CreatedAt.AsTime(),
 	}
 
 	if hccGrpcErrStack != nil {
