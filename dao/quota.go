@@ -30,7 +30,7 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 
 	sql := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
 		"piccolo.quota.total_cpu_cores, piccolo.quota.total_memory_gb, " +
-		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, piccolo.quota.limit_node_cnt" +
+		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, piccolo.quota.limit_node_cnt, " +
 		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb" +
 		" from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id" +
 		" and piccolo.quota.group_id = ?"
