@@ -31,7 +31,7 @@ func GetVolumeList(args map[string]interface{}) (interface{}, error) {
 	if actionOk {
 		reqVolumeListHandler.Volume.Action = action
 	} else {
-		reqVolumeListHandler.Volume.Action = "read_list"
+		reqVolumeListHandler.Volume.Action = "single_server_allocated"
 	}
 	if rowOk {
 		reqVolumeListHandler.Row = int64(row)
