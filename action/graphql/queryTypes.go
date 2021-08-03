@@ -1164,7 +1164,7 @@ var queryTypes = graphql.NewObject(
 						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					params.Args["group_id"] = int(groupID)
-					params.Args["server_uuid"] = ""
+					params.Args["server_uuid"] = "---"
 					data, err := queryparser.AllNode(params.Args)
 					if err != nil {
 						logger.Logger.Println("flute / all_server_prepared_node: " + err.Error())
