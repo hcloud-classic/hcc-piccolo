@@ -169,7 +169,7 @@ func UpdateUser(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 	if authenticationOk {
 		authentication = strings.ToLower(authentication)
 		isWrongAuthentication := false
-		if isMaster {
+		if isMaster && id == "master" {
 			isWrongAuthentication = authentication != "master"
 		} else {
 			isWrongAuthentication = authentication != "admin" && authentication != "user"
