@@ -158,6 +158,7 @@ func UpdateServerNodes(args map[string]interface{}, isAdmin bool, isMaster bool,
 	}
 
 	if !isMaster || !isAdmin {
+		args["uuid"] = requestedUUID
 		server, err := queryparser.Server(args)
 		if err != nil {
 			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
