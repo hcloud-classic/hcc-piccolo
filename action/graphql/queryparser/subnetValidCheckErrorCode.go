@@ -1,7 +1,7 @@
 package queryparser
 
 // SubnetValid : Valid subnet
-var SubnetValid int64 = 0
+var SubnetValid int64
 
 // SubnetValidErrorArgumentError : Some of arguments are missing
 var SubnetValidErrorArgumentError int64 = 1

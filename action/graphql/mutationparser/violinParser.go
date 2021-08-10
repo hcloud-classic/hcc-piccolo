@@ -105,6 +105,9 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 		if err != nil {
 			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 		}
+		if server.(model.Server).Errors != nil && len(server.(model.Server).Errors) != 0 {
+			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(server.(model.Server).Errors[0].ErrCode, server.(model.Server).Errors[0].ErrText)}, nil
+		}
 
 		if !isMaster {
 			groupID, _ := args["group_id"].(int)
@@ -155,9 +158,13 @@ func UpdateServerNodes(args map[string]interface{}, isAdmin bool, isMaster bool,
 	}
 
 	if !isMaster || !isAdmin {
+		args["uuid"] = requestedUUID
 		server, err := queryparser.Server(args)
 		if err != nil {
 			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+		if server.(model.Server).Errors != nil && len(server.(model.Server).Errors) != 0 {
+			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(server.(model.Server).Errors[0].ErrCode, server.(model.Server).Errors[0].ErrText)}, nil
 		}
 
 		if !isMaster {
@@ -199,6 +206,9 @@ func DeleteServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 		server, err := queryparser.Server(args)
 		if err != nil {
 			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+		if server.(model.Server).Errors != nil && len(server.(model.Server).Errors) != 0 {
+			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(server.(model.Server).Errors[0].ErrCode, server.(model.Server).Errors[0].ErrText)}, nil
 		}
 
 		if !isMaster {
