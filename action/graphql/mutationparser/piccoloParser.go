@@ -40,6 +40,7 @@ func SignUp(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserG
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Hey, you can't be the master!")}, nil
 	}
 
+	authentication = strings.ToLower(authentication)
 	if authentication != "admin" && authentication != "user" {
 		return model.User{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Wrong authentication provided!")}, nil
 	}
@@ -166,8 +167,9 @@ func UpdateUser(args map[string]interface{}, isAdmin bool, isMaster bool, loginU
 	sql := "update user set"
 	var updateSet = ""
 	if authenticationOk {
+		authentication = strings.ToLower(authentication)
 		isWrongAuthentication := false
-		if isMaster {
+		if isMaster && id == "master" {
 			isWrongAuthentication = authentication != "master"
 		} else {
 			isWrongAuthentication = authentication != "admin" && authentication != "user"
