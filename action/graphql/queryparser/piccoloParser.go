@@ -364,7 +364,6 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	}
 
 	sqlSelect := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
-		"piccolo.quota.total_cpu_cores, piccolo.quota.total_memory_gb, " +
 		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, " +
 		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb, " +
 		"piccolo.quota.limit_node_cnt"
@@ -381,12 +380,6 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 	}
 	if groupNameOk && len(groupName) != 0 {
 		sql += " and piccolo.group.name like '%" + groupName + "%'"
-	}
-	if totalCPUCoresOk && totalCPUCores != 0 {
-		sql += " and piccolo.quota.total_cpu_cores = " + strconv.Itoa(totalCPUCores)
-	}
-	if totalMemoryGBOk && totalMemoryGB != 0 {
-		sql += " and piccolo.quota.total_memory_gb = " + strconv.Itoa(totalMemoryGB)
 	}
 	if limitSubnetCntOk && limitSubnetCnt != 0 {
 		sql += " and piccolo.quota.limit_subnet_cnt = " + strconv.Itoa(limitSubnetCnt)
@@ -437,18 +430,42 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 
 	for stmt.Next() {
 		err := stmt.Scan(&groupID, &groupName,
-			&totalCPUCores, &totalMemoryGB,
 			&limitSubnetCnt, &limitAdaptiveIPCnt,
 			&poolName, &limitSSDGB, &limitHDDGB,
 			&limitNodeCnt)
 		if err != nil {
 			logger.Logger.Println(err)
 		}
+
+		resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{
+			Node: &pb.Node{
+				GroupID: int64(groupID),
+			},
+			Row:  0,
+			Page: 0,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		var _totalCPUCores int
+		var _totalMemoryGB int
+
+		for _, node := range resGetNodeList.Node {
+			resGetNode, err := client.RC.GetNode(node.UUID)
+			if err != nil {
+				return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "Failed to get the node's info (nodeUUID="+node.UUID+")")}, nil
+			}
+
+			_totalCPUCores += int(resGetNode.Node.CPUCores)
+			_totalMemoryGB += int(resGetNode.Node.Memory)
+		}
+
 		quota := model.Quota{
 			GroupID:            int64(groupID),
 			GroupName:          groupName,
-			TotalCPUCores:      totalCPUCores,
-			TotalMemoryGB:      totalMemoryGB,
+			TotalCPUCores:      _totalCPUCores,
+			TotalMemoryGB:      _totalMemoryGB,
 			LimitSubnetCnt:     limitSubnetCnt,
 			LimitAdaptiveIPCnt: limitAdaptiveIPCnt,
 			PoolName:           poolName,
@@ -456,6 +473,16 @@ func QuotaList(args map[string]interface{}, isAdmin bool, isMaster bool, loginUs
 			LimitHDDGB:         limitHDDGB,
 			LimitNodeCnt:       limitNodeCnt,
 		}
+
+		if totalCPUCoresOk && totalCPUCores != 0 &&
+			totalCPUCores != _totalCPUCores {
+			continue
+		}
+		if totalMemoryGBOk && totalMemoryGB != 0 &&
+			totalMemoryGB != _totalMemoryGB {
+			continue
+		}
+
 		quotas = append(quotas, quota)
 	}
 

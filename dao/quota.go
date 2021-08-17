@@ -29,7 +29,6 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	var limitHDDGB int
 
 	sql := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
-		"piccolo.quota.total_cpu_cores, piccolo.quota.total_memory_gb, " +
 		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, piccolo.quota.limit_node_cnt, " +
 		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb" +
 		" from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id" +
@@ -38,8 +37,6 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 	err := mysql.QueryRowScan(row,
 		&groupID,
 		&groupName,
-		&totalCPUCores,
-		&totalMemoryGB,
 		&limitSubnetCnt,
 		&limitAdaptiveIPCnt,
 		&limitNodeCnt,
@@ -54,6 +51,27 @@ func ReadQuota(groupID int64) (*pb.GroupQuota, error) {
 		}
 
 		return nil, err
+	}
+
+	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{
+		Node: &pb.Node{
+			GroupID: groupID,
+		},
+		Row:  0,
+		Page: 0,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, node := range resGetNodeList.Node {
+		resGetNode, err := client.RC.GetNode(node.UUID)
+		if err != nil {
+			return nil, errors.New("Failed to get the node's info (nodeUUID=" + node.UUID + ")")
+		}
+
+		totalCPUCores += int(resGetNode.Node.CPUCores)
+		totalMemoryGB += int(resGetNode.Node.Memory)
 	}
 
 	quota = pb.GroupQuota{
