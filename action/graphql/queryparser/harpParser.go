@@ -245,11 +245,16 @@ func NumSubnet(args map[string]interface{}) (interface{}, error) {
 
 // ValidCheckSubnet : Check if we can create the subnet
 func ValidCheckSubnet(args map[string]interface{}) (interface{}, error) {
+	uuid, uuidOk := args["uuid"].(string)
 	networkIP, networkIPOk := args["network_ip"].(string)
 	netmask, netmaskOk := args["netmask"].(string)
 	gateway, gatewayOk := args["gateway"].(string)
+	isUpdate, isUpdateOk := args["is_update"].(bool)
 
 	var subnet pb.Subnet
+	if uuidOk {
+		subnet.UUID = uuid
+	}
 	if networkIPOk {
 		subnet.NetworkIP = networkIP
 	}
@@ -261,7 +266,8 @@ func ValidCheckSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 
 	resValidCheckSubnet, err := client.RC.ValidCheckSubnet(&pb.ReqValidCheckSubnet{
-		Subnet: &subnet,
+		Subnet:   &subnet,
+		IsUpdate: isUpdateOk && isUpdate,
 	})
 	if err != nil {
 		return model.SubnetValid{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil

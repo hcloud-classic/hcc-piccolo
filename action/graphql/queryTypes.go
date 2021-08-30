@@ -760,6 +760,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.SubnetValidType,
 				Description: "Check if we can create the subnet",
 				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"network_ip": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
@@ -768,6 +771,9 @@ var queryTypes = graphql.NewObject(
 					},
 					"gateway": &graphql.ArgumentConfig{
 						Type: graphql.String,
+					},
+					"is_update": &graphql.ArgumentConfig{
+						Type: graphql.Boolean,
 					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,

@@ -91,8 +91,6 @@ func UpdateSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 	nextServer, nextServerOk := args["next_server"].(string)
 	nameServer, nameServerOk := args["name_server"].(string)
 	domainName, domainNameOk := args["domain_name"].(string)
-	serverUUID, serverUUIDOk := args["sever_uuid"].(string)
-	leaderNodeUUID, leaderNodeUUIDOk := args["leader_node_uuid"].(string)
 	os, osOk := args["os"].(string)
 	subnetName, subnetNameOk := args["subnet_name"].(string)
 
@@ -115,12 +113,6 @@ func UpdateSubnet(args map[string]interface{}, isMaster bool) (interface{}, erro
 	}
 	if domainNameOk {
 		subnet.DomainName = domainName
-	}
-	if serverUUIDOk {
-		subnet.ServerUUID = serverUUID
-	}
-	if leaderNodeUUIDOk {
-		subnet.LeaderNodeUUID = leaderNodeUUID
 	}
 	if osOk {
 		subnet.OS = os
