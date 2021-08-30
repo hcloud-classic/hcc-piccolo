@@ -760,6 +760,9 @@ var queryTypes = graphql.NewObject(
 				Type:        graphqlType.SubnetValidType,
 				Description: "Check if we can create the subnet",
 				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
 					"network_ip": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
