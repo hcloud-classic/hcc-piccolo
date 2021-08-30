@@ -769,6 +769,9 @@ var queryTypes = graphql.NewObject(
 					"gateway": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"is_update": &graphql.ArgumentConfig{
+						Type: graphql.Boolean,
+					},
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
