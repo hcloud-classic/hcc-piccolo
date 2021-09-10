@@ -20,25 +20,29 @@ func telegrafSubscriptionQueryTimeChange(query string, newTime string) string {
 
 	querySlice := strings.Split(query, ",")
 	for i := range querySlice {
-		if strings.Contains(querySlice[i], "time") {
-			if strings.Contains(querySlice[i], "$time") {
-				continue
-			}
+		if strings.Contains(querySlice[i], "time") &&
+			!strings.Contains(querySlice[i], "$time") {
 			querySlice[i] = strings.Replace(querySlice[i], " ", "", -1)
 			s := strings.Split(querySlice[i], ":")
 			if len(s) == 2 {
 				querySlice[i] = "time: " + "\"" + newTime + "\""
 			}
 		}
-		newQuery += querySlice[i] + ","
+
+		if i == len(querySlice) -1 {
+			newQuery += querySlice[i]
+		} else {
+			newQuery += querySlice[i] + ","
+		}
 	}
+
 	if strings.Contains(newQuery, "$uuid") &&
 		!strings.Contains(newQuery, "$time") {
 		newQuery = strings.Replace(newQuery, "$uuid: String!", "$time: String!, $uuid: String!", -1)
 		newQuery = strings.Replace(newQuery, "uuid: $uuid", "time: $time, uuid: $uuid", -1)
 	}
 
-	//logger.Logger.Println("newQuery", newQuery)
+	// logger.Logger.Println("newQuery", newQuery)
 
 	return newQuery
 }
