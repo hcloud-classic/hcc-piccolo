@@ -2,6 +2,7 @@ package queryparser
 
 import (
 	dbsql "database/sql"
+	"errors"
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/graphql/queryparserext"
 	"hcc/piccolo/action/grpc/client"
@@ -320,6 +321,97 @@ func ResourceUsage(args map[string]interface{}) (interface{}, error) {
 	}
 
 	return model.ResourceUsage{Total: total, InUse: inUse, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+}
+
+// ReadQuota : Get info of the quota
+func ReadQuota(args map[string]interface{}, isAdmin bool, isMaster bool, loginUserGroupID int) (interface{}, error) {
+	if !isMaster && !isAdmin {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Permission denied!")}, nil
+	}
+
+	var quota model.Quota
+
+	var totalCPUCores int
+	var totalMemoryGB int
+	var limitSubnetCnt int
+	var limitAdaptiveIPCnt int
+	var limitNodeCnt int
+	var poolName string
+	var limitSSDGB int
+	var limitHDDGB int
+
+	groupID, groupIDOk := args["group_id"].(int)
+	if groupID == 0 {
+		groupIDOk = false
+	}
+	groupName, groupNameOk := args["group_name"].(string)
+
+	if !isMaster && (groupIDOk || groupNameOk) {
+		return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "Only a master can see other group's quotas!")}, nil
+	}
+
+	sqlSelect := "select piccolo.quota.group_id, piccolo.group.name as group_name, " +
+		"piccolo.quota.limit_subnet_cnt, piccolo.quota.limit_adaptive_ip_cnt, " +
+		"piccolo.quota.pool_name, piccolo.quota.limit_ssd_gb, piccolo.quota.limit_hdd_gb, " +
+		"piccolo.quota.limit_node_cnt"
+	sql := " from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id"
+
+	if !isMaster {
+		sql = " from piccolo.quota, piccolo.group where piccolo.quota.group_id = piccolo.group.id and " +
+			"piccolo.group.id = " + strconv.Itoa(loginUserGroupID)
+	}
+
+	var err error
+
+	row := mysql.Db.QueryRow(sqlSelect + sql)
+	err = mysql.QueryRowScan(row,
+		&groupID,
+		&groupName,
+		&limitSubnetCnt,
+		&limitAdaptiveIPCnt,
+		&poolName,
+		&limitSSDGB,
+		&limitHDDGB,
+		&limitNodeCnt)
+	if err != nil {
+		errStr := "ReadQuota(): " + err.Error()
+		logger.Logger.Println(errStr)
+		return nil, errors.New(errStr)
+	}
+
+	resGetNodeList, err := client.RC.GetNodeList(&pb.ReqGetNodeList{
+		Node: &pb.Node{
+			GroupID: int64(groupID),
+		},
+		Row:  0,
+		Page: 0,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, node := range resGetNodeList.Node {
+		resGetNode, err := client.RC.GetNode(node.UUID)
+		if err != nil {
+			return model.QuotaList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "Failed to get the node's info (nodeUUID="+node.UUID+")")}, nil
+		}
+
+		totalCPUCores += int(resGetNode.Node.CPUCores)
+		totalMemoryGB += int(resGetNode.Node.Memory)
+	}
+
+	quota.GroupID = int64(groupID)
+	quota.GroupName = groupName
+	quota.TotalCPUCores = totalCPUCores
+	quota.TotalMemoryGB = totalMemoryGB
+	quota.LimitSubnetCnt = limitSubnetCnt
+	quota.LimitAdaptiveIPCnt = limitAdaptiveIPCnt
+	quota.PoolName = poolName
+	quota.LimitSSDGB = limitSSDGB
+	quota.LimitHDDGB = limitHDDGB
+	quota.Errors = errconv.ReturnHccEmptyErrorPiccolo()
+
+	return &quota, nil
 }
 
 // QuotaList : Get the quota list

@@ -247,6 +247,29 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"quota": &graphql.Field{
+				Type:        graphqlType.QuotaListType,
+				Description: "Get info of the quota from piccolo",
+				Args: graphql.FieldConfigArgument{
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					isAdmin, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, true)
+					if err != nil {
+						return model.Quota{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := queryparser.ReadQuota(params.Args, isAdmin, isMaster, int(groupID))
+					if err != nil {
+						logger.Logger.Println("piccolo / quota: " + err.Error())
+					}
+					return data, err
+				},
+			},
 			"list_quota": &graphql.Field{
 				Type:        graphqlType.QuotaListType,
 				Description: "Get the quota list from piccolo",
