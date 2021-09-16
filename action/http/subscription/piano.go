@@ -29,7 +29,7 @@ func telegrafSubscriptionQueryTimeChange(query string, newTime string) string {
 			}
 		}
 
-		if i == len(querySlice) -1 {
+		if i == len(querySlice)-1 {
 			newQuery += querySlice[i]
 		} else {
 			newQuery += querySlice[i] + ","
