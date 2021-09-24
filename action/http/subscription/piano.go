@@ -82,6 +82,13 @@ func telegrafSubscription(conn graphqlws.Connection,
 	ctx := context.Background()
 
 	for true {
+		opCancelReadLock.Lock()
+		if isOpStopped(conn, opID) {
+			opCancelReadLock.Unlock()
+			return
+		}
+		opCancelReadLock.Unlock()
+
 		query := data.Query
 
 		if *newTime != "" {
@@ -110,10 +117,6 @@ func telegrafSubscription(conn graphqlws.Connection,
 		conn.SendData(opID, &graphqlData)
 		if graphqlData.Errors != nil {
 			logger.Logger.Println("telegrafSubscription(): ", graphqlData.Errors)
-		}
-
-		if isOpStopped(conn.ID(), opID) {
-			return
 		}
 
 		time.Sleep(time.Millisecond * time.Duration(piccoloConfig.GraphQL.SubscriptionInterval))

@@ -16,6 +16,13 @@ func graphqlCommonSubscription(conn graphqlws.Connection,
 	ctx := context.Background()
 
 	for true {
+		opCancelReadLock.Lock()
+		if isOpStopped(conn, opID) {
+			opCancelReadLock.Unlock()
+			return
+		}
+		opCancelReadLock.Unlock()
+
 		params := graphqlgo.Params{
 			Schema:         graphql.Schema,
 			RequestString:  data.Query,
@@ -34,10 +41,6 @@ func graphqlCommonSubscription(conn graphqlws.Connection,
 		conn.SendData(opID, &graphqlData)
 		if graphqlData.Errors != nil {
 			logger.Logger.Println("graphqlCommonSubscription(): Query: ", data.Query, " Errors: ", graphqlData.Errors)
-		}
-
-		if isOpStopped(conn.ID(), opID) {
-			return
 		}
 
 		time.Sleep(time.Millisecond * time.Duration(piccoloConfig.GraphQL.SubscriptionInterval))
