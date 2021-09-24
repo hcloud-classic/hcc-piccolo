@@ -12,18 +12,18 @@ import (
 )
 
 // InitTuba : Initialize a gRPC connection to tuba module
-func InitTuba(serverAddress string, serverPort int, conn *grpc.ClientConn) (pb.TubaClient, error) {
+func InitTuba(serverAddress string, serverPort int) (pb.TubaClient, *grpc.ClientConn, error) {
 	var err error
 
 	addr := serverAddress + ":" + strconv.Itoa(serverPort)
-	conn, err = grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	tubaClient := pb.NewTubaClient(conn)
 
-	return tubaClient, nil
+	return tubaClient, conn, nil
 }
 
 // CloseTuba : Close the gRPC connection of tuba module
