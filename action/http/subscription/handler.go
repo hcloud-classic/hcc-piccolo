@@ -1,34 +1,42 @@
 package subscription
 
 import (
+	"fmt"
 	"github.com/functionalfoundry/graphqlws"
 	"github.com/gorilla/websocket"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 	"sync"
 )
 
-var opCancelLock = sync.Mutex{}
+var opCancelReadLock = sync.Mutex{}
+var opCancelWriteLock = sync.Mutex{}
 var opCancelList = make(map[string]string)
 
 var piccoloOpIDSplitMagic = "!@#$PicC0Lo"
-var piccoloOpStopAllMagic = "!@#$PizC0Lo"
 
-func isOpStopped(connID string, opID string) bool {
-	if opCancelList[connID] == piccoloOpStopAllMagic {
-		opCancelLock.Lock()
-		delete(opCancelList, connID)
-		opCancelLock.Unlock()
+var connections = make(map[graphqlws.Connection]bool)
+var connLock = sync.Mutex{}
+
+func isOpStopped(conn graphqlws.Connection, opID string) bool {
+	_, exist := connections[conn]
+	if !exist {
 		return true
 	}
 
-	cancelOpIDs := strings.Split(opCancelList[connID], piccoloOpIDSplitMagic)
+	if !connections[conn] {
+		connLock.Lock()
+		defer connLock.Unlock()
+		delete(connections, conn)
+		return true
+	}
+
+	cancelOpIDs := strings.Split(opCancelList[conn.ID()], piccoloOpIDSplitMagic)
 	for _, cancelOpID := range cancelOpIDs {
 		if cancelOpID == opID {
-			opCancelLock.Lock()
-			opCancelList[connID] = strings.Replace(opCancelList[connID], opID+piccoloOpIDSplitMagic, "", -1)
-			opCancelLock.Unlock()
+			opCancelWriteLock.Lock()
+			opCancelList[conn.ID()] = strings.Replace(opCancelList[conn.ID()], opID+piccoloOpIDSplitMagic, "", -1)
+			opCancelWriteLock.Unlock()
 			return true
 		}
 	}
@@ -43,22 +51,17 @@ func NewSubscriptionHandler() http.Handler {
 		Subprotocols: []string{"graphql-ws"},
 	}
 
-	wsLogger := graphqlws.NewLogger("handler")
-
-	var connections = make(map[graphqlws.Connection]bool)
-	connLock := sync.Mutex{}
-
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			var ws, err = upgrader.Upgrade(w, r, nil)
 
 			if err != nil {
-				wsLogger.Warn("Failed to establish WebSocket connection", err)
+				fmt.Println("Failed to establish WebSocket connection", err)
 				return
 			}
 
 			if ws.Subprotocol() != "graphql-ws" {
-				wsLogger.Warn("Connection does not implement the GraphQL WS protocol")
+				fmt.Println("Connection does not implement the GraphQL WS protocol")
 				_ = ws.Close()
 				return
 			}
@@ -66,28 +69,25 @@ func NewSubscriptionHandler() http.Handler {
 			conn := graphqlws.NewConnection(ws, graphqlws.ConnectionConfig{
 				EventHandlers: graphqlws.ConnectionEventHandlers{
 					Close: func(conn graphqlws.Connection) {
-						wsLogger.WithFields(log.Fields{
-							"conn": conn.ID(),
-							"user": conn.User(),
-						}).Debug("Closing connection")
+						fmt.Println(
+							"conn :", conn.ID(),
+							"user :", conn.User(),
+							"Closing connection")
 
-						opCancelLock.Lock()
-						opCancelList[conn.ID()] = piccoloOpStopAllMagic
-						opCancelLock.Unlock()
 						connLock.Lock()
-						delete(connections, conn)
-						connLock.Unlock()
+						defer connLock.Unlock()
+						connections[conn] = false
 					},
 					StartOperation: func(
 						conn graphqlws.Connection,
 						opID string,
 						data *graphqlws.StartMessagePayload,
 					) []error {
-						wsLogger.WithFields(log.Fields{
-							"conn": conn.ID(),
-							"op":   opID,
-							"user": conn.User(),
-						}).Debug("Start operation")
+						fmt.Println(
+							"conn :", conn.ID(),
+							"op :", opID,
+							"user :", conn.User(),
+							"Start operation")
 
 						data.Query = strings.TrimSpace(data.Query)
 						if strings.HasPrefix(data.Query, "subscription") {
@@ -108,9 +108,15 @@ func NewSubscriptionHandler() http.Handler {
 						return nil
 					},
 					StopOperation: func(conn graphqlws.Connection, opID string) {
-						opCancelLock.Lock()
+						opCancelWriteLock.Lock()
 						opCancelList[conn.ID()] += opID + piccoloOpIDSplitMagic
-						opCancelLock.Unlock()
+						opCancelWriteLock.Unlock()
+
+						fmt.Println(
+							"conn :", conn.ID(),
+							"op :", opID,
+							"user :", conn.User(),
+							"Stopped operation")
 					},
 				},
 			})

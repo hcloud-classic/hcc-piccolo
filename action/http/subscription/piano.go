@@ -20,25 +20,29 @@ func telegrafSubscriptionQueryTimeChange(query string, newTime string) string {
 
 	querySlice := strings.Split(query, ",")
 	for i := range querySlice {
-		if strings.Contains(querySlice[i], "time") {
-			if strings.Contains(querySlice[i], "$time") {
-				continue
-			}
+		if strings.Contains(querySlice[i], "time") &&
+			!strings.Contains(querySlice[i], "$time") {
 			querySlice[i] = strings.Replace(querySlice[i], " ", "", -1)
 			s := strings.Split(querySlice[i], ":")
 			if len(s) == 2 {
 				querySlice[i] = "time: " + "\"" + newTime + "\""
 			}
 		}
-		newQuery += querySlice[i] + ","
+
+		if i == len(querySlice)-1 {
+			newQuery += querySlice[i]
+		} else {
+			newQuery += querySlice[i] + ","
+		}
 	}
+
 	if strings.Contains(newQuery, "$uuid") &&
 		!strings.Contains(newQuery, "$time") {
 		newQuery = strings.Replace(newQuery, "$uuid: String!", "$time: String!, $uuid: String!", -1)
 		newQuery = strings.Replace(newQuery, "uuid: $uuid", "time: $time, uuid: $uuid", -1)
 	}
 
-	//logger.Logger.Println("newQuery", newQuery)
+	// logger.Logger.Println("newQuery", newQuery)
 
 	return newQuery
 }
@@ -78,6 +82,13 @@ func telegrafSubscription(conn graphqlws.Connection,
 	ctx := context.Background()
 
 	for true {
+		opCancelReadLock.Lock()
+		if isOpStopped(conn, opID) {
+			opCancelReadLock.Unlock()
+			return
+		}
+		opCancelReadLock.Unlock()
+
 		query := data.Query
 
 		if *newTime != "" {
@@ -106,10 +117,6 @@ func telegrafSubscription(conn graphqlws.Connection,
 		conn.SendData(opID, &graphqlData)
 		if graphqlData.Errors != nil {
 			logger.Logger.Println("telegrafSubscription(): ", graphqlData.Errors)
-		}
-
-		if isOpStopped(conn.ID(), opID) {
-			return
 		}
 
 		time.Sleep(time.Millisecond * time.Duration(piccoloConfig.GraphQL.SubscriptionInterval))

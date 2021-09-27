@@ -7,8 +7,6 @@ import (
 	"hcc/piccolo/model"
 	"innogrid.com/hcloud-classic/pb"
 
-	"google.golang.org/grpc"
-
 	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
@@ -37,8 +35,7 @@ func AllTask(args map[string]interface{}) (interface{}, error) {
 		return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "node not found")}, nil
 	}
 
-	var conn *grpc.ClientConn
-	tubaClient, err := client.InitTuba(resGetNodeList.Node[0].NodeIP, int(config.Tuba.ServerPort), conn)
+	tubaClient, conn, err := client.InitTuba(resGetNodeList.Node[0].NodeIP, int(config.Tuba.ServerPort))
 	if err != nil {
 		return model.TaskListResult{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
