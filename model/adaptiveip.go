@@ -25,12 +25,14 @@ type AdaptiveIPNum struct {
 
 // AdaptiveIPSetting : Structure of AdaptiveIPSetting
 type AdaptiveIPSetting struct {
-	ExtIfaceIPAddress string                    `json:"ext_ifaceip_address"`
-	Netmask           string                    `json:"netmask"`
-	GatewayAddress    string                    `json:"gateway_address"`
-	StartIPAddress    string                    `json:"start_ip_address"`
-	EndIPAddress      string                    `json:"end_ip_address"`
-	Errors            []errconv.PiccoloHccError `json:"errors"`
+	ExtIfaceIPAddress      string                    `json:"ext_ifaceip_address"`
+	Netmask                string                    `json:"netmask"`
+	GatewayAddress         string                    `json:"gateway_address"`
+	InternalStartIPAddress string                    `json:"internal_start_ip_address"`
+	InternalEndIPAddress   string                    `json:"internal_end_ip_address"`
+	ExternalStartIPAddress string                    `json:"external_start_ip_address"`
+	ExternalEndIPAddress   string                    `json:"external_end_ip_address"`
+	Errors                 []errconv.PiccoloHccError `json:"errors"`
 }
 
 // AdaptiveIPAvailableIPList : Struct of AdaptiveIPAvailableIPList

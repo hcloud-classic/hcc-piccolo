@@ -341,12 +341,14 @@ func GetAdaptiveIPSetting() (interface{}, error) {
 	}
 
 	return model.AdaptiveIPSetting{
-		ExtIfaceIPAddress: adaptiveipSetting.ExtIfaceIPAddress,
-		Netmask:           adaptiveipSetting.Netmask,
-		GatewayAddress:    adaptiveipSetting.GatewayAddress,
-		StartIPAddress:    adaptiveipSetting.StartIPAddress,
-		EndIPAddress:      adaptiveipSetting.EndIPAddress,
-		Errors:            Errors,
+		ExtIfaceIPAddress:      adaptiveipSetting.ExtIfaceIPAddress,
+		Netmask:                adaptiveipSetting.Netmask,
+		GatewayAddress:         adaptiveipSetting.GatewayAddress,
+		InternalStartIPAddress: adaptiveipSetting.InternalStartIPAddress,
+		InternalEndIPAddress:   adaptiveipSetting.InternalEndIPAddress,
+		ExternalStartIPAddress: adaptiveipSetting.ExternalStartIPAddress,
+		ExternalEndIPAddress:   adaptiveipSetting.ExternalEndIPAddress,
+		Errors:                 Errors,
 	}, nil
 }
 
