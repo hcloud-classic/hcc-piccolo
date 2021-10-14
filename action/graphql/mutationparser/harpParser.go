@@ -308,8 +308,10 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 	extIfaceIPAddress, extIfaceIPAddressOk := args["ext_ifaceip_address"].(string)
 	netmask, netmaskOk := args["netmask"].(string)
 	gatewayAddress, gatewayAddressOk := args["gateway_address"].(string)
-	startIPaddress, startIPaddressOk := args["start_ip_address"].(string)
-	endIPaddress, endIPaddressOk := args["end_ip_address"].(string)
+	internalStartIPaddress, internalStartIPaddressOk := args["internal_start_ip_address"].(string)
+	internalEndIPaddress, internalEndIPaddressOk := args["internal_end_ip_address"].(string)
+	externalStartIPaddress, externalStartIPaddressOk := args["external_start_ip_address"].(string)
+	externalEndIPaddress, externalEndIPaddressOk := args["external_end_ip_address"].(string)
 
 	var reqCreateAdaptiveIPSetting pb.ReqCreateAdaptiveIPSetting
 	var reqAdaptiveipSetting pb.AdaptiveIPSetting
@@ -325,11 +327,17 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 	if gatewayAddressOk {
 		reqCreateAdaptiveIPSetting.AdaptiveipSetting.GatewayAddress = gatewayAddress
 	}
-	if startIPaddressOk {
-		reqCreateAdaptiveIPSetting.AdaptiveipSetting.StartIPAddress = startIPaddress
+	if internalStartIPaddressOk {
+		reqCreateAdaptiveIPSetting.AdaptiveipSetting.InternalStartIPAddress = internalStartIPaddress
 	}
-	if endIPaddressOk {
-		reqCreateAdaptiveIPSetting.AdaptiveipSetting.EndIPAddress = endIPaddress
+	if internalEndIPaddressOk {
+		reqCreateAdaptiveIPSetting.AdaptiveipSetting.InternalEndIPAddress = internalEndIPaddress
+	}
+	if externalStartIPaddressOk {
+		reqCreateAdaptiveIPSetting.AdaptiveipSetting.ExternalStartIPAddress = externalStartIPaddress
+	}
+	if externalEndIPaddressOk {
+		reqCreateAdaptiveIPSetting.AdaptiveipSetting.ExternalEndIPAddress = externalEndIPaddress
 	}
 
 	resCreateAdaptiveIPSetting, err := client.RC.CreateAdaptiveIPSetting(&reqCreateAdaptiveIPSetting)
@@ -346,12 +354,14 @@ func CreateAdaptiveIPSetting(args map[string]interface{}) (interface{}, error) {
 	}
 
 	return model.AdaptiveIPSetting{
-		ExtIfaceIPAddress: adaptiveipSetting.ExtIfaceIPAddress,
-		Netmask:           adaptiveipSetting.Netmask,
-		GatewayAddress:    adaptiveipSetting.GatewayAddress,
-		StartIPAddress:    adaptiveipSetting.StartIPAddress,
-		EndIPAddress:      adaptiveipSetting.EndIPAddress,
-		Errors:            Errors,
+		ExtIfaceIPAddress:      adaptiveipSetting.ExtIfaceIPAddress,
+		Netmask:                adaptiveipSetting.Netmask,
+		GatewayAddress:         adaptiveipSetting.GatewayAddress,
+		InternalStartIPAddress: adaptiveipSetting.InternalStartIPAddress,
+		InternalEndIPAddress:   adaptiveipSetting.InternalEndIPAddress,
+		ExternalStartIPAddress: adaptiveipSetting.ExternalStartIPAddress,
+		ExternalEndIPAddress:   adaptiveipSetting.ExternalEndIPAddress,
+		Errors:                 Errors,
 	}, nil
 }
 

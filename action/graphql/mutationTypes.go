@@ -652,10 +652,16 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"gateway_address": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"start_ip_address": &graphql.ArgumentConfig{
+				"internal_start_ip_address": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"end_ip_address": &graphql.ArgumentConfig{
+				"internal_end_ip_address": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"external_start_ip_address": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"external_end_ip_address": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
 				"token": &graphql.ArgumentConfig{
