@@ -325,6 +325,84 @@ var subscriptionTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			// flute
+			"list_node": &graphql.Field{
+				Type:        graphqlType.NodeListType,
+				Description: "Get node list",
+				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"node_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"node_num": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"node_ip": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"bmc_mac_addr": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"bmc_ip": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"pxe_mac_addr": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"status": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"cpu_cores": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"memory": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"nic_speed_mbps": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"description": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"rack_number": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"active": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					if !isMaster {
+						params.Args["group_id"] = int(groupID)
+					}
+					data, err := queryparser.ListNode(params.Args)
+					if err != nil {
+						logger.Logger.Println("flute / list_node (Subscription): " + err.Error())
+					}
+					return data, err
+				},
+			},
 			// piano
 			"telegraf": &graphql.Field{
 				Type:        graphqlType.TelegrafType,

@@ -101,6 +101,7 @@ func NewSubscriptionHandler() http.Handler {
 								strings.Contains(data.Query, "all_subnet") ||
 								strings.Contains(data.Query, "list_server") ||
 								strings.Contains(data.Query, "list_subnet") ||
+								strings.Contains(data.Query, "list_node") ||
 								strings.Contains(data.Query, "list_user") {
 								go graphqlCommonSubscription(conn, opID, data)
 							}
