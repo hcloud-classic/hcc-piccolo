@@ -403,6 +403,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				"selected_nodes": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
+				"trigger_alarm": &graphql.ArgumentConfig{
+					Type: graphql.Boolean,
+				},
 				"token": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},

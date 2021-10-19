@@ -11,7 +11,7 @@ import (
 	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
-// WriteServerAction : Write a server action to the database
+// WriteServerAction : Write a server alarm to the database
 func WriteServerAction(serverUUID string, action string, result string, errStr string, token string) error {
 	stmt, err := mysql.Prepare("insert into server_actions(server_uuid, action, result, err_str, user_id, time) values(?, ?, ?, ?, ?, now())")
 	if err != nil {

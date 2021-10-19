@@ -39,6 +39,25 @@ func (s *piccoloServer) WriteServerAction(_ context.Context, in *pb.ReqWriteServ
 	return &pb.ResWriteServerAction{Result: "Success"}, nil
 }
 
+// WriteServerAlarm : Write server alarms to the database
+func (s *piccoloServer) WriteServerAlarm(_ context.Context, in *pb.ReqWriteServerAlarm) (*pb.ResWriteServerAlarm, error) {
+	logger.Logger.Println("Request received: WriteServerAlarm()")
+
+	if in.GetServerUUID() == "" {
+		return nil, errors.New("ServerUUID is empty")
+	}
+
+	reason := in.ServerAlarm.GetReason()
+	detail := in.ServerAlarm.GetDetail()
+
+	err := dao.WriteServerAlarm(in.GetServerUUID(), reason, detail)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ResWriteServerAlarm{Result: "Success"}, nil
+}
+
 // GetGroupList : Get the group list
 func (s *piccoloServer) GetGroupList(_ context.Context, _ *pb.Empty) (*pb.ResGetGroupList, error) {
 	// logger.Logger.Println("Request received: GetGroupList()")

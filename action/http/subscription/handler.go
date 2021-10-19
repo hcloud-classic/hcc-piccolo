@@ -95,6 +95,7 @@ func NewSubscriptionHandler() http.Handler {
 								newTime := ""
 								go telegrafSubscription(conn, opID, data, &newTime)
 							} else if strings.Contains(data.Query, "resource_usage") ||
+								strings.Contains(data.Query, "server_alarm_list") ||
 								strings.Contains(data.Query, "all_task") ||
 								strings.Contains(data.Query, "all_server") ||
 								strings.Contains(data.Query, "all_subnet") ||
