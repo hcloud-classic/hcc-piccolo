@@ -119,12 +119,13 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 		return model.ServerAlarms{ServerAlarms: alarms, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "please insert row and page arguments or leave arguments as empty state")}, nil
 	}
 
+	var no int
 	var serverUUID string
 	var reason string
 	var detail string
 	var _time time.Time
 
-	sql := "select server_uuid, reason, detail, time from piccolo.server_alarm where user_id = ? order by no desc"
+	sql := "select no, server_uuid, reason, detail, time from piccolo.server_alarm where user_id = ? order by no desc"
 	if isLimit {
 		sql += " limit " + strconv.Itoa(row) + " offset " + strconv.Itoa(row*(page-1))
 	}
@@ -138,7 +139,7 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 	}()
 
 	for stmt.Next() {
-		err = stmt.Scan(&serverUUID, &reason, &detail, &_time)
+		err = stmt.Scan(&no, &serverUUID, &reason, &detail, &_time)
 		if err != nil {
 			goto ERROR
 		}
@@ -149,6 +150,7 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 		}
 
 		alarms = append(alarms, model.ServerAlarm{
+			No:         no,
 			UserID:     userID,
 			UserName:   getUserName(userID),
 			ServerUUID: serverUUID,

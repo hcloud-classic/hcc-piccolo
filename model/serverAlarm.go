@@ -7,6 +7,7 @@ import (
 
 // ServerAlarm : Structure of ServerAlarm
 type ServerAlarm struct {
+	No         int       `json:"no"`
 	UserID     string    `json:"user_id"`
 	UserName   string    `json:"user_name"`
 	ServerUUID string    `json:"server_uuid"`

@@ -9,6 +9,9 @@ var ServerAlarmType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "ServerAlarm",
 		Fields: graphql.Fields{
+			"no": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"user_id": &graphql.Field{
 				Type: graphql.String,
 			},
