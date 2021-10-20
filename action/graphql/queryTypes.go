@@ -247,6 +247,47 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"server_alarm_list": &graphql.Field{
+				Type:        graphqlType.ServerActionsType,
+				Description: "Get the server's alarm list",
+				Args: graphql.FieldConfigArgument{
+					"user_id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"user_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"reason": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.ServerAlarms{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := dao.ShowServerAlarms(params.Args)
+					if err != nil {
+						logger.Logger.Println("piccolo / server_alarm_list: " + err.Error())
+					}
+					return data, err
+				},
+			},
 			"quota": &graphql.Field{
 				Type:        graphqlType.QuotaListType,
 				Description: "Get info of the quota from piccolo",

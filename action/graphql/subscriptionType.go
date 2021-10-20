@@ -4,6 +4,7 @@ import (
 	"hcc/piccolo/action/graphql/queryparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/dao"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
@@ -83,6 +84,50 @@ var subscriptionTypes = graphql.NewObject(
 					data, err := queryparser.ResourceUsage(params.Args)
 					if err != nil {
 						logger.Logger.Println("piccolo / resource_usage (Subscription): " + err.Error())
+					}
+					return data, err
+				},
+			},
+			"server_alarm_list": &graphql.Field{
+				Type:        graphqlType.ServerAlarmsType,
+				Description: "Get the server's alarm list",
+				Args: graphql.FieldConfigArgument{
+					"user_id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"user_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"reason": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"detail": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.ServerAlarms{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := dao.ShowServerAlarms(params.Args)
+					if err != nil {
+						logger.Logger.Println("piccolo / server_alarm_list (Subscription): " + err.Error())
 					}
 					return data, err
 				},
@@ -276,6 +321,84 @@ var subscriptionTypes = graphql.NewObject(
 					data, err := queryparser.AllSubnet(params.Args)
 					if err != nil {
 						logger.Logger.Println("harp / all_subnet (Subscription): " + err.Error())
+					}
+					return data, err
+				},
+			},
+			// flute
+			"list_node": &graphql.Field{
+				Type:        graphqlType.NodeListType,
+				Description: "Get node list",
+				Args: graphql.FieldConfigArgument{
+					"uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"group_id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"node_name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"node_num": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"node_ip": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"server_uuid": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"bmc_mac_addr": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"bmc_ip": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"pxe_mac_addr": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"status": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"cpu_cores": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"memory": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"nic_speed_mbps": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"description": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"rack_number": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"active": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.NodeList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					if !isMaster {
+						params.Args["group_id"] = int(groupID)
+					}
+					data, err := queryparser.ListNode(params.Args)
+					if err != nil {
+						logger.Logger.Println("flute / list_node (Subscription): " + err.Error())
 					}
 					return data, err
 				},
