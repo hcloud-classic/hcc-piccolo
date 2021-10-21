@@ -288,6 +288,29 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"num_unread_server_alarm": &graphql.Field{
+				Type:        graphqlType.ServerAlarmsNumType,
+				Description: "Get the number of unread server's alarm",
+				Args: graphql.FieldConfigArgument{
+					"user_id": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.ServerAlarmsNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					data, err := dao.ShowUnreadServerAlarmsNum(params.Args)
+					if err != nil {
+						logger.Logger.Println("piccolo / num_unread_server_alarm: " + err.Error())
+					}
+					return data, err
+				},
+			},
 			"quota": &graphql.Field{
 				Type:        graphqlType.QuotaListType,
 				Description: "Get info of the quota from piccolo",

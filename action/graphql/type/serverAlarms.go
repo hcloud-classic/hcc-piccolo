@@ -54,3 +54,18 @@ var ServerAlarmsType = graphql.NewObject(
 		},
 	},
 )
+
+// ServerAlarmsNumType : Graphql object type of ServerAlarmsNumType
+var ServerAlarmsNumType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "ServerAlarmsNumType",
+		Fields: graphql.Fields{
+			"number": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"errors": &graphql.Field{
+				Type: graphql.NewList(Errors),
+			},
+		},
+	},
+)

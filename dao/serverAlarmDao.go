@@ -14,14 +14,8 @@ import (
 	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
-func updateUserAlarmTriggered(userID string, isAlarmTriggered bool) error {
-	var enableAlarm = "0"
-
-	if isAlarmTriggered {
-		enableAlarm = "1"
-	}
-
-	sql := "update user set alarm_triggered = " + enableAlarm + " where id = ?"
+func unsetUnread(no int) error {
+	sql := "update piccolo.server_alarm set unread = 0 where no = ?"
 
 	stmt, err := mysql.Prepare(sql)
 	if err != nil {
@@ -34,9 +28,9 @@ func updateUserAlarmTriggered(userID string, isAlarmTriggered bool) error {
 		_ = stmt.Close()
 	}()
 
-	_, err2 := stmt.Exec(userID)
+	_, err2 := stmt.Exec(no)
 	if err2 != nil {
-		errStr := "updateUserAlarmTriggered(): " + err2.Error()
+		errStr := "unsetUnread(): " + err2.Error()
 		logger.Logger.Println(errStr)
 
 		return errors.New(errStr)
@@ -47,7 +41,7 @@ func updateUserAlarmTriggered(userID string, isAlarmTriggered bool) error {
 
 // WriteServerAlarm : Write a server alarm to the database
 func WriteServerAlarm(serverUUID string, reason string, detail string) error {
-	stmt, err := mysql.Prepare("insert into server_alarm(user_id, server_uuid, reason, detail, time) values(?, ?, ?, ?, now())")
+	stmt, err := mysql.Prepare("insert into piccolo.server_alarm(user_id, server_uuid, reason, detail, time) values(?, ?, ?, ?, now())")
 	if err != nil {
 		return err
 	}
@@ -61,11 +55,6 @@ func WriteServerAlarm(serverUUID string, reason string, detail string) error {
 	}
 
 	_, err = stmt.Exec(server.Server.UserUUID, serverUUID, reason, detail)
-	if err != nil {
-		return err
-	}
-
-	err = updateUserAlarmTriggered(server.Server.UserUUID, true)
 	if err != nil {
 		return err
 	}
@@ -124,8 +113,9 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 	var reason string
 	var detail string
 	var _time time.Time
+	var unread int
 
-	sql := "select no, server_uuid, reason, detail, time from piccolo.server_alarm where user_id = ? order by no desc"
+	sql := "select no, server_uuid, reason, detail, time, unread from piccolo.server_alarm where user_id = ? order by no desc"
 	if isLimit {
 		sql += " limit " + strconv.Itoa(row) + " offset " + strconv.Itoa(row*(page-1))
 	}
@@ -139,7 +129,7 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 	}()
 
 	for stmt.Next() {
-		err = stmt.Scan(&no, &serverUUID, &reason, &detail, &_time)
+		err = stmt.Scan(&no, &serverUUID, &reason, &detail, &_time, &unread)
 		if err != nil {
 			goto ERROR
 		}
@@ -158,15 +148,15 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 			Reason:     reason,
 			Detail:     detail,
 			Time:       _time,
+			Unread:     unread,
 		})
+		err = unsetUnread(no)
+		if err != nil {
+			goto ERROR
+		}
 		totalNum++
 	}
 	serverAlarms.TotalNum = totalNum
-
-	err = updateUserAlarmTriggered(userID, false)
-	if err != nil {
-		goto ERROR
-	}
 
 ERROR:
 	serverAlarms.ServerAlarms = alarms
@@ -179,8 +169,8 @@ ERROR:
 	return serverAlarms, nil
 }
 
-// ShowServerAlarmsNum : Show number of server alarms from the database
-func ShowServerAlarmsNum(args map[string]interface{}) (interface{}, error) {
+// ShowUnreadServerAlarmsNum : Show number of unread server alarms from the database
+func ShowUnreadServerAlarmsNum(args map[string]interface{}) (interface{}, error) {
 	var err error
 	var serverAlarmsNum model.ServerAlarmsNum
 	var serverAlarmsNr int64
@@ -192,7 +182,7 @@ func ShowServerAlarmsNum(args map[string]interface{}) (interface{}, error) {
 		return model.ServerAlarmsNum{Number: 0, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a user_id argument")}, nil
 	}
 
-	sql := "select count(*) from server_alarms where user_id = ?"
+	sql := "select count(*) from piccolo.server_alarm where user_id = ? and unread = 1"
 	row := mysql.Db.QueryRow(sql, userID)
 	err = mysql.QueryRowScan(row, &serverAlarmsNr)
 	if err != nil {
@@ -209,16 +199,4 @@ ERROR:
 	}
 
 	return serverAlarmsNum, nil
-}
-
-func isAlarmExist(userID string) bool {
-	queryArgs := make(map[string]interface{})
-	queryArgs["user_id"] = userID
-
-	serverAlarmsNum, _ := ShowServerAlarmsNum(queryArgs)
-	if serverAlarmsNum.(model.ServerAlarmsNum).Number != 0 {
-		return true
-	}
-
-	return false
 }
