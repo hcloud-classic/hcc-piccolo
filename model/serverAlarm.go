@@ -15,6 +15,7 @@ type ServerAlarm struct {
 	Reason     string    `json:"reason"`
 	Detail     string    `json:"detail"`
 	Time       time.Time `json:"time"`
+	Unread     int       `json:"unread"`
 }
 
 // ServerAlarms : Struct of ServerAlarms
