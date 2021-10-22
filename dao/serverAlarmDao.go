@@ -63,18 +63,44 @@ func WriteServerAlarm(serverUUID string, reason string, detail string) error {
 }
 
 // DeleteServerAlarm : Delete alarms of the server from the database
-func DeleteServerAlarm(no int) error {
+func DeleteServerAlarm(args map[string]interface{}, loginUserID string) (interface{}, error) {
+	no, noOk := args["no"].(int)
+	if !noOk {
+		return model.ServerAlarm{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a no argument")}, nil
+	}
+
+	var userID string
+
+	sql := "select user_id from piccolo.server_alarm where no = ?"
+	row := mysql.Db.QueryRow(sql, no)
+	err := mysql.QueryRowScan(row, &userID)
+	if err != nil {
+		return model.ServerAlarm{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, err.Error())}, nil
+	}
+
+	if userID != loginUserID {
+		return model.ServerAlarm{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't delete other user's server alarms")}, nil
+	}
+
 	stmt, err := mysql.Prepare("delete from server_alarm where no = ?")
 	if err != nil {
-		return err
-	}
+		errStr := "DeleteServerAlarm(): " + err.Error()
+		logger.Logger.Println(errStr)
 
+		return model.ServerAlarm{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLPrepareError, errStr)}, nil
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
 	_, err = stmt.Exec(no)
 	if err != nil {
-		return err
+		errStr := "DeleteServerAlarm(): " + err.Error()
+		logger.Logger.Println(errStr)
+
+		return model.ServerAlarm{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloMySQLExecuteError, errStr)}, nil
 	}
 
-	return nil
+	return model.ServerAlarm{No: no}, nil
 }
 
 func getUserName(userID string) string {
