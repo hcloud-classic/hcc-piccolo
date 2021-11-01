@@ -60,10 +60,10 @@ func Init() error {
 
 // End : Close connections of gRPC clients
 func End() {
+	closeCello()
 	closePiano()
 	closeNovnc()
 	closeViolin()
 	closeHarp()
 	closeFlute()
-	closeCello()
 }

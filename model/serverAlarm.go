@@ -7,15 +7,16 @@ import (
 
 // ServerAlarm : Structure of ServerAlarm
 type ServerAlarm struct {
-	No         int       `json:"no"`
-	UserID     string    `json:"user_id"`
-	UserName   string    `json:"user_name"`
-	ServerUUID string    `json:"server_uuid"`
-	ServerName string    `json:"server_name"`
-	Reason     string    `json:"reason"`
-	Detail     string    `json:"detail"`
-	Time       time.Time `json:"time"`
-	Unread     int       `json:"unread"`
+	No         int                       `json:"no"`
+	UserID     string                    `json:"user_id"`
+	UserName   string                    `json:"user_name"`
+	ServerUUID string                    `json:"server_uuid"`
+	ServerName string                    `json:"server_name"`
+	Reason     string                    `json:"reason"`
+	Detail     string                    `json:"detail"`
+	Time       time.Time                 `json:"time"`
+	Unread     int                       `json:"unread"`
+	Errors     []errconv.PiccoloHccError `json:"errors"`
 }
 
 // ServerAlarms : Struct of ServerAlarms

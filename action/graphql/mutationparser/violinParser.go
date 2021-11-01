@@ -154,7 +154,6 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 func UpdateServerNodes(args map[string]interface{}, isAdmin bool, isMaster bool, id string) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["server_uuid"].(string)
 	selectedNodes, selectedNodesOk := args["selected_nodes"].(string)
-	//triggerAlarm, triggerAlarmOk := args["trigger_alarm"].(string)
 
 	if !requestedUUIDOk || !selectedNodesOk {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need server_uuid and selected_nodes argument")}, nil

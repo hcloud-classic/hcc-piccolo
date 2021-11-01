@@ -306,6 +306,29 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return data, err
 			},
 		},
+		"delete_server_alarm": &graphql.Field{
+			Type:        graphqlType.ServerAlarmType,
+			Description: "Delete the server alarm",
+			Args: graphql.FieldConfigArgument{
+				"no": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				_, _, id, _, err := usertool.ValidateToken(params.Args, true)
+				if err != nil {
+					return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				data, err := dao.DeleteServerAlarm(params.Args, id)
+				if err != nil {
+					logger.Logger.Println("piccolo / delete_group: " + err.Error())
+				}
+				return data, err
+			},
+		},
 		// violin
 		"create_server": &graphql.Field{
 			Type:        graphqlType.ServerType,
