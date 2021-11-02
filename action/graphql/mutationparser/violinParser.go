@@ -148,8 +148,6 @@ func UpdateServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 	return *modelServer, nil
 }
 
-//func makeUpdateServerNodesAlarmDetail()
-
 // UpdateServerNodes : Update nodes of the server
 func UpdateServerNodes(args map[string]interface{}, isAdmin bool, isMaster bool, id string) (interface{}, error) {
 	requestedUUID, requestedUUIDOk := args["server_uuid"].(string)
@@ -193,6 +191,51 @@ func UpdateServerNodes(args map[string]interface{}, isAdmin bool, isMaster bool,
 	}
 
 	modelServer := pbtomodel.PbServerToModelServer(resUpdateServerNodes.Server, resUpdateServerNodes.HccErrorStack)
+
+	return *modelServer, nil
+}
+
+// ScaleUpServer : Scale up the server
+func ScaleUpServer(args map[string]interface{}, isAdmin bool, isMaster bool, id string) (interface{}, error) {
+	requestedUUID, requestedUUIDOk := args["server_uuid"].(string)
+
+	if !requestedUUIDOk {
+		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
+	}
+
+	if !isMaster || !isAdmin {
+		args["uuid"] = requestedUUID
+		server, err := queryparser.Server(args)
+		if err != nil {
+			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+		if server.(model.Server).Errors != nil && len(server.(model.Server).Errors) != 0 {
+			return model.Server{Errors: errconv.ReturnHccErrorPiccolo(server.(model.Server).Errors[0].ErrCode, server.(model.Server).Errors[0].ErrText)}, nil
+		}
+
+		if !isMaster {
+			groupID, _ := args["group_id"].(int)
+
+			if int(server.(model.Server).GroupID) != groupID {
+				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other group's server if you are not a master")}, nil
+			}
+		}
+		if !isMaster && !isAdmin {
+			if server.(model.Server).UserUUID != id {
+				return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, "You can't update the other server if you are not a master or the admin")}, nil
+			}
+		}
+	}
+
+	var reqScaleUpServer pb.ReqScaleUpServer
+
+	reqScaleUpServer.ServerUUID = requestedUUID
+	resScaleUpServer, err := client.RC.ScaleUpServer(&reqScaleUpServer)
+	if err != nil {
+		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+
+	modelServer := pbtomodel.PbServerToModelServer(resScaleUpServer.Server, resScaleUpServer.HccErrorStack)
 
 	return *modelServer, nil
 }

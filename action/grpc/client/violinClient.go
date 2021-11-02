@@ -156,6 +156,19 @@ func (rc *RPCClient) UpdateServerNodes(in *pb.ReqUpdateServerNodes) (*pb.ResUpda
 	return resUpdateServerNodes, nil
 }
 
+// ScaleUpServer : Scale up the server
+func (rc *RPCClient) ScaleUpServer(in *pb.ReqScaleUpServer) (*pb.ResScaleUpServer, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resScaleUpServer, err := rc.violin.ScaleUpServer(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resScaleUpServer, nil
+}
+
 // DeleteServer : Delete of the server
 func (rc *RPCClient) DeleteServer(uuid string) (*pb.ResDeleteServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
