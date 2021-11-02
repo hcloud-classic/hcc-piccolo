@@ -9,31 +9,31 @@ import (
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
 	"strconv"
+	"strings"
 	"time"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
-func unsetUnread(no int) error {
-	sql := "update piccolo.server_alarm set unread = 0 where no = ?"
+func isAutoScaleTriggered(serverUUID string) (bool, string) {
+	var detail string
 
-	stmt, err := mysql.Prepare(sql)
+	sql := "select detail from piccolo.server_alarm where server_uuid = ? and autoscale_triggered = 1"
+	row := mysql.Db.QueryRow(sql, serverUUID)
+	err := mysql.QueryRowScan(row, &detail)
 	if err != nil {
-		errStr := "updateUserAlarmTriggered(): " + err.Error()
-		logger.Logger.Println(errStr)
-
-		return errors.New(errStr)
+		return false, ""
 	}
-	defer func() {
-		_ = stmt.Close()
-	}()
 
-	_, err2 := stmt.Exec(no)
-	if err2 != nil {
-		errStr := "unsetUnread(): " + err2.Error()
-		logger.Logger.Println(errStr)
+	return true, detail
+}
 
-		return errors.New(errStr)
+func turnOffAutoScaleTriggered(serverUUID string) error {
+	sql := "update piccolo.server_alarm set autoscale_triggered = 0 where server_uuid = ?"
+	row := mysql.Db.QueryRow(sql, serverUUID)
+	err := mysql.QueryRowScan(row)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -41,7 +41,27 @@ func unsetUnread(no int) error {
 
 // WriteServerAlarm : Write a server alarm to the database
 func WriteServerAlarm(serverUUID string, reason string, detail string) error {
-	stmt, err := mysql.Prepare("insert into piccolo.server_alarm(user_id, server_uuid, reason, detail, time) values(?, ?, ?, ?, now())")
+	var autoScaleTriggered = 0
+
+	if strings.Contains(reason, "AutoScale Triggered") {
+		autoScaleTriggered = 1
+	}
+
+	if autoScaleTriggered == 1 {
+		triggered, detailStr := isAutoScaleTriggered(serverUUID)
+		if triggered {
+			if detail == detailStr {
+				return nil
+			}
+			_ = turnOffAutoScaleTriggered(serverUUID)
+		}
+	}
+
+	if autoScaleTriggered == 1 && detail == "Turn Off AutoScale" {
+		return turnOffAutoScaleTriggered(serverUUID)
+	}
+
+	stmt, err := mysql.Prepare("insert into piccolo.server_alarm(user_id, server_uuid, reason, detail, time, autoscale_triggered) values(?, ?, ?, ?, now(), ?)")
 	if err != nil {
 		return err
 	}
@@ -54,7 +74,7 @@ func WriteServerAlarm(serverUUID string, reason string, detail string) error {
 		return err
 	}
 
-	_, err = stmt.Exec(server.Server.UserUUID, serverUUID, reason, detail)
+	_, err = stmt.Exec(server.Server.UserUUID, serverUUID, reason, detail, autoScaleTriggered)
 	if err != nil {
 		return err
 	}
@@ -109,6 +129,31 @@ func getUserName(userID string) string {
 	data, _ := queryparserext.User(queryArgs)
 
 	return data.(model.User).Name
+}
+
+func unsetUnread(no int) error {
+	sql := "update piccolo.server_alarm set unread = 0 where no = ?"
+
+	stmt, err := mysql.Prepare(sql)
+	if err != nil {
+		errStr := "updateUserAlarmTriggered(): " + err.Error()
+		logger.Logger.Println(errStr)
+
+		return errors.New(errStr)
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+
+	_, err2 := stmt.Exec(no)
+	if err2 != nil {
+		errStr := "unsetUnread(): " + err2.Error()
+		logger.Logger.Println(errStr)
+
+		return errors.New(errStr)
+	}
+
+	return nil
 }
 
 // ShowServerAlarms : Show server alarms from the database
