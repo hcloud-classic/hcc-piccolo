@@ -446,6 +446,30 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				return data, err
 			},
 		},
+		"scale_up_server": &graphql.Field{
+			Type:        graphqlType.ServerType,
+			Description: "Scale up the server",
+			Args: graphql.FieldConfigArgument{
+				"server_uuid": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"token": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				isAdmin, isMaster, id, groupID, err := usertool.ValidateToken(params.Args, false)
+				if err != nil {
+					return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				params.Args["group_id"] = int(groupID)
+				data, err := mutationparser.ScaleUpServer(params.Args, isAdmin, isMaster, id)
+				if err != nil {
+					logger.Logger.Println("violin / scale_up_server: " + err.Error())
+				}
+				return data, err
+			},
+		},
 		"delete_server": &graphql.Field{
 			Type:        graphqlType.ServerType,
 			Description: "Delete server by uuid",
