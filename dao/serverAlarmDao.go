@@ -43,6 +43,10 @@ func turnOffAutoScaleTriggered(serverUUID string) error {
 func WriteServerAlarm(serverUUID string, reason string, detail string) error {
 	var autoScaleTriggered = 0
 
+	if strings.Contains(reason, "AutoScale Queued") {
+		_ = turnOffAutoScaleTriggered(serverUUID)
+	}
+
 	if strings.Contains(reason, "AutoScale Triggered") {
 		autoScaleTriggered = 1
 	}
@@ -58,7 +62,12 @@ func WriteServerAlarm(serverUUID string, reason string, detail string) error {
 	}
 
 	if autoScaleTriggered == 1 && detail == "Turn Off AutoScale" {
-		return turnOffAutoScaleTriggered(serverUUID)
+		err := turnOffAutoScaleTriggered(serverUUID)
+		if err != nil {
+			return err
+		}
+		reason = "AutoScale Trigger canceled"
+		detail = "Server is back to normal. (ServerUUID: " + serverUUID + ")"
 	}
 
 	stmt, err := mysql.Prepare("insert into piccolo.server_alarm(user_id, server_uuid, reason, detail, time, autoscale_triggered) values(?, ?, ?, ?, now(), ?)")
