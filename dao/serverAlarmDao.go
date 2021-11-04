@@ -18,7 +18,7 @@ import (
 func isAutoScaleTriggered(serverUUID string) (bool, string) {
 	var detail string
 
-	sql := "select detail from piccolo.server_alarm where server_uuid = ? and autoscale_triggered = 1"
+	sql := "select detail from piccolo.server_alarm where server_uuid = ? and auto_scale_triggered = 1"
 	row := mysql.Db.QueryRow(sql, serverUUID)
 	err := mysql.QueryRowScan(row, &detail)
 	if err != nil {
@@ -29,7 +29,7 @@ func isAutoScaleTriggered(serverUUID string) (bool, string) {
 }
 
 func turnOffAutoScaleTriggered(serverUUID string) error {
-	sql := "update piccolo.server_alarm set autoscale_triggered = 0 where server_uuid = ?"
+	sql := "update piccolo.server_alarm set auto_scale_triggered = 0 where server_uuid = ?"
 	row := mysql.Db.QueryRow(sql, serverUUID)
 	err := mysql.QueryRowScan(row)
 	if err != nil {
@@ -70,7 +70,7 @@ func WriteServerAlarm(serverUUID string, reason string, detail string) error {
 		detail = "Server is back to normal. (ServerUUID: " + serverUUID + ")"
 	}
 
-	stmt, err := mysql.Prepare("insert into piccolo.server_alarm(user_id, server_uuid, reason, detail, time, autoscale_triggered) values(?, ?, ?, ?, now(), ?)")
+	stmt, err := mysql.Prepare("insert into piccolo.server_alarm(user_id, server_uuid, reason, detail, time, auto_scale_triggered) values(?, ?, ?, ?, now(), ?)")
 	if err != nil {
 		return err
 	}
@@ -194,8 +194,9 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 	var detail string
 	var _time time.Time
 	var unread int
+	var autoScaleTriggered int
 
-	sql := "select no, server_uuid, reason, detail, time, unread from piccolo.server_alarm where user_id = ? order by no desc"
+	sql := "select no, server_uuid, reason, detail, time, unread, auto_scale_triggered from piccolo.server_alarm where user_id = ? order by no desc"
 	if isLimit {
 		sql += " limit " + strconv.Itoa(row) + " offset " + strconv.Itoa(row*(page-1))
 	}
@@ -209,7 +210,7 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 	}()
 
 	for stmt.Next() {
-		err = stmt.Scan(&no, &serverUUID, &reason, &detail, &_time, &unread)
+		err = stmt.Scan(&no, &serverUUID, &reason, &detail, &_time, &unread, &autoScaleTriggered)
 		if err != nil {
 			goto ERROR
 		}
@@ -220,15 +221,16 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 		}
 
 		alarms = append(alarms, model.ServerAlarm{
-			No:         no,
-			UserID:     userID,
-			UserName:   getUserName(userID),
-			ServerUUID: serverUUID,
-			ServerName: resGetServer.Server.ServerName,
-			Reason:     reason,
-			Detail:     detail,
-			Time:       _time,
-			Unread:     unread,
+			No:                 no,
+			UserID:             userID,
+			UserName:           getUserName(userID),
+			ServerUUID:         serverUUID,
+			ServerName:         resGetServer.Server.ServerName,
+			Reason:             reason,
+			Detail:             detail,
+			Time:               _time,
+			Unread:             unread,
+			AutoScaleTriggered: autoScaleTriggered,
 		})
 		err = unsetUnread(no)
 		if err != nil {
