@@ -248,7 +248,7 @@ var queryTypes = graphql.NewObject(
 				},
 			},
 			"server_alarm_list": &graphql.Field{
-				Type:        graphqlType.ServerActionsType,
+				Type:        graphqlType.ServerAlarmsType,
 				Description: "Get the server's alarm list",
 				Args: graphql.FieldConfigArgument{
 					"user_id": &graphql.ArgumentConfig{

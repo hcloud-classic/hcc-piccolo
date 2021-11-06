@@ -33,6 +33,9 @@ var ServerAlarmType = graphql.NewObject(
 			"time": &graphql.Field{
 				Type: graphql.DateTime,
 			},
+			"auto_scale_triggered": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
 			},
