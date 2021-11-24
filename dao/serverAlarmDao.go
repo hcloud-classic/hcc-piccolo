@@ -1,6 +1,7 @@
 package dao
 
 import (
+	dbsql "database/sql"
 	"errors"
 	"hcc/piccolo/action/graphql/queryparserext"
 	"hcc/piccolo/action/grpc/client"
@@ -196,6 +197,8 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 	var unread int
 	var autoScaleTriggered int
 
+	var queryRow *dbsql.Row
+
 	sql := "select no, server_uuid, reason, detail, time, unread, auto_scale_triggered from piccolo.server_alarm where user_id = ? order by no desc"
 	if isLimit {
 		sql += " limit " + strconv.Itoa(row) + " offset " + strconv.Itoa(row*(page-1))
@@ -236,8 +239,15 @@ func ShowServerAlarms(args map[string]interface{}) (interface{}, error) {
 		if err != nil {
 			goto ERROR
 		}
-		totalNum++
 	}
+
+	sql = "select count(*) from piccolo.server_alarm where user_id = ?"
+	queryRow = mysql.Db.QueryRow(sql, userID)
+	err = mysql.QueryRowScan(queryRow, &totalNum)
+	if err != nil {
+		goto ERROR
+	}
+
 	serverAlarms.TotalNum = totalNum
 
 ERROR:
