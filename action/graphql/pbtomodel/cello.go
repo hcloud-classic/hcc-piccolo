@@ -1,12 +1,13 @@
 package pbtomodel
 
 import (
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/model"
 	"strconv"
 	"strings"
 	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"innogrid.com/hcloud-classic/pb"
 )
@@ -27,7 +28,7 @@ func PbVolumeToModelVolume(volume *pb.Volume, hccGrpcErrStack *pb.HccErrorStack)
 		UseType:    volume.UseType,
 		UserUUID:   volume.UserUUID,
 		NetworkIP:  volume.Network_IP,
-		GatewayIP:  volume.GatewayIp,
+		GatewayIP:  volume.Gateway_IP,
 		LunNum:     int(volume.Lun),
 		Pool:       volume.Pool,
 		CreatedAt:  volume.CreatedAt.AsTime(),
@@ -45,7 +46,6 @@ func PbVolumeToModelVolume(volume *pb.Volume, hccGrpcErrStack *pb.HccErrorStack)
 
 // PbPoolToModelPool : Change volume of proto type to model
 func PbPoolToModelPool(pool *pb.Pool, hccGrpcErrStack *pb.HccErrorStack) *model.Pool {
-
 	modelPool := &model.Pool{
 		UUID:          pool.UUID,
 		Size:          pool.Size,
