@@ -14,7 +14,6 @@ import (
 
 // PoolHandler : Handler of zfs pool
 func PoolHandler(args map[string]interface{}) (interface{}, error) {
-
 	// UUID, UUIDOk := args["uuid"].(string)
 	// Size, SizeOk := args["size"].(string)
 	// Free, FreeOk := args["free"].(string)
@@ -51,6 +50,7 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 	// Health, HealthOk := args["health"].(string)
 	// Name, NameOk := args["name"].(string)
 	Action, ActionOk := args["action"].(string)
+	GroupID, GroupIDOk := args["group_id"].(int)
 
 	var modelPoolList []model.Pool
 	var reqGetPoolList pb.ReqGetPoolList
@@ -62,7 +62,11 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 	} else {
 		reqGetPoolList.Pool.Action = "read"
 	}
-
+	if GroupIDOk {
+		reqGetPoolList.Group.Id = (int64)(GroupID)
+	} else {
+		reqGetPoolList.Group.Id = 1
+	}
 	resPoolList, err := client.RC.GetPoolList(&reqGetPoolList)
 	if err != nil {
 		return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
