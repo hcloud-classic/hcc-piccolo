@@ -171,9 +171,11 @@ func UserList(args map[string]interface{}) (interface{}, error) {
 		if err != nil {
 			logger.Logger.Println(err)
 		}
-		user := model.User{ID: id, Authentication: authentication, Name: name,
+		user := model.User{
+			ID: id, Authentication: authentication, Name: name,
 			GroupID: int64(groupID), GroupName: groupName,
-			Email: email, LoginAt: loginAt, CreatedAt: createdAt}
+			Email: email, LoginAt: loginAt, CreatedAt: createdAt,
+		}
 		users = append(users, user)
 	}
 
@@ -238,7 +240,7 @@ func CheckToken(args map[string]interface{}) (interface{}, error) {
 		return model.IsValid{IsValid: false, Authentication: "", Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 	}
 
-	var authentication = "user"
+	authentication := "user"
 	if isAdmin {
 		authentication = "admin"
 	} else if isMaster {
@@ -296,6 +298,7 @@ func ResourceUsage(args map[string]interface{}) (interface{}, error) {
 		"health":        "",
 		"name":          "",
 		"availablesize": "",
+		"group_id":      groupID,
 	}
 
 	// TODO: Need to handle group_id - ish
@@ -620,8 +623,8 @@ func QuotaDetail(args map[string]interface{}, isAdmin bool, isMaster bool) (inte
 	queryArgs["group_id"] = int(group.ID)
 
 	// Nodes
-	var totalCPUCores = 0
-	var totalMemoryGB = 0
+	totalCPUCores := 0
+	totalMemoryGB := 0
 	nodes, err := ListNode(queryArgs)
 	if err != nil {
 		return model.QuotaDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "Failed to get info of nodes!")}, nil

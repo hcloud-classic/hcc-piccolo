@@ -59,7 +59,7 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 		reqVolumeHandle.Volume.Network_IP = networkIP
 	}
 	if gatewayIPOk {
-		reqVolumeHandle.Volume.GatewayIp = gatewayIP
+		reqVolumeHandle.Volume.Gateway_IP = gatewayIP
 	}
 	if lunNumOk {
 		convInt, _ := strconv.Atoi(lunNum)
@@ -103,8 +103,8 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 		return model.Volume{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "None Action")}, nil
 	}
 
-	var success = true
-	var errStr = ""
+	success := true
+	errStr := ""
 
 	if len(modelVolume.Errors) != 0 {
 		success = false
