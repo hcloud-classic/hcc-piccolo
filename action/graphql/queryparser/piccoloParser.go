@@ -291,17 +291,9 @@ func ResourceUsage(args map[string]interface{}) (interface{}, error) {
 
 	poolArg := map[string]interface{}{
 		"action":        "read",
-		"uuid":          "",
-		"size":          "",
-		"free":          "",
-		"capacity":      "",
-		"health":        "",
-		"name":          "",
-		"availablesize": "",
 		"group_id":      groupID,
 	}
 
-	// TODO: Need to handle group_id - ish
 	poolStruct, err := GetPoolList(poolArg)
 	convModelPools := poolStruct.(model.PoolList)
 	for _, eachPool := range convModelPools.Pools {

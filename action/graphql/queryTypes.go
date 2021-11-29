@@ -1500,7 +1500,6 @@ var queryTypes = graphql.NewObject(
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
 					}
-					// TODO: Need to handle group_id - ish
 					data, err := queryparser.GetPoolList(params.Args)
 					if err != nil {
 						logger.Logger.Println("cello / pool_list: " + err.Error())

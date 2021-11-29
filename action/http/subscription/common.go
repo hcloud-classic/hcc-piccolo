@@ -30,8 +30,9 @@ func graphqlCommonSubscription(conn graphqlws.Connection,
 			OperationName:  data.OperationName,
 			Context:        ctx,
 		}
-		//logger.Logger.Println("query", query)
+		//logger.Logger.Println("query", data.query)
 		//logger.Logger.Println("data.Variables", data.Variables)
+
 		result := graphqlgo.Do(params)
 
 		graphqlData := graphqlws.DataMessagePayload{
