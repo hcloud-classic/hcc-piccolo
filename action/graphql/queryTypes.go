@@ -172,9 +172,9 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
-			"resource_usage": &graphql.Field{
-				Type:        graphqlType.ResourceUsageType,
-				Description: "Get resource usage",
+			"node_available": &graphql.Field{
+				Type:        graphqlType.NodeAvailableType,
+				Description: "Get available info of nodes",
 				Args: graphql.FieldConfigArgument{
 					"token": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -183,14 +183,14 @@ var queryTypes = graphql.NewObject(
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
 					if err != nil {
-						return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+						return model.NodeAvailable{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 					}
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
 					}
-					data, err := queryparser.ResourceUsage(params.Args)
+					data, err := queryparser.NodeAvailable(params.Args)
 					if err != nil {
-						logger.Logger.Println("piccolo / resource_usage: " + err.Error())
+						logger.Logger.Println("piccolo / node_available: " + err.Error())
 					}
 					return data, err
 				},
@@ -1500,7 +1500,6 @@ var queryTypes = graphql.NewObject(
 					if !isMaster {
 						params.Args["group_id"] = int(groupID)
 					}
-					// TODO: Need to handle group_id - ish
 					data, err := queryparser.GetPoolList(params.Args)
 					if err != nil {
 						logger.Logger.Println("cello / pool_list: " + err.Error())

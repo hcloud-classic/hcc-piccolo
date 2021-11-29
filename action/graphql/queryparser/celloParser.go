@@ -10,24 +10,26 @@ import (
 	"innogrid.com/hcloud-classic/pb"
 )
 
-// TODO: Need to handle group_id - ish
-
 // PoolHandler : Handler of zfs pool
 func PoolHandler(args map[string]interface{}) (interface{}, error) {
-	// UUID, UUIDOk := args["uuid"].(string)
-	// Size, SizeOk := args["size"].(string)
-	// Free, FreeOk := args["free"].(string)
-	// Capacity, CapacityOk := args["capacity"].(string)
-	// Health, HealthOk := args["health"].(string)
-	// Name, NameOk := args["name"].(string)
 	Action, ActionOk := args["action"].(string)
+	GroupID, GroupIDOk := args["group_id"].(int)
 
 	var reqPoolHandler pb.ReqPoolHandler
 	var reqPool pb.Pool
+	var reqGroup pb.Group
 	reqPoolHandler.Pool = &reqPool
+	reqPoolHandler.Group = &reqGroup
 
 	if ActionOk {
 		reqPoolHandler.Pool.Action = Action
+	} else {
+		reqPoolHandler.Pool.Action = "read"
+	}
+	if GroupIDOk {
+		reqPoolHandler.Group.Id = (int64)(GroupID)
+	} else {
+		reqPoolHandler.Group.Id = 1
 	}
 
 	resPoolHandler, err := client.RC.PoolHandler(&reqPoolHandler)
@@ -41,21 +43,15 @@ func PoolHandler(args map[string]interface{}) (interface{}, error) {
 
 // GetPoolList : pool list
 func GetPoolList(args map[string]interface{}) (interface{}, error) {
-	// TODO: Need to handle group_id - ish
-
-	// UUID, UUIDOk := args["uuid"].(string)
-	// Size, SizeOk := args["size"].(string)
-	// Free, FreeOk := args["free"].(string)
-	// Capacity, CapacityOk := args["capacity"].(string)
-	// Health, HealthOk := args["health"].(string)
-	// Name, NameOk := args["name"].(string)
 	Action, ActionOk := args["action"].(string)
 	GroupID, GroupIDOk := args["group_id"].(int)
 
 	var modelPoolList []model.Pool
 	var reqGetPoolList pb.ReqGetPoolList
 	var reqPool pb.Pool
+	var reqGroup pb.Group
 	reqGetPoolList.Pool = &reqPool
+	reqGetPoolList.Group = &reqGroup
 
 	if ActionOk {
 		reqGetPoolList.Pool.Action = Action
@@ -67,6 +63,7 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 	} else {
 		reqGetPoolList.Group.Id = 1
 	}
+
 	resPoolList, err := client.RC.GetPoolList(&reqGetPoolList)
 	if err != nil {
 		return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil

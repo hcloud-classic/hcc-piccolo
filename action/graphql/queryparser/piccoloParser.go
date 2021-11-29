@@ -290,18 +290,10 @@ func ResourceUsage(args map[string]interface{}) (interface{}, error) {
 	inUse.Node = 0
 
 	poolArg := map[string]interface{}{
-		"action":        "read",
-		"uuid":          "",
-		"size":          "",
-		"free":          "",
-		"capacity":      "",
-		"health":        "",
-		"name":          "",
-		"availablesize": "",
-		"group_id":      groupID,
+		"action":   "read",
+		"group_id": groupID,
 	}
 
-	// TODO: Need to handle group_id - ish
 	poolStruct, err := GetPoolList(poolArg)
 	convModelPools := poolStruct.(model.PoolList)
 	for _, eachPool := range convModelPools.Pools {
@@ -324,6 +316,51 @@ func ResourceUsage(args map[string]interface{}) (interface{}, error) {
 	}
 
 	return model.ResourceUsage{Total: total, InUse: inUse, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
+}
+
+// NodeAvailable : Get available of nodes
+func NodeAvailable(args map[string]interface{}) (interface{}, error) {
+	groupID, groupIDOk := args["group_id"].(int)
+
+	var reqGetNodeList pb.ReqGetNodeList
+	reqGetNodeList.Node = &pb.Node{}
+	if groupIDOk {
+		reqGetNodeList.Node.GroupID = int64(groupID)
+	}
+
+	resGetNodeList, err := client.RC.GetNodeList(&reqGetNodeList)
+	if err != nil {
+		return model.ResourceUsage{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "failed to get nodes")}, nil
+	}
+
+	var total model.Resource
+	var inUse model.Resource
+	var available model.Resource
+
+	total.CPU = 0
+	total.Memory = 0
+	total.Node = 0
+	available.CPU = 0
+	available.Memory = 0
+	available.Node = 0
+
+	for _, node := range resGetNodeList.Node {
+		if node.Active == 1 {
+			inUse.CPU += int(node.CPUCores)
+			inUse.Memory += int(node.Memory)
+
+			inUse.Node++
+		}
+		total.CPU += int(node.CPUCores)
+		total.Memory += int(node.Memory)
+		total.Node++
+	}
+
+	available.Node = total.Node - inUse.Node
+	available.CPU = total.CPU - inUse.CPU
+	available.Memory = total.Memory - inUse.Memory
+
+	return model.NodeAvailable{Total: total, Available: available, Errors: errconv.ReturnHccEmptyErrorPiccolo()}, nil
 }
 
 // ReadQuota : Get info of the quota
