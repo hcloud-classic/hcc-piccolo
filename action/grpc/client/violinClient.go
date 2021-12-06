@@ -170,11 +170,11 @@ func (rc *RPCClient) ScaleUpServer(in *pb.ReqScaleUpServer) (*pb.ResScaleUpServe
 }
 
 // DeleteServer : Delete of the server
-func (rc *RPCClient) DeleteServer(uuid string) (*pb.ResDeleteServer, error) {
+func (rc *RPCClient) DeleteServer(serverUUID string, token string) (*pb.ResDeleteServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
 	defer cancel()
-	resDeleteServer, err := rc.violin.DeleteServer(ctx, &pb.ReqDeleteServer{UUID: uuid})
+	resDeleteServer, err := rc.violin.DeleteServer(ctx, &pb.ReqDeleteServer{ServerUUID: serverUUID, Token: token})
 	if err != nil {
 		return nil, err
 	}

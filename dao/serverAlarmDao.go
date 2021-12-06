@@ -30,7 +30,7 @@ func isAutoScaleTriggered(serverUUID string) (bool, string) {
 }
 
 func turnOffAutoScaleTriggered(serverUUID string) error {
-	sql := "update piccolo.server_alarm set auto_scale_triggered = 0 where server_uuid = ?"
+	sql := "update piccolo.server_alarm set auto_scale_triggered = 0 where server_uuid = ? and auto_scale_triggered = 1"
 	row := mysql.Db.QueryRow(sql, serverUUID)
 	err := mysql.QueryRowScan(row)
 	if err != nil {
@@ -65,6 +65,9 @@ func WriteServerAlarm(serverUUID string, reason string, detail string) error {
 	if autoScaleTriggered == 1 && detail == "Turn Off AutoScale" {
 		err := turnOffAutoScaleTriggered(serverUUID)
 		if err != nil {
+			if strings.Contains(err.Error(), "no rows in result set") {
+				return nil
+			}
 			return err
 		}
 		reason = "AutoScale Trigger canceled"

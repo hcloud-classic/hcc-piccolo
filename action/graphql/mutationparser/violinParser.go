@@ -244,6 +244,8 @@ func ScaleUpServer(args map[string]interface{}, isAdmin bool, isMaster bool, id 
 
 // DeleteServer : Delete the server
 func DeleteServer(args map[string]interface{}, isAdmin bool, isMaster bool, id string) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
+
 	requestedUUID, requestedUUIDOk := args["uuid"].(string)
 	if !requestedUUIDOk {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a uuid argument")}, nil
@@ -272,7 +274,7 @@ func DeleteServer(args map[string]interface{}, isAdmin bool, isMaster bool, id s
 		}
 	}
 
-	resDeleteServer, err := client.RC.DeleteServer(requestedUUID)
+	resDeleteServer, err := client.RC.DeleteServer(requestedUUID, tokenString)
 	if err != nil {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
 	}
