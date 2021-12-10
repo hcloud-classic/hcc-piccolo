@@ -239,8 +239,6 @@ func ScaleUpServer(args map[string]interface{}, isAdmin bool, isMaster bool, id 
 
 	modelServer := pbtomodel.PbServerToModelServer(resScaleUpServer.Server, resScaleUpServer.HccErrorStack)
 
-	_ = dao.WriteServerAlarm(requestedUUID, "Auto Scale Queued", "Scaling up the server. (ServerUUID: "+requestedUUID+")")
-
 	return *modelServer, nil
 }
 
