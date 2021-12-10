@@ -197,6 +197,7 @@ func UpdateServerNodes(args map[string]interface{}, isAdmin bool, isMaster bool,
 
 // ScaleUpServer : Scale up the server
 func ScaleUpServer(args map[string]interface{}, isAdmin bool, isMaster bool, id string) (interface{}, error) {
+	tokenString, _ := args["token"].(string)
 	requestedUUID, requestedUUIDOk := args["server_uuid"].(string)
 
 	if !requestedUUIDOk {
@@ -230,6 +231,7 @@ func ScaleUpServer(args map[string]interface{}, isAdmin bool, isMaster bool, id 
 	var reqScaleUpServer pb.ReqScaleUpServer
 
 	reqScaleUpServer.ServerUUID = requestedUUID
+	reqScaleUpServer.Token = tokenString
 	resScaleUpServer, err := client.RC.ScaleUpServer(&reqScaleUpServer)
 	if err != nil {
 		return model.Server{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
