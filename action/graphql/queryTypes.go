@@ -224,29 +224,6 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
-			"num_server_log": &graphql.Field{
-				Type:        graphqlType.ServerActionsNumType,
-				Description: "Get the number of server's log",
-				Args: graphql.FieldConfigArgument{
-					"server_uuid": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-					"token": &graphql.ArgumentConfig{
-						Type: graphql.String,
-					},
-				},
-				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					_, _, _, _, err := usertool.ValidateToken(params.Args, false)
-					if err != nil {
-						return model.ServerActionsNum{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
-					}
-					data, err := dao.ShowServerActionsNum(params.Args)
-					if err != nil {
-						logger.Logger.Println("piccolo / num_server_log: " + err.Error())
-					}
-					return data, err
-				},
-			},
 			"server_alarm_list": &graphql.Field{
 				Type:        graphqlType.ServerAlarmsType,
 				Description: "Get the server's alarm list",

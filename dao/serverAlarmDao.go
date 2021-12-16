@@ -8,6 +8,7 @@ import (
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
+	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
 	"strconv"
 	"strings"
@@ -74,6 +75,28 @@ func WriteServerAlarm(serverUUID string, reason string, detail string) error {
 		detail = "Server is back to normal. (ServerUUID: " + serverUUID + ")"
 	}
 
+	var token string
+	var detailSplit []string
+	var userID string
+	var getUserIDError error
+	var gotUserIDFromToken = false
+
+	if strings.Contains(detail, "!ViolinToken!") {
+		detailSplit = strings.Split(detail, "!ViolinToken!")
+		if len(detailSplit) == 2 {
+			detail = detailSplit[0]
+			token = detailSplit[1]
+
+			userID, getUserIDError = usertool.GetUserID(token)
+			if getUserIDError != nil {
+				return getUserIDError
+			}
+			gotUserIDFromToken = true
+		} else {
+			return errors.New("error occurred while splitting the detail message")
+		}
+	}
+
 	stmt, err := mysql.Prepare("insert into piccolo.server_alarm(user_id, server_uuid, reason, detail, time, auto_scale_triggered) values(?, ?, ?, ?, now(), ?)")
 	if err != nil {
 		return err
@@ -85,6 +108,10 @@ func WriteServerAlarm(serverUUID string, reason string, detail string) error {
 	server, err := client.RC.GetServer(serverUUID)
 	if err != nil {
 		return err
+	}
+
+	if gotUserIDFromToken {
+		server.Server.UserUUID = userID
 	}
 
 	_, err = stmt.Exec(server.Server.UserUUID, serverUUID, reason, detail, autoScaleTriggered)

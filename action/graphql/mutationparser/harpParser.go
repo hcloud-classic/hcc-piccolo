@@ -22,7 +22,6 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 	nextServer, nextServerOk := args["next_server"].(string)
 	nameServer, nameServerOk := args["name_server"].(string)
 	domainName, domainNameOk := args["domain_name"].(string)
-	os, osOk := args["os"].(string)
 	subnetName, subnetNameOk := args["subnet_name"].(string)
 
 	var subnet pb.Subnet
@@ -46,9 +45,6 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 	if domainNameOk {
 		subnet.DomainName = domainName
-	}
-	if osOk {
-		subnet.OS = os
 	}
 	if subnetNameOk {
 		subnet.SubnetName = subnetName
