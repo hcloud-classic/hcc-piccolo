@@ -1,6 +1,7 @@
 package dao
 
 import (
+	db "database/sql"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/lib/usertool"
@@ -77,6 +78,9 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 	var errStr string
 	var userID string
 	var _time time.Time
+	var serverActionsNr int64
+
+	var queryRow *db.Row
 
 	sql := "select action, result, err_str, user_id, time from server_actions where server_uuid = ? order by no desc"
 	if isLimit {
@@ -106,6 +110,16 @@ func ShowServerActions(args map[string]interface{}) (interface{}, error) {
 		})
 	}
 
+	serverActions.Number = 0
+	sql = "select count(*) from server_actions where server_uuid = ?"
+	queryRow = mysql.Db.QueryRow(sql, serverUUID)
+	err = mysql.QueryRowScan(queryRow, &serverActionsNr)
+	if err != nil {
+		goto ERROR
+	}
+
+	serverActions.Number = int(serverActionsNr)
+
 ERROR:
 	serverActions.ServerActions = actions
 	if err != nil {
@@ -115,36 +129,4 @@ ERROR:
 	}
 
 	return serverActions, nil
-}
-
-// ShowServerActionsNum : Show number of server actions from the database
-func ShowServerActionsNum(args map[string]interface{}) (interface{}, error) {
-	var err error
-	var serverActionsNum model.ServerActionsNum
-	var serverActionsNr int64
-
-	serverActionsNum.Number = 0
-
-	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	if !serverUUIDOk {
-		return model.ServerActionsNum{Number: 0, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "need a server_uuid argument")}, nil
-	}
-
-	sql := "select count(*) from server_actions where server_uuid = ?"
-	row := mysql.Db.QueryRow(sql, serverUUID)
-	err = mysql.QueryRowScan(row, &serverActionsNr)
-	if err != nil {
-		goto ERROR
-	}
-
-	serverActionsNum.Number = int(serverActionsNr)
-
-ERROR:
-	if err != nil {
-		serverActionsNum.Errors = errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloInternalInitFail, err.Error())
-	} else {
-		serverActionsNum.Errors = errconv.ReturnHccEmptyErrorPiccolo()
-	}
-
-	return serverActionsNum, nil
 }

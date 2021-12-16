@@ -17,11 +17,6 @@ type ServerAction struct {
 // ServerActions : Struct of ServerActions
 type ServerActions struct {
 	ServerActions []ServerAction            `json:"server_actions"`
+	Number        int                       `json:"number"`
 	Errors        []errconv.PiccoloHccError `json:"errors"`
-}
-
-// ServerActionsNum : Contain the number of ServerActions
-type ServerActionsNum struct {
-	Number int                       `json:"number"`
-	Errors []errconv.PiccoloHccError `json:"errors"`
 }
