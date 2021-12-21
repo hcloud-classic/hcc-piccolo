@@ -318,7 +318,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, id, _, err := usertool.ValidateToken(params.Args, true)
+				_, _, id, _, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.Group{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 				}
