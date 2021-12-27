@@ -1484,6 +1484,35 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			"available_pool_list": &graphql.Field{
+				Type:        graphqlType.PoolListType,
+				Description: "Get available pool list",
+				Args: graphql.FieldConfigArgument{
+					"token": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"row": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"page": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					_, isMaster, _, groupID, err := usertool.ValidateToken(params.Args, false)
+					if err != nil {
+						return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+					}
+					if !isMaster {
+						params.Args["group_id"] = int(groupID)
+					}
+					data, err := queryparser.AvailablePoolList(params.Args)
+					if err != nil {
+						logger.Logger.Println("cello / available pool_list: " + err.Error())
+					}
+					return data, err
+				},
+			},
 			// tuba
 			"all_task": &graphql.Field{
 				Type:        graphqlType.TaskListResultType,

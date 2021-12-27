@@ -117,6 +117,19 @@ func (rc *RPCClient) GetPoolList(in *pb.ReqGetPoolList) (*pb.ResGetPoolList, err
 	return resPoolList, nil
 }
 
+// AvailablePoolList : GetPoolList
+func (rc *RPCClient) AvailablePoolList(in *pb.ReqAvailablePoolList) (*pb.ResAvailablePoolList, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resPoolList, err := rc.cello.AvailablePoolList(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resPoolList, nil
+}
+
 // GetVolumeList : GetVolumeList
 func (rc *RPCClient) GetVolumeList(in *pb.ReqGetVolumeList) (*pb.ResGetVolumeList, error) {
 	ctx, cancel := context.WithTimeout(context.Background(),
