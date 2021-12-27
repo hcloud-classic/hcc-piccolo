@@ -13,6 +13,9 @@ var VolumeType = graphql.NewObject(
 			"size": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"group_id": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"filesystem": &graphql.Field{
 				Type: graphql.String,
 			},
