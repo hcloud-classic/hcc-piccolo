@@ -78,3 +78,32 @@ func GetPoolList(args map[string]interface{}) (interface{}, error) {
 
 	return model.PoolList{Pools: modelPoolList, Errors: Errors}, nil
 }
+
+// AvailablePoolList : pool list
+func AvailablePoolList(args map[string]interface{}) (interface{}, error) {
+	GroupID, GroupIDOk := args["group_id"].(int)
+
+	var modelPoolList []model.Pool
+	var reqAvailablePoolList pb.ReqAvailablePoolList
+	var reqPool pb.Pool
+	var reqGroup pb.Group
+	reqAvailablePoolList.Pool = &reqPool
+	reqAvailablePoolList.Group = &reqGroup
+
+	if GroupIDOk {
+		reqAvailablePoolList.Group.Id = (int64)(GroupID)
+	}
+	resPoolList, err := client.RC.AvailablePoolList(&reqAvailablePoolList)
+	if err != nil {
+		return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+	}
+	for _, args := range resPoolList.Pool {
+		tempPool := pbtomodel.PbPoolToModelPool(args, resPoolList.HccErrorStack)
+		modelPoolList = append(modelPoolList, *tempPool)
+	}
+
+	hccErrStack := errconv.GrpcStackToHcc(resPoolList.HccErrorStack)
+	Errors := errconv.HccErrorToPiccoloHccErr(*hccErrStack)
+
+	return model.PoolList{Pools: modelPoolList, Errors: Errors}, nil
+}

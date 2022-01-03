@@ -1124,7 +1124,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 
-		//Cello
+		// Cello
 		// volume DB
 		"volume_handle": &graphql.Field{
 			Type:        graphqlType.VolumeType,
@@ -1134,6 +1134,9 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 					Type: graphql.String,
 				},
 				"size": &graphql.ArgumentConfig{
+					Type: graphql.Int,
+				},
+				"group_id": &graphql.ArgumentConfig{
 					Type: graphql.Int,
 				},
 				"filesystem": &graphql.ArgumentConfig{
@@ -1168,9 +1171,13 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+				_, isMaster, userID, groupID, err := usertool.ValidateToken(params.Args, false)
 				if err != nil {
 					return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+				}
+				if !isMaster {
+					params.Args["group_id"] = int(groupID)
+					params.Args["user_uuid"] = string(userID)
 				}
 				data, err := mutationparser.VolumeHandle(params.Args)
 				if err != nil {

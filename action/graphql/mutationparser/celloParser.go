@@ -28,10 +28,17 @@ func VolumeHandle(args map[string]interface{}) (interface{}, error) {
 	lunNum, lunNumOk := args["lun_num"].(string)
 	pool, poolOk := args["pool"].(string)
 	action, actionOk := args["action"].(string)
+	groupID, groupIDOk := args["group_id"].(int)
 	var modelVolume *model.Volume
 	var reqVolumeHandle pb.ReqVolumeHandler
 	var reqVolume pb.Volume
+	var reqGroup pb.Group
 	reqVolumeHandle.Volume = &reqVolume
+	reqVolumeHandle.Group = &reqGroup
+	if groupIDOk {
+		reqVolumeHandle.Group.Id = int64(groupID)
+		reqVolumeHandle.Volume.GroupID = int64(groupID)
+	}
 
 	if UUIDOk {
 		reqVolumeHandle.Volume.UUID = UUID
