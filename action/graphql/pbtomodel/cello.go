@@ -31,6 +31,7 @@ func PbVolumeToModelVolume(volume *pb.Volume, hccGrpcErrStack *pb.HccErrorStack)
 		GatewayIP:  volume.Gateway_IP,
 		LunNum:     int(volume.Lun),
 		Pool:       volume.Pool,
+		State:      volume.State,
 		CreatedAt:  volume.CreatedAt.AsTime(),
 	}
 	if hccGrpcErrStack != nil {

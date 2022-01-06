@@ -40,8 +40,17 @@ var VolumeType = graphql.NewObject(
 			"pool": &graphql.Field{
 				Type: graphql.String,
 			},
+			"state": &graphql.Field{
+				Type: graphql.String,
+			},
+			"action": &graphql.Field{
+				Type: graphql.String,
+			},
 			"errors": &graphql.Field{
 				Type: graphql.NewList(Errors),
+			},
+			"result": &graphql.Field{
+				Type: graphql.Boolean,
 			},
 		},
 	},

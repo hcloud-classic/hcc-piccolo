@@ -142,3 +142,16 @@ func (rc *RPCClient) GetVolumeList(in *pb.ReqGetVolumeList) (*pb.ResGetVolumeLis
 
 	return resGetVolumeList, nil
 }
+
+// MountHandler : Server UUID, Volume UUID, Action
+func (rc *RPCClient) MountHandler(in *pb.ReqMountHandler) (*pb.ResMountHandler, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Cello.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resMountHandler, err := rc.cello.MountHandler(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+
+	return resMountHandler, nil
+}
