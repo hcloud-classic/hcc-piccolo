@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"hcc/piccolo/action/grpc/client"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"testing"
@@ -21,6 +22,11 @@ func Test_DB_Prepare(t *testing.T) {
 	}()
 
 	config.Init()
+
+	err = client.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	err = Init()
 	if err != nil {

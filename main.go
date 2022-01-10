@@ -45,6 +45,12 @@ func init() {
 
 	config.Init()
 
+	err = client.Init()
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "client.Init(): "+err.Error()).Fatal()
+		_ = pid.DeletePiccoloPID()
+	}
+
 	err = mysql.Init()
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "mysql.Init(): "+err.Error()).Fatal()
@@ -56,17 +62,11 @@ func init() {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "syscheck.IncreaseRLimitToMax(): "+err.Error()).Fatal()
 		_ = pid.DeletePiccoloPID()
 	}
-
-	err = client.Init()
-	if err != nil {
-		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "client.Init(): "+err.Error()).Fatal()
-		_ = pid.DeletePiccoloPID()
-	}
 }
 
 func end() {
-	client.End()
 	mysql.End()
+	client.End()
 	logger.End()
 	_ = pid.DeletePiccoloPID()
 }
