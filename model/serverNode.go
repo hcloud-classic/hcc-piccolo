@@ -9,6 +9,7 @@ import (
 type ServerNode struct {
 	UUID          string                    `json:"uuid"`
 	ServerUUID    string                    `json:"server_uuid"`
+	NodeName      string                    `json:"node_name"`
 	NodeUUID      string                    `json:"node_uuid"`
 	CPUModel      string                    `json:"cpu_model"`
 	CPUProcessors int                       `json:"cpu_processors"`

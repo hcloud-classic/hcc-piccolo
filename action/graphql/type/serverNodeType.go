@@ -13,6 +13,9 @@ var ServerNodeType = graphql.NewObject(
 			"server_uuid": &graphql.Field{
 				Type: graphql.String,
 			},
+			"node_name": &graphql.Field{
+				Type: graphql.String,
+			},
 			"node_uuid": &graphql.Field{
 				Type: graphql.String,
 			},

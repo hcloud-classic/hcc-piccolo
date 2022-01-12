@@ -73,6 +73,7 @@ func PbServerNodeToModelServerNode(serverNode *pb.ServerNode, node *pb.Node,
 	}
 
 	if node != nil {
+		modelServerNode.NodeName = node.NodeName
 		modelServerNode.RackNumber = int(node.RackNumber)
 	}
 
