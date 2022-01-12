@@ -16,6 +16,7 @@ type ServerNode struct {
 	CPUCores      int                       `json:"cpu_cores"`
 	CPUThreads    int                       `json:"cpu_threads"`
 	Memory        int                       `json:"memory"`
+	NICSpeed      string                    `json:"nic_speed"`
 	RackNumber    int                       `json:"rack_number"`
 	CreatedAt     time.Time                 `json:"created_at"`
 	Errors        []errconv.PiccoloHccError `json:"errors"`

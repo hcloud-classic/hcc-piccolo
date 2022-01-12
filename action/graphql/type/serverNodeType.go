@@ -34,6 +34,9 @@ var ServerNodeType = graphql.NewObject(
 			"memory": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"nic_speed": &graphql.Field{
+				Type: graphql.String,
+			},
 			"rack_number": &graphql.Field{
 				Type: graphql.Int,
 			},
