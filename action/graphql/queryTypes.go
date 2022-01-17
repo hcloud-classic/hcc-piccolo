@@ -1,6 +1,7 @@
 package graphql
 
 import (
+	"hcc/piccolo/action/graphql/fields"
 	"hcc/piccolo/action/graphql/queryparser"
 	"hcc/piccolo/action/graphql/queryparserext"
 	graphqlType "hcc/piccolo/action/graphql/type"
@@ -1547,5 +1548,7 @@ var queryTypes = graphql.NewObject(
 					return data, err
 				},
 			},
+			// viola
+			"get_pemkey": &fields.GetPemKey,
 		},
 	})

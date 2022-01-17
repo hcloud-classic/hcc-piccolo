@@ -1130,6 +1130,5 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 
 		// // Violin to Viola
 		"create_pemkey": &fields.CreatePemKey,
-		"get_pemkey":    &fields.GetPemKey,
 	},
 })
