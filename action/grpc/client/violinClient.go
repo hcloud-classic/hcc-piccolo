@@ -259,3 +259,27 @@ func (rc *RPCClient) DeleteServerNodeByServerUUID(serverUUID string) (*pb.ResDel
 
 	return resDeleteServerNodeByServerUUID, nil
 }
+
+// CreateServerPemKey : Create Server Permission Key
+func (rc *RPCClient) CreateServerPemKey(in *pb.ReqCreatePemKey) (*pb.ResCreatePemKey, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resCreatePemKey, err := rc.violin.CreatePemKey(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return resCreatePemKey, nil
+}
+
+// GetServerPemKey : Get Server Permission Key
+func (rc *RPCClient) GetServerPemKey(in *pb.ReqGetPemKey) (*pb.ResGetPemKey, error) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(config.Violin.RequestTimeoutMs)*time.Millisecond)
+	defer cancel()
+	resGetPemKey, err := rc.violin.GetPemKey(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return resGetPemKey, nil
+}

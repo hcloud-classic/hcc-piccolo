@@ -1,7 +1,7 @@
 package graphql
 
 import (
-	"hcc/piccolo/action/graphql/filed"
+	"hcc/piccolo/action/graphql/fields"
 	"hcc/piccolo/action/graphql/mutationparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
 	"hcc/piccolo/action/grpc/errconv"
@@ -1125,9 +1125,11 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		// Cello
-		"volume_handle": &filed.VolumeHandle,
-		"mount_handle":  &filed.MountHandle,
+		"volume_handle": &fields.VolumeHandle,
+		"mount_handle":  &fields.MountHandle,
 
-		//
+		// // Violin to Viola
+		"create_pemkey": &fields.CreatePemKey,
+		"get_pemkey":    &fields.GetPemKey,
 	},
 })

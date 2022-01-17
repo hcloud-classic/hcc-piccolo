@@ -1,4 +1,4 @@
-package filed
+package fields
 
 import (
 	"hcc/piccolo/action/graphql/mutationparser"
