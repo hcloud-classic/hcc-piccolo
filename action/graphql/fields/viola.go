@@ -29,10 +29,20 @@ var CreatePemKey = graphql.Field{
 		if err != nil {
 			return model.NodeDetail{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 		}
+		getData, getErr := mutationparser.GetPermissionKey(params.Args)
+		if getErr != nil {
+			logger.Logger.Println("violin / GetPemKey: Failed, " + err.Error())
+			return getData, getErr
+		}
+
+		pemKey, pemKeyOk := getData.(map[string]interface{})["pemkey"].(string)
+		if pemKeyOk && len(pemKey) > 0 {
+			return getData, getErr
+		}
 
 		data, err := mutationparser.CreatePermissionKey(params.Args)
 		if err != nil {
-			logger.Logger.Println("violin / CreatePemKey: " + err.Error())
+			logger.Logger.Println("violin / CreatePemKey: Failed, " + err.Error())
 		}
 		return data, err
 	},
