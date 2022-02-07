@@ -9,6 +9,7 @@ import (
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/mysql"
 	"hcc/piccolo/model"
+	"strings"
 	"time"
 )
 
@@ -123,7 +124,7 @@ func ValidateToken(args map[string]interface{}, checkForAdmin bool) (isAdmin boo
 		}
 
 		// Given password is hashed password with bcrypt
-		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(dbPassword))
+		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(strings.ToLower(dbPassword)))
 		if err != nil {
 			return false, false, "", 0, errLoginMismatch
 		}
@@ -178,7 +179,7 @@ func GetUserID(tokenString string) (ID string, err error) {
 		}
 
 		// Given password is hashed password with bcrypt
-		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(dbPassword))
+		err = bcrypt.CompareHashAndPassword([]byte(claims["Password"].(string)), []byte(strings.ToLower(dbPassword)))
 		if err != nil {
 			return "", errors.New("invalid token")
 		}
