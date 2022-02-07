@@ -55,5 +55,7 @@ var mutationTypes = graphql.NewObject(graphql.ObjectConfig{
 
 		// Violin to Viola
 		"create_pemkey": &fields.CreatePemKey,
+		// Timpani Service Controller
+		"timpani_agent_mgmt": &fields.TimpaniServiceMgmt,
 	},
 })

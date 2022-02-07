@@ -7,16 +7,16 @@ var PermissionKey = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "PemermissionKey",
 		Fields: graphql.Fields{
-			"server_uuid": &graphql.Field{
+			"service_name": &graphql.Field{
 				Type: graphql.String,
 			},
-			"pemkey": &graphql.Field{
+			"status": &graphql.Field{
 				Type: graphql.String,
 			},
-			"token": &graphql.Field{
+			"action": &graphql.Field{
 				Type: graphql.String,
 			},
-			"result": &graphql.Field{
+			"error": &graphql.Field{
 				Type: graphql.String,
 			},
 		},

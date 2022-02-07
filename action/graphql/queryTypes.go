@@ -65,6 +65,7 @@ var queryTypes = graphql.NewObject(
 			"volume_list":         &fields.VolumeList,
 			"pool_list":           &fields.PoolList,
 			"available_pool_list": &fields.AvailablePoolList,
+
 			// tuba
 			"all_task": &fields.AllTask,
 			// viola
