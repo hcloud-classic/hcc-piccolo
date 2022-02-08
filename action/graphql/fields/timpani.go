@@ -85,3 +85,42 @@ var TimapniMasterSync = graphql.Field{
 		return data, err
 	},
 }
+
+var Restore = graphql.Field{
+	Type:        graphqlType.SubnetType,
+	Description: "Restore server",
+	Args: graphql.FieldConfigArgument{
+		"snapname": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"usetype": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"nodetype": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"isboot": &graphql.ArgumentConfig{
+			Type: graphql.Boolean,
+		},
+		"token": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+	},
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+		_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+		if err != nil {
+			return model.Restore{
+				RestoreInfo: model.RestoreInfo{
+					RunStatus: "",
+					RunUUID:   "",
+					Errors: model.Error{
+						ErrMsg:  "Token Check Failed",
+						ErrCode: "1003",
+					},
+				},
+			}, nil
+		}
+
+		return queryparser.Restore(params.Args)
+	},
+}
