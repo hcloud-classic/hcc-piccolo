@@ -1,9 +1,10 @@
-package http
+package graphqlreq
 
 import (
 	"encoding/json"
 	"errors"
 	"hcc/piccolo/lib/config"
+	"hcc/piccolo/model"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -19,7 +20,6 @@ func DoHTTPRequest(moduleName string, needData bool, data interface{}, queryName
 	switch moduleName {
 	case "timpani":
 		url += config.Timpani.ServerAddress + ":" + strconv.Itoa(int(config.Timpani.ServerPort))
-		break
 
 	default:
 		return nil, errors.New("unknown module name")
@@ -54,14 +54,32 @@ func DoHTTPRequest(moduleName string, needData bool, data interface{}, queryName
 
 				switch queryName {
 				case "mastersync":
-					listNodeData := data.(violinSchedulerData.ListNodeData)
-					err = json.Unmarshal([]byte(result), &(listNodeData))
+					masterSync := data.(model.MasterSync)
+					err = json.Unmarshal([]byte(result), &(masterSync))
 					// fmt.Println("listNodeData: ", listNodeData)
 
 					if err != nil {
 						return nil, err
 					}
-					return listNodeData, nil
+					return masterSync, nil
+				case "backup":
+					backup := data.(model.Backup)
+					err = json.Unmarshal([]byte(result), &(backup))
+					// fmt.Println("listNodeData: ", listNodeData)
+
+					if err != nil {
+						return nil, err
+					}
+					return backup, nil
+				case "backupschduler":
+					backupSchduler := data.(model.BackupScheduler)
+					err = json.Unmarshal([]byte(result), &(backupSchduler))
+					// fmt.Println("listNodeData: ", listNodeData)
+
+					if err != nil {
+						return nil, err
+					}
+					return backupSchduler, nil
 
 				default:
 					return nil, errors.New("data is not supported for " + moduleName + " module")

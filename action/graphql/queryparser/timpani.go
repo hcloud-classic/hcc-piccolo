@@ -2,6 +2,7 @@ package queryparser
 
 import (
 	"hcc/piccolo/action/grpc/errconv"
+	"hcc/piccolo/action/http/graphqlreq"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/model"
@@ -66,4 +67,69 @@ func TimpaniServiceControlWithSSH(target string, action string) (bool, string) {
 	// 	logger.Logger.Println(ip + " Telegraf Service Already started")
 	// }
 	return true, strings.TrimSuffix(string(result), "\n")
+}
+
+func TimpaniMasterSync(args map[string]interface{}) (interface{}, error) {
+	var masterSync model.MasterSync
+	query := "query {\n" +
+		"	mastersync {\n" +
+		"		token\n" +
+		"		username\n" +
+		"		newpw\n" +
+		"	}\n" +
+		"}"
+	result, err := graphqlreq.DoHTTPRequest("timpani", true, masterSync, "mastersync", query)
+	if err != nil {
+		goto ERROR
+	}
+	return result, nil
+
+ERROR:
+	masterSync.Data.Errors.Errmsg = "TimpaniMasterSync Failed " + err.Error()
+	// return model.Service{Target: target, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Failed")}, nil
+	return masterSync, err
+}
+
+func TimpaniBackup(args map[string]interface{}) (interface{}, error) {
+	var volumeBackup model.Backup
+	query := "query {\n" +
+		"	backup {\n" +
+		"		uuid\n" +
+		"		usetype\n" +
+		"		nodetype\n" +
+		"		name\n" +
+		"	}\n" +
+		"}"
+	result, err := graphqlreq.DoHTTPRequest("timpani", true, volumeBackup, "backup", query)
+	if err != nil {
+		goto ERROR
+	}
+	return result, nil
+
+ERROR:
+	volumeBackup.Data.Errors.Errmsg = "TimpaniBackup Failed " + err.Error()
+	// return model.Service{Target: target, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Failed")}, nil
+	return volumeBackup, err
+}
+
+func TimpaniBackupScheduler(args map[string]interface{}) (interface{}, error) {
+	var volumeBackup model.Backup
+	query := "query {\n" +
+		"	backup {\n" +
+		"		uuid\n" +
+		"		usetype\n" +
+		"		nodetype\n" +
+		"		name\n" +
+		"	}\n" +
+		"}"
+	result, err := graphqlreq.DoHTTPRequest("timpani", true, volumeBackup, "backup", query)
+	if err != nil {
+		goto ERROR
+	}
+	return result, nil
+
+ERROR:
+	volumeBackup.Data.Errors.Errmsg = "TimpaniBackup Failed " + err.Error()
+	// return model.Service{Target: target, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Failed")}, nil
+	return volumeBackup, err
 }

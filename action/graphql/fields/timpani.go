@@ -29,7 +29,7 @@ var TimpaniServiceMgmt = graphql.Field{
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 		isAdmin, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
 		if err != nil {
-			return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+			return model.TimpaniService{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 		}
 		if !isAdmin && !isMaster {
 			// params.Args["group_id"] = int(groupID)
@@ -37,7 +37,7 @@ var TimpaniServiceMgmt = graphql.Field{
 		}
 		data, err := queryparser.TimapniServiceController(params.Args)
 		if err != nil {
-			logger.Logger.Println("timpani / available pool_list: " + err.Error())
+			logger.Logger.Println("timpani / timpani service control: " + err.Error())
 		}
 		return data, err
 	},
@@ -57,7 +57,7 @@ var TimapniMasterSync = graphql.Field{
 			},
 		},
 	),
-	Description: "Timpani Agent Controller",
+	Description: "Timpani MasterSync API",
 	Args: graphql.FieldConfigArgument{
 		"token": &graphql.ArgumentConfig{
 			Type: graphql.String,
@@ -66,22 +66,98 @@ var TimapniMasterSync = graphql.Field{
 			Type: graphql.String,
 		},
 		"newpw": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewList(graphql.Int),
 		},
 	},
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-		isAdmin, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
+		_, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
 		if err != nil {
-			return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+			// return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+			retData := model.MasterSync{}
+			retData.Data.Errors.Errcode = ""
+			retData.Data.Errors.Errmsg = err.Error() + " Token Error"
+			return retData, nil
 		}
-		if !isAdmin && !isMaster {
+		if !isMaster {
 			// params.Args["group_id"] = int(groupID)
 			logger.Logger.Println("timpani / Not administrator: " + err.Error())
+			retData := model.MasterSync{}
+			retData.Data.Errors.Errcode = ""
+			retData.Data.Errors.Errmsg = err.Error() + " Not Master"
+			return retData, nil
 		}
-		data, err := queryparser.TimapniServiceController(params.Args)
+		data, err := queryparser.TimpaniMasterSync(params.Args)
 		if err != nil {
-			logger.Logger.Println("timpani / available pool_list: " + err.Error())
+			logger.Logger.Println("timpani / master pass sync: " + err.Error())
 		}
 		return data, err
 	},
 }
+
+var TimpaniBackup = graphql.Field{
+	Type: graphql.NewObject(
+		graphql.ObjectConfig{
+			Name: "CmdResponse",
+			Fields: graphql.Fields{
+				"runstatus": &graphql.Field{
+					Type: graphql.String,
+				},
+				"runuuid": &graphql.Field{
+					Type: graphql.String,
+				},
+				"errors": &graphql.Field{
+					Type: ErrorField,
+				},
+			},
+		},
+	),
+	Description: "Timpani Volume Backup API",
+	Args: graphql.FieldConfigArgument{
+		"token": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"uuid": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"usetype": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"nodetype": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"name": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+	},
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+		_, _, _, groupID, err := usertool.ValidateToken(params.Args, false)
+		if err != nil {
+			// return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+			retData := model.MasterSync{}
+			retData.Data.Errors.Errcode = ""
+			retData.Data.Errors.Errmsg = err.Error() + " Token Error"
+			return retData, nil
+		}
+		params.Args["group_id"] = int(groupID)
+		data, err := queryparser.TimpaniBackup(params.Args)
+		if err != nil {
+			logger.Logger.Println("timpani / volume backup: " + err.Error())
+		}
+		return data, err
+	},
+}
+
+// ErrorField : Graphql object type of errors
+var ErrorField = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "ErrorField",
+		Fields: graphql.Fields{
+			"errcode": &graphql.Field{
+				Type: graphql.String,
+			},
+			"errtext": &graphql.Field{
+				Type: graphql.String,
+			},
+		},
+	},
+)

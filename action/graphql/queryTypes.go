@@ -70,5 +70,9 @@ var queryTypes = graphql.NewObject(
 			"all_task": &fields.AllTask,
 			// viola
 			"get_pemkey": &fields.GetPemKey,
+			// Timpani
+			"mastersync":            &fields.TimapniMasterSync,
+			"timpani_volume_backup": &fields.TimpaniBackup,
+			// "timpani_volume_backup_scheduler": &fields.TimpaniBackup,
 		},
 	})
