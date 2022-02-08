@@ -1,14 +1,17 @@
 package config
 
 import (
-	"github.com/Terry-Mao/goconf"
 	"hcc/piccolo/lib/logger"
+
+	"github.com/Terry-Mao/goconf"
 	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
-var conf = goconf.New()
-var config = piccoloConfig{}
-var err error
+var (
+	conf   = goconf.New()
+	config = piccoloConfig{}
+	err    error
+)
 
 func parseRsakey() {
 	config.RsakeyConfig = conf.Get("rsakey")
@@ -57,7 +60,6 @@ func parseMysql() {
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
-
 }
 
 func parseGrpc() {
@@ -337,6 +339,29 @@ func parseUser() {
 	}
 }
 
+func parserTimpani() {
+	config.TimpaniConfig = conf.Get("timpani")
+	if config.TimpaniConfig == nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "no timpani section").Fatal()
+	}
+
+	Timpani = timpani{}
+	Timpani.ServerAddress, err = config.TimpaniConfig.String("timpani_server_address")
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
+	Timpani.ServerPort, err = config.TimpaniConfig.Int("timpani_server_port")
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+
+	Timpani.RequestTimeoutMs, err = config.TimpaniConfig.Int("timpani_request_timeout_ms")
+	if err != nil {
+		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+}
+
 // Init : Parse config file and initialize config structure
 func Init() {
 	if err = conf.Parse(configLocation); err != nil {
@@ -356,4 +381,5 @@ func Init() {
 	parsePiano()
 	parseTuba()
 	parseUser()
+	parserTimpani()
 }

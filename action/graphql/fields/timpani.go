@@ -42,3 +42,46 @@ var TimpaniServiceMgmt = graphql.Field{
 		return data, err
 	},
 }
+
+var TimapniMasterSync = graphql.Field{
+	Type: graphql.NewObject(
+		graphql.ObjectConfig{
+			Name: "timpani",
+			Fields: graphql.Fields{
+				"isvaild": &graphql.Field{
+					Type: graphql.Boolean,
+				},
+				"errors": &graphql.Field{
+					Type: graphql.NewList(graphqlType.Errors),
+				},
+			},
+		},
+	),
+	Description: "Timpani Agent Controller",
+	Args: graphql.FieldConfigArgument{
+		"token": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"username": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"newpw": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+		isAdmin, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
+		if err != nil {
+			return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+		}
+		if !isAdmin && !isMaster {
+			// params.Args["group_id"] = int(groupID)
+			logger.Logger.Println("timpani / Not administrator: " + err.Error())
+		}
+		data, err := queryparser.TimapniServiceController(params.Args)
+		if err != nil {
+			logger.Logger.Println("timpani / available pool_list: " + err.Error())
+		}
+		return data, err
+	},
+}
