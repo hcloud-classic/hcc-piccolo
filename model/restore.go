@@ -16,6 +16,6 @@ type Restore struct {
 // RestoreData -
 type RestoreData struct {
 	Data struct {
-		Subnet Restore `json:"restore"`
+		Restore Restore `json:"restore"`
 	} `json:"data"`
 }
