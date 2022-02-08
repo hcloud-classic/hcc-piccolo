@@ -95,22 +95,7 @@ var TimapniMasterSync = graphql.Field{
 }
 
 var TimpaniBackup = graphql.Field{
-	Type: graphql.NewObject(
-		graphql.ObjectConfig{
-			Name: "CmdResponse",
-			Fields: graphql.Fields{
-				"runstatus": &graphql.Field{
-					Type: graphql.String,
-				},
-				"runuuid": &graphql.Field{
-					Type: graphql.String,
-				},
-				"errors": &graphql.Field{
-					Type: ErrorField,
-				},
-			},
-		},
-	),
+	Type:        graphqlType.TimpaniMasterSync,
 	Description: "Timpani Volume Backup API",
 	Args: graphql.FieldConfigArgument{
 		"token": &graphql.ArgumentConfig{
@@ -148,7 +133,7 @@ var TimpaniBackup = graphql.Field{
 }
 
 var Restore = graphql.Field{
-	Type:        RestoreType,
+	Type:        graphqlType.RestoreType,
 	Description: "Restore server",
 	Args: graphql.FieldConfigArgument{
 		"snapname": &graphql.ArgumentConfig{
@@ -183,36 +168,3 @@ var Restore = graphql.Field{
 		return queryparser.Restore(params.Args)
 	},
 }
-
-// RestoreType : Graphql object type of restore
-var RestoreType = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "Restore",
-		Fields: graphql.Fields{
-			"runstatus": &graphql.Field{
-				Type: graphql.String,
-			},
-			"runuuid": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"errors": &graphql.Field{
-				Type: ErrorField,
-			},
-		},
-	},
-)
-
-// ErrorField : Graphql object type of errors
-var ErrorField = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "ErrorField",
-		Fields: graphql.Fields{
-			"errcode": &graphql.Field{
-				Type: graphql.String,
-			},
-			"errmsg": &graphql.Field{
-				Type: graphql.String,
-			},
-		},
-	},
-)
