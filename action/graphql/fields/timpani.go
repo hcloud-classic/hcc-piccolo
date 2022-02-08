@@ -3,13 +3,11 @@ package fields
 import (
 	"hcc/piccolo/action/graphql/queryparser"
 	graphqlType "hcc/piccolo/action/graphql/type"
-	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/lib/usertool"
 	"hcc/piccolo/model"
 
 	"github.com/graphql-go/graphql"
-	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
 var TimpaniServiceMgmt = graphql.Field{
@@ -29,7 +27,14 @@ var TimpaniServiceMgmt = graphql.Field{
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 		isAdmin, isMaster, _, _, err := usertool.ValidateToken(params.Args, false)
 		if err != nil {
-			return model.TimpaniService{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
+			return model.TimpaniService{
+				Target: "",
+				Result: "",
+				Errors: model.ErrorField{
+					ErrMsg:  "Token Check Failed",
+					ErrCode: "1003",
+				},
+			}, nil
 		}
 		if !isAdmin && !isMaster {
 			// params.Args["group_id"] = int(groupID)
@@ -74,16 +79,16 @@ var TimpaniMasterSync = graphql.Field{
 		if err != nil {
 			// return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
 			retData := model.MasterSync{}
-			retData.Data.Errors.Errcode = ""
-			retData.Data.Errors.Errmsg = err.Error() + " Token Error"
+			retData.Data.Errors.ErrCode = ""
+			retData.Data.Errors.ErrMsg = err.Error() + " Token Error"
 			return retData, nil
 		}
 		if !isMaster {
 			// params.Args["group_id"] = int(groupID)
 			logger.Logger.Println("timpani / Not administrator: " + err.Error())
 			retData := model.MasterSync{}
-			retData.Data.Errors.Errcode = ""
-			retData.Data.Errors.Errmsg = err.Error() + " Not Master"
+			retData.Data.Errors.ErrCode = ""
+			retData.Data.Errors.ErrMsg = err.Error() + " Not Master"
 			return retData, nil
 		}
 		data, err := queryparser.TimpaniMasterSync(params.Args)
@@ -117,11 +122,14 @@ var TimpaniBackup = graphql.Field{
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 		_, _, _, groupID, err := usertool.ValidateToken(params.Args, false)
 		if err != nil {
-			// return model.PoolList{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLInvalidToken, err.Error())}, nil
-			retData := model.MasterSync{}
-			retData.Data.Errors.Errcode = ""
-			retData.Data.Errors.Errmsg = err.Error() + " Token Error"
-			return retData, nil
+			return model.Backup{
+				RunStatus: "",
+				RunUUID:   "",
+				Errors: model.ErrorField{
+					ErrMsg:  "Token Check Failed",
+					ErrCode: "1003",
+				},
+			}, nil
 		}
 		params.Args["group_id"] = int(groupID)
 		data, err := queryparser.TimpaniBackup(params.Args)
@@ -158,7 +166,7 @@ var Restore = graphql.Field{
 			return model.Restore{
 				RunStatus: "",
 				RunUUID:   "",
-				Errors: model.Error{
+				Errors: model.ErrorField{
 					ErrMsg:  "Token Check Failed",
 					ErrCode: "1003",
 				},

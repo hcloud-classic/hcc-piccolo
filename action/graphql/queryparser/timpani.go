@@ -87,13 +87,13 @@ func TimpaniMasterSync(args map[string]interface{}) (interface{}, error) {
 	return result, nil
 
 ERROR:
-	masterSync.Data.Errors.Errmsg = "TimpaniMasterSync Failed " + err.Error()
+	masterSync.Data.Errors.ErrMsg = "TimpaniMasterSync Failed " + err.Error()
 	// return model.Service{Target: target, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Failed")}, nil
 	return masterSync, err
 }
 
 func TimpaniBackup(args map[string]interface{}) (interface{}, error) {
-	var volumeBackup model.Backup
+	var volumeBackup model.BackupData
 	query := "query {\n" +
 		"	backup {\n" +
 		"		uuid\n" +
@@ -109,13 +109,13 @@ func TimpaniBackup(args map[string]interface{}) (interface{}, error) {
 	return result, nil
 
 ERROR:
-	volumeBackup.Data.Errors.Errmsg = "TimpaniBackup Failed " + err.Error()
+	volumeBackup.Data.Errors.ErrMsg = "TimpaniBackup Failed " + err.Error()
 	// return model.Service{Target: target, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Failed")}, nil
 	return volumeBackup, err
 }
 
 func TimpaniBackupScheduler(args map[string]interface{}) (interface{}, error) {
-	var volumeBackup model.Backup
+	var volumeBackup model.BackupData
 	query := "query {\n" +
 		"	backup {\n" +
 		"		uuid\n" +
@@ -131,7 +131,7 @@ func TimpaniBackupScheduler(args map[string]interface{}) (interface{}, error) {
 	return result, nil
 
 ERROR:
-	volumeBackup.Data.Errors.Errmsg = "TimpaniBackup Failed " + err.Error()
+	volumeBackup.Data.Errors.ErrMsg = "TimpaniBackup Failed " + err.Error()
 	// return model.Service{Target: target, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Failed")}, nil
 	return volumeBackup, err
 }
