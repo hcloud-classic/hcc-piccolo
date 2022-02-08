@@ -16,16 +16,15 @@ import (
 // DoHTTPRequest : Send http request to other modules with GraphQL query string.
 func DoHTTPRequest(moduleName string, needData bool, data interface{}, queryName string, query string) (interface{}, error) {
 	client := &http.Client{Timeout: time.Duration(config.Timpani.RequestTimeoutMs) * time.Millisecond}
-	url := "http://"
+	graphQLURL := "http://"
 	switch moduleName {
 	case "timpani":
-		url += config.Timpani.ServerAddress + ":" + strconv.Itoa(int(config.Timpani.ServerPort))
-
+		graphQLURL += config.Timpani.ServerAddress + ":" + strconv.Itoa(int(config.Timpani.ServerPort))
 	default:
 		return nil, errors.New("unknown module name")
 	}
-	url += "/graphql?query=" + queryURLEncoder(query)
-	req, err := http.NewRequest("GET", url, nil)
+	graphQLURL += "/graphql?query=" + queryURLEncoder(query)
+	req, err := http.NewRequest("GET", graphQLURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -61,6 +60,7 @@ func DoHTTPRequest(moduleName string, needData bool, data interface{}, queryName
 					if err != nil {
 						return nil, err
 					}
+
 					return masterSync, nil
 				case "backup":
 					backup := data.(model.Backup)
@@ -70,6 +70,7 @@ func DoHTTPRequest(moduleName string, needData bool, data interface{}, queryName
 					if err != nil {
 						return nil, err
 					}
+
 					return backup, nil
 				case "backupschduler":
 					backupSchduler := data.(model.BackupScheduler)
@@ -79,8 +80,18 @@ func DoHTTPRequest(moduleName string, needData bool, data interface{}, queryName
 					if err != nil {
 						return nil, err
 					}
-					return backupSchduler, nil
 
+					return backupSchduler, nil
+				case "restore":
+					restoreData := data.(model.RestoreData)
+					err = json.Unmarshal([]byte(result), &(restoreData))
+					// fmt.Println("retoreData: ", retoreData)
+
+					if err != nil {
+						return nil, err
+					}
+
+					return restoreData, nil
 				default:
 					return nil, errors.New("data is not supported for " + moduleName + " module")
 				}

@@ -1,12 +1,14 @@
 package queryparser
 
 import (
+	"fmt"
 	"hcc/piccolo/action/grpc/errconv"
 	"hcc/piccolo/action/http/graphqlreq"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"hcc/piccolo/model"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"innogrid.com/hcloud-classic/hcc_errors"
@@ -132,4 +134,20 @@ ERROR:
 	volumeBackup.Data.Errors.Errmsg = "TimpaniBackup Failed " + err.Error()
 	// return model.Service{Target: target, Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Failed")}, nil
 	return volumeBackup, err
+}
+
+func Restore(args map[string]interface{}) (interface{}, error) {
+	snapname, _ := args["snapname"].(string)
+	usetype, _ := args["usetype"].(string)
+	nodetype, _ := args["nodetype"].(string)
+	isboot, _ := args["isboot"].(bool)
+	token, _ := args["token"].(string)
+
+	var restoreData model.RestoreData
+	query := "query { restore (snapname: \"" + snapname + "\", usetype: \"" + usetype + "\", nodetype: \"" + nodetype + "\", " +
+		"isboot: " + strconv.FormatBool(isboot) + ", token: \"" + token + "\")" +
+		"{ runstatus runuuid errors { errmsg errcode } } } }"
+	fmt.Println(query)
+
+	return graphqlreq.DoHTTPRequest("timpani", true, restoreData, "restore", query)
 }

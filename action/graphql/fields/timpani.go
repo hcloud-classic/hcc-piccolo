@@ -147,6 +147,61 @@ var TimpaniBackup = graphql.Field{
 	},
 }
 
+var Restore = graphql.Field{
+	Type:        RestoreType,
+	Description: "Restore server",
+	Args: graphql.FieldConfigArgument{
+		"snapname": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"usetype": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"nodetype": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"isboot": &graphql.ArgumentConfig{
+			Type: graphql.Boolean,
+		},
+		"token": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+	},
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+		_, _, _, _, err := usertool.ValidateToken(params.Args, false)
+		if err != nil {
+			return model.Restore{
+				RunStatus: "",
+				RunUUID:   "",
+				Errors: model.Error{
+					ErrMsg:  "Token Check Failed",
+					ErrCode: "1003",
+				},
+			}, nil
+		}
+
+		return queryparser.Restore(params.Args)
+	},
+}
+
+// RestoreType : Graphql object type of restore
+var RestoreType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "Restore",
+		Fields: graphql.Fields{
+			"runstatus": &graphql.Field{
+				Type: graphql.String,
+			},
+			"runuuid": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"errors": &graphql.Field{
+				Type: ErrorField,
+			},
+		},
+	},
+)
+
 // ErrorField : Graphql object type of errors
 var ErrorField = graphql.NewObject(
 	graphql.ObjectConfig{
@@ -155,7 +210,7 @@ var ErrorField = graphql.NewObject(
 			"errcode": &graphql.Field{
 				Type: graphql.String,
 			},
-			"errtext": &graphql.Field{
+			"errmsg": &graphql.Field{
 				Type: graphql.String,
 			},
 		},
