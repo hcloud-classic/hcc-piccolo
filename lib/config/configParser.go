@@ -319,11 +319,6 @@ func parseTimpani() {
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
-
-	Timpani.RequestRetry, err = config.TimpaniConfig.Int("timpani_request_retry")
-	if err != nil {
-		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
-	}
 }
 
 func parseUser() {
@@ -334,29 +329,6 @@ func parseUser() {
 
 	User = user{}
 	User.TokenExpirationTimeMinutes, err = config.UserConfig.Int("token_expiration_time_minutes")
-	if err != nil {
-		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
-	}
-}
-
-func parserTimpani() {
-	config.TimpaniConfig = conf.Get("timpani")
-	if config.TimpaniConfig == nil {
-		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, "no timpani section").Fatal()
-	}
-
-	Timpani = timpani{}
-	Timpani.ServerAddress, err = config.TimpaniConfig.String("timpani_server_address")
-	if err != nil {
-		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
-	}
-
-	Timpani.ServerPort, err = config.TimpaniConfig.Int("timpani_server_port")
-	if err != nil {
-		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
-	}
-
-	Timpani.RequestTimeoutMs, err = config.TimpaniConfig.Int("timpani_request_timeout_ms")
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
@@ -381,5 +353,5 @@ func Init() {
 	parsePiano()
 	parseTuba()
 	parseUser()
-	parserTimpani()
+	parseTimpani()
 }
