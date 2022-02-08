@@ -32,7 +32,9 @@ type Backup struct {
 // BackupScheduler : CmdResponse
 type BackupScheduler struct {
 	Data struct {
-		Status string     `json:"status"`
-		Errors ErrorField `json:"errors"`
+		BackupScheduler struct {
+			Status string     `json:"status"`
+			Errors ErrorField `json:"errors"`
+		} `json:"backupScheduler"`
 	} `json:"data"`
 }
