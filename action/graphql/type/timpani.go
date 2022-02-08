@@ -7,7 +7,7 @@ import (
 // TimapniService : GraphQL type of TimapniService
 var TimapniService = graphql.NewObject(
 	graphql.ObjectConfig{
-		Name: "timpani",
+		Name: "TimapniService",
 		Fields: graphql.Fields{
 			"target": &graphql.Field{
 				Type: graphql.String,
@@ -25,7 +25,7 @@ var TimapniService = graphql.NewObject(
 // TimpaniMasterSync : GraphQL type of TimpaniMasterSync
 var TimpaniMasterSync = graphql.NewObject(
 	graphql.ObjectConfig{
-		Name: "timpani",
+		Name: "TimpaniMasterSync",
 		Fields: graphql.Fields{
 			"target": &graphql.Field{
 				Type: graphql.String,
