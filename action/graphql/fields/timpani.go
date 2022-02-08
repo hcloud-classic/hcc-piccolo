@@ -43,7 +43,7 @@ var TimpaniServiceMgmt = graphql.Field{
 	},
 }
 
-var TimapniMasterSync = graphql.Field{
+var TimpaniMasterSync = graphql.Field{
 	Type: graphql.NewObject(
 		graphql.ObjectConfig{
 			Name: "timpani",
