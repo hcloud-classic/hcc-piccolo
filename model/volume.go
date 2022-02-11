@@ -19,6 +19,7 @@ type Volume struct {
 	Errors     []errconv.PiccoloHccError `json:"errors"`
 	LunNum     int                       `json:"lun_num"`
 	Pool       string                    `json:"pool"`
+	GroupID    int                       `json:"group_id"`
 	State      string                    `json:"state"`
 }
 
