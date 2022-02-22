@@ -1,13 +1,29 @@
 package config
 
 import (
+	"hcc/piccolo/lib/logger"
+
 	"github.com/Terry-Mao/goconf"
 	"innogrid.com/hcloud-classic/hcc_errors"
 )
 
-var conf = goconf.New()
-var config = piccoloConfig{}
-var err error
+var (
+	conf   = goconf.New()
+	config = piccoloConfig{}
+	err    error
+)
+
+func parseRsakey() {
+	config.RsakeyConfig = conf.Get("rsakey")
+	if config.RsakeyConfig == nil {
+		logger.Logger.Panicln("no rsakey section")
+	}
+
+	Rsakey.PrivateKeyFile, err = config.RsakeyConfig.String("private_key_file")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+}
 
 func parseMysql() {
 	config.MysqlConfig = conf.Get("mysql")
@@ -17,11 +33,6 @@ func parseMysql() {
 
 	Mysql = mysql{}
 	Mysql.ID, err = config.MysqlConfig.String("id")
-	if err != nil {
-		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
-	}
-
-	Mysql.Password, err = config.MysqlConfig.String("password")
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
@@ -49,7 +60,6 @@ func parseMysql() {
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
-
 }
 
 func parseGrpc() {
@@ -96,6 +106,39 @@ func parseGraphQL() {
 	GraphQL.SubscriptionInterval, err = config.GraphQLConfig.Int("subscription_interval_ms")
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
+	}
+}
+
+func parseHorn() {
+	config.HornConfig = conf.Get("horn")
+	if config.HornConfig == nil {
+		logger.Logger.Panicln("no horn section")
+	}
+
+	Horn = horn{}
+	Horn.ServerAddress, err = config.HornConfig.String("horn_server_address")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	Horn.ServerPort, err = config.HornConfig.Int("horn_server_port")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	Horn.ConnectionTimeOutMs, err = config.HornConfig.Int("horn_connection_timeout_ms")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	Horn.ConnectionRetryCount, err = config.HornConfig.Int("horn_connection_retry_count")
+	if err != nil {
+		logger.Logger.Panicln(err)
+	}
+
+	Horn.RequestTimeoutMs, err = config.HornConfig.Int("horn_request_timeout_ms")
+	if err != nil {
+		logger.Logger.Panicln(err)
 	}
 }
 
@@ -276,11 +319,6 @@ func parseTimpani() {
 	if err != nil {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
-
-	Timpani.RequestRetry, err = config.TimpaniConfig.Int("timpani_request_retry")
-	if err != nil {
-		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
-	}
 }
 
 func parseUser() {
@@ -302,9 +340,11 @@ func Init() {
 		hcc_errors.NewHccError(hcc_errors.PiccoloInternalInitFail, err.Error()).Fatal()
 	}
 
+	parseRsakey()
 	parseMysql()
 	parseGrpc()
 	parseGraphQL()
+	parseHorn()
 	parseFlute()
 	parseCello()
 	parseHarp()
@@ -313,4 +353,5 @@ func Init() {
 	parsePiano()
 	parseTuba()
 	parseUser()
+	parseTimpani()
 }

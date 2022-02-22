@@ -64,7 +64,7 @@ func Login(args map[string]interface{}) (interface{}, error) {
 	}
 
 	// Given password is hashed password with bcrypt
-	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(dbPassword))
+	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(strings.ToLower(dbPassword)))
 	if err != nil {
 		return model.Token{Token: "", Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLLoginFailed, "user not found or password mismatch")}, nil
 	}

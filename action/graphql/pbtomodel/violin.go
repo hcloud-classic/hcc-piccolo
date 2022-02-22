@@ -72,19 +72,23 @@ func PbServerNodeToModelServerNode(serverNode *pb.ServerNode, node *pb.Node,
 		Errors:     errconv.HccErrorToPiccoloHccErr(*hcc_errors.NewHccErrorStack()),
 	}
 
+	var modelNode *model.Node
 	if node != nil {
-		modelServerNode.RackNumber = int(node.RackNumber)
+		modelNode = PbNodeToModelNode(node, nil)
+		modelServerNode.NodeName = modelNode.NodeName
+		modelServerNode.NICSpeed = modelNode.NICSpeed
+		modelServerNode.RackNumber = modelNode.RackNumber
 	}
 
 	if node != nil && nodeDetail != nil {
 		modelServerNode.CPUProcessors = len(nodeDetailJSON.CPUs)
-		modelServerNode.CPUCores = int(node.CPUCores)
+		modelServerNode.CPUCores = modelNode.CPUCores
 		var cpuThreads = 0
 		for _, cpu := range nodeDetailJSON.CPUs {
 			cpuThreads += cpu.Threads
 		}
 		modelServerNode.CPUThreads = cpuThreads
-		modelServerNode.Memory = int(node.Memory)
+		modelServerNode.Memory = modelNode.Memory
 	}
 
 	if hccGrpcErrStack != nil {

@@ -1,6 +1,7 @@
 package mutationparser
 
 import (
+	"fmt"
 	"hcc/piccolo/action/graphql/pbtomodel"
 	"hcc/piccolo/action/graphql/queryparser"
 	"hcc/piccolo/action/grpc/client"
@@ -328,4 +329,149 @@ func DeleteServerNode(args map[string]interface{}) (interface{}, error) {
 	modelServerNode := pbtomodel.PbServerNodeToModelServerNode(resDeleteServerNode.ServerNode, nil, nil, resDeleteServerNode.HccErrorStack)
 
 	return *modelServerNode, nil
+}
+
+// CreatePermissionKey : oboe to cello
+func CreatePermissionKey(args map[string]interface{}) (interface{}, error) {
+	type pemKey struct {
+		ServerUUID string                    `json:"server_uuid"`
+		Token      string                    `json:"token"`
+		Errors     []errconv.PiccoloHccError `json:"errors"`
+	}
+
+	tokenString, tokenStringOk := args["token"].(string)
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	var resCreatePemkey *pb.ResCreatePemKey
+	var reqCreatePemkey pb.ReqCreatePemKey
+	var err error
+
+	if serverUUIDOk {
+		reqCreatePemkey.ServerUUID = serverUUID
+	} else {
+		return &pemKey{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Params : Server UUID Empty!")}, nil
+	}
+	if tokenStringOk {
+		reqCreatePemkey.Token = tokenString
+	} else {
+		return &pemKey{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Params : Token Empty!")}, nil
+	}
+
+	if reqCreatePemkey.ServerUUID != "" {
+		resCreatePemkey, err = client.RC.CreateServerPemKey(&reqCreatePemkey)
+		if err != nil {
+			err2 := dao.WriteServerAction(
+				serverUUID,
+				"violin / create_pemkey ",
+				"Failed",
+				err.Error(),
+				tokenString)
+			if err2 != nil {
+				logger.Logger.Println("WriteServerAction(): " + err2.Error())
+			}
+
+			return &pemKey{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+	} else {
+		err2 := dao.WriteServerAction(
+			serverUUID,
+			"violin / create_pemkey ",
+			"Failed",
+			"ServerUUID Empty",
+			tokenString)
+		if err2 != nil {
+			logger.Logger.Println("WriteServerAction(): " + err2.Error())
+		}
+
+		return &pemKey{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "ServerUUID Empty")}, nil
+	}
+
+	errStr := ""
+
+	err = dao.WriteServerAction(
+		serverUUID,
+		"violin / create_pemkey ",
+		resCreatePemkey.Result,
+		errStr,
+		tokenString)
+	if err != nil {
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
+	}
+	data := map[string]interface{}{
+		"server_uuid": resCreatePemkey.ServerUUID,
+		"result":      resCreatePemkey.Result,
+	}
+
+	return data, nil
+}
+
+// GetPermissionKey : oboe to cello
+func GetPermissionKey(args map[string]interface{}) (interface{}, error) {
+	type pemKey struct {
+		ServerUUID string                    `json:"server_uuid"`
+		Token      string                    `json:"token"`
+		Errors     []errconv.PiccoloHccError `json:"errors"`
+	}
+
+	tokenString, tokenStringOk := args["token"].(string)
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	var resGetPemKey *pb.ResGetPemKey
+	var reqGetPemKey pb.ReqGetPemKey
+	var err error
+
+	if serverUUIDOk {
+		reqGetPemKey.ServerUUID = serverUUID
+	} else {
+		return &pemKey{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Params : Server UUID Empty!")}, nil
+	}
+	if !tokenStringOk {
+		return &pemKey{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGraphQLArgumentError, "Params : Token Empty!")}, nil
+	}
+
+	if reqGetPemKey.ServerUUID != "" {
+		resGetPemKey, err = client.RC.GetServerPemKey(&reqGetPemKey)
+		if err != nil {
+			fmt.Println("GetServerPemKey Failed")
+			err2 := dao.WriteServerAction(
+				serverUUID,
+				"violin / get_pemkey ",
+				"Failed",
+				err.Error(),
+				tokenString)
+			if err2 != nil {
+				logger.Logger.Println("WriteServerAction(): " + err2.Error())
+			}
+
+			return &pemKey{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, err.Error())}, nil
+		}
+	} else {
+		err2 := dao.WriteServerAction(
+			serverUUID,
+			"violin / get_pemkey ",
+			"Failed",
+			"ServerUUID Empty",
+			tokenString)
+		if err2 != nil {
+			logger.Logger.Println("WriteServerAction(): " + err2.Error())
+		}
+
+		return &pemKey{Errors: errconv.ReturnHccErrorPiccolo(hcc_errors.PiccoloGrpcRequestError, "ServerUUID Empty")}, nil
+	}
+
+	errStr := ""
+
+	err = dao.WriteServerAction(
+		serverUUID,
+		"violin / get_pemkey ",
+		"Get Permission Key",
+		errStr,
+		tokenString)
+	if err != nil {
+		logger.Logger.Println("WriteServerAction(): " + err.Error())
+	}
+	data := map[string]interface{}{
+		"server_uuid": resGetPemKey.ServerUUID,
+		"pemkey":      resGetPemKey.PemKey,
+	}
+
+	return data, nil
 }

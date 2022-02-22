@@ -1,13 +1,14 @@
 package http
 
 import (
-	"github.com/graphql-go/handler"
 	"hcc/piccolo/action/graphql"
 	"hcc/piccolo/action/http/subscription"
 	"hcc/piccolo/lib/config"
 	"hcc/piccolo/lib/logger"
 	"net/http"
 	"strconv"
+
+	"github.com/graphql-go/handler"
 )
 
 func initGraphQLServer(isProduction bool) {
@@ -26,7 +27,7 @@ func initGraphQLServer(isProduction bool) {
 
 	logger.Logger.Println("Opening " + serveType + " GraphQL server on port " + strconv.Itoa(listenPort) + "...")
 
-	var graphqlHandler = handler.New(&handler.Config{
+	graphqlHandler := handler.New(&handler.Config{
 		Schema:     &graphql.Schema,
 		Pretty:     true,
 		GraphiQL:   !isProduction && !config.GraphQL.DevInternalUsePlayground,

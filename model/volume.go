@@ -9,7 +9,7 @@ import (
 type Volume struct {
 	UUID       string                    `json:"uuid"`
 	Size       int                       `json:"size"`
-	Filesystem string                    `json:"filesystem"` //os
+	Filesystem string                    `json:"filesystem"` // os
 	ServerUUID string                    `json:"server_uuid"`
 	UseType    string                    `json:"use_type"` //
 	UserUUID   string                    `json:"user_uuid"`
@@ -19,6 +19,8 @@ type Volume struct {
 	Errors     []errconv.PiccoloHccError `json:"errors"`
 	LunNum     int                       `json:"lun_num"`
 	Pool       string                    `json:"pool"`
+	GroupID    int                       `json:"group_id"`
+	State      string                    `json:"state"`
 }
 
 // VolumeList : Contain list of volumes
